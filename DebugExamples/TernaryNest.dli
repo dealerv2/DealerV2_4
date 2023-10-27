@@ -1,0 +1,35 @@
+generate 2000
+produce 1
+seed 13
+title " Checking how to nest ternary tests "
+# In C and Perl you can nest the ternary almost indefinitely as in
+# Answ =  ( cond1 ) ? Var1 :
+#         ( cond2 ) ? Var2 :
+#         ....
+#         ( condn ) ? Varn : DefaultVar
+# Versions of DealerV2 prior to version 4.0.0 (and presumably versions of the original dealer also) 
+# could not handle nesting of the ?: beyond two levels in effect. See e.g. the code for the max of 4 values next.
+
+# This was due to the %left ASSOCIATIVITY assigned to the COLON and QUERY tokens in the dealyacc.y file.
+# JGM changed this associativity in version 4.0.0 to %right, the same as for C and Perl. 
+# Nesting now works properly; see the trivial example below. 
+#
+# To find the maximum of 4 Values you can do: (Note this returns the value, but not the name of the longest suit)
+#ls =(  ( spades(west) >= hearts(west)   ? spades(west)  : hearts(west) ) >=    // if The len of longest Major >=
+#       ( (diamond(west) >= clubs(west)) ? diamond(west) : clubs(west)  )  ?    // the len of the longest Minor
+#       ( spades(west) >= hearts(west) ? spades(west) : hearts(west) ) :        // set ls to the len of longest Major
+#       ( (diamond(west) >= clubs(west) ) ? diamond(west) : clubs(west) ) )     // else set ls to len of longest Minor
+
+# change the value of tstA in the next line, or make it a script var ($0 .. $9) to see the effect
+tstA = 2
+ResA = ( tstA == 1 ) ? 10 :
+       ( tstA == 2 ) ? 20 :
+       ( tstA == 3 ) ? 30 : -1 
+      
+condition 1
+
+action 
+   printrpt("tstA=",tstA,ResA,"Hearts - Spades =",(hearts(west)-spades(west)) )
+
+
+

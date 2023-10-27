@@ -1,0 +1,32 @@
+generate 2000
+produce 1
+seed 13
+title " Checking how to nest ternary tests ; Compare brute force with Intermediate Vars "
+# In C and Perl you can nest the ternary almost indefinitely as in
+# Answ =  ( cond1 ) ? Var1 :
+#         ( cond2 ) ? Var2 :
+#         ....
+#         ( condn ) ? Varn : DefaultVar
+# In Dealer Even this simple statement gives the wrong result
+# # Answ = ( cond1 ) ? Var1 :
+#          ( cond2 ) ? Var2 : Default
+# If cond1 is false it always produces Default as the value of Answ
+# However you CAN do some Nesting.
+# To find the maximum of 4 Values you can do: (Note this returns the value, but not the name of the longest suit)
+#ls =(  ( spades(west) >= hearts(west)   ? spades(west)  : hearts(west) ) >=    // if The len of longest Major >=
+#       ( (diamond(west) >= clubs(west)) ? diamond(west) : clubs(west)  )  ? //    The len of the longest Minor
+#       ( spades(west) >= hearts(west) ? spades(west) : hearts(west) ) :       // set ls to the len of longest Major
+#       ( (diamond(west) >= clubs(west) ) ? diamond(west) : clubs(west) ) )     // else set ls to len of longest Minor
+tstD = hearts(west)-spades(west)
+tstA = $0
+ResA = ( tstA == 1 ) ? 10 :
+      ( tstA == 2 ) ? 20 :
+      ( tstA == 3 ) ? 30 : -1 
+      
+condition 1
+
+action 
+   printrpt("tstA=",tstA,ResA,"tstD=",tstD)
+
+
+

@@ -1,0 +1,56 @@
+dealeval_subs.c:97:        hs->topcards[s][0] = LTC_VOID_WEIGHT;
+dealeval_subs.c:98:        hs->topcards[s][1] = LTC_VOID_WEIGHT;
+dealeval_subs.c:99:        hs->topcards[s][2] = LTC_VOID_WEIGHT;
+dealeval_subs.c:100://        JGMDPRT(8,"Init hs->topcards[%d][0,1,2]=t%d,%d,%d\n ",s,(hs->topcards[s][0],hs->topcards[s][1],hs->topcards[s][2] );
+dealeval_subs.c:113:  if      (hs->topcards[suit][0] == LTC_VOID_WEIGHT) {hs->topcards[suit][0] = weight;}
+dealeval_subs.c:114:  else if (hs->topcards[suit][0] < weight) {  /* latest card has higher rank than previous highest move them all down */
+dealeval_subs.c:115:           hs->topcards[suit][2]= hs->topcards[suit][1];
+dealeval_subs.c:116:           hs->topcards[suit][1]= hs->topcards[suit][0];
+dealeval_subs.c:117:           hs->topcards[suit][0]= weight;}
+dealeval_subs.c:118:  else if (hs->topcards[suit][1] == LTC_VOID_WEIGHT) {hs->topcards[suit][1] = weight;}
+dealeval_subs.c:119:  else if (hs->topcards[suit][1] < weight) {
+dealeval_subs.c:120:           hs->topcards[suit][2]= hs->topcards[suit][1];
+dealeval_subs.c:121:           hs->topcards[suit][1]= weight; }
+dealeval_subs.c:122:  else if (hs->topcards[suit][2] == LTC_VOID_WEIGHT) {hs->topcards[suit][2] = weight;}
+dealeval_subs.c:123:  else if (hs->topcards[suit][2] < weight) {hs->topcards[suit][2]= weight; }
+dealeval_subs.c:125:  JGMDPRT(9, "Top Cards Weights=%d, %d, %d\n",hs->topcards[suit][0],hs->topcards[suit][1],hs->topcards[suit][2]);
+dealeval_subs.c:134:  hs->hs_totalltc = 0;
+dealeval_subs.c:136:    ltc_weight = hs->topcards[s][0] + hs->topcards[s][1] + hs->topcards[s][2];
+dealeval_subs.c:138:   JGMDPRT(9,  "debug: countltc:: SUIT=%i, hs->topcards=%i  %i  %i Tot Weight=%d\n",
+dealeval_subs.c:139:               s, hs->topcards[s][0], hs->topcards[s][1], hs->topcards[s][2], ltc_weight);
+dealeval_subs.c:198:                  dbgtops(hs->topcards);
+dealeval_subs.c:202:    hs->hs_ltc[s] = ltc_suit;
+dealeval_subs.c:203:    hs->hs_totalltc += ltc_suit;
+dealeval_subs.c:204:    hs->hs_loser[s] = losers_suit ;
+dealeval_subs.c:205:    hs->hs_totalloser += losers_suit ;
+dealeval_subs.c:207:    JGMDPRT(9, "countltc::  For Suit#[%d]:: suit ltc= %d  totalltc=%i\n",s, ltc_suit, hs->hs_totalltc);
+dealeval_subs.c:208:    JGMDPRT(9,  "countltc::                 Old Losers=%d  TotalLosers=%d\n", losers_suit,  hs->hs_totalloser);
+dealeval_subs.c:211:  return hs->hs_totalltc;
+dealeval_subs.c:288:    hs->hs_seat = player; /* make it easy to deduce player given the ptr */
+dealeval_subs.c:306:      hs->hs_length[s]++;
+dealeval_subs.c:307:      hs->hs_points[s]    += points[r];  /* JGM hcp in this suit */
+dealeval_subs.c:308:      hs->hs_totalpoints  += points[r];  /* JGM total hcp in the hand */
+dealeval_subs.c:309:      hs->hs_control[s]   += CardAttr_RO[idxControls][r]; /* JGM Add */
+dealeval_subs.c:310:      hs->hs_totalcontrol += CardAttr_RO[idxControls][r];
+dealeval_subs.c:312:                  s,r,hs->hs_points[s],hs->hs_totalpoints,hs->hs_control[s], hs->hs_totalcontrol ) ;
+dealeval_subs.c:317:                          s,r,points[r], hs->hs_points[s], hs->hs_totalpoints );
+dealeval_subs.c:319:                          s,r, CardAttr_RO[idxControls][r],hs->hs_control[s],hs->hs_totalcontrol);
+dealeval_subs.c:326:        hs->hs_counts[t][s]   += tblPointcount[t][r]; /* tblPointcount init at compile time. see dealglobals.c */
+dealeval_subs.c:327:        hs->hs_totalcounts[t] += tblPointcount[t][r]; /* add to total and to suit at same time. Keep in sync */
+dealeval_subs.c:330:             fprintf(stderr,"%d, %d %d \n", t, tblPointcount[t][r], hs->hs_counts[t][s]);
+dealeval_subs.c:342:    hs->square_hand = 0 ;
+dealeval_subs.c:343:    if  (( hs->hs_length[0] == 3 ||  hs->hs_length[0] == 4 ) &&
+dealeval_subs.c:344:         ( hs->hs_length[1] == 3 ||  hs->hs_length[1] == 4 ) &&
+dealeval_subs.c:345:         ( hs->hs_length[2] == 3 ||  hs->hs_length[2] == 4 ) &&
+dealeval_subs.c:346:         ( hs->hs_length[3] == 3 ||  hs->hs_length[3] == 4 ) )
+dealeval_subs.c:347:         { hs->square_hand = 1 ; }
+dealeval_subs.c:349:      JGMDPRT(7,"Hand tot HCP=%d PlayerName=%s\n",hs->hs_totalpoints, player_name[player] );
+dealeval_subs.c:350:      JGMDPRT(7,"totCounts[%d]=%d PlayerName=%s\n", idxHcp, hs->hs_totalcounts[idxHcp], player_name[player]  );
+dealeval_subs.c:353:    hs->hs_bits = distrbitmaps[hs->hs_length[SUIT_CLUB]]
+dealeval_subs.c:354:                                 [hs->hs_length[SUIT_DIAMOND]]
+dealeval_subs.c:355:                                 [hs->hs_length[SUIT_HEART]]
+dealeval_subs.c:356:                                 [hs->hs_length[SUIT_SPADE]];
+dealeval_subs.c:357:      JGMDPRT(8, "HS Distr Bits for %c= %04X : [%d] \n", "nesw"[player], hs->hs_bits, hs->hs_bits );
+dealeval_subs.c:361:            hs->hs_loser[0],hs->hs_loser[1],hs->hs_loser[2],hs->hs_loser[3],hs->hs_totalloser);
+dealeval_subs.c:363:            hs->hs_control[0],hs->hs_control[1],hs->hs_control[2],hs->hs_control[3],hs->hs_totalcontrol);
+dealeval_subs.c:365:            hs->hs_ltc[0],hs->hs_ltc[1],hs->hs_ltc[2],hs->hs_ltc[3], hs->hs_totalltc);
