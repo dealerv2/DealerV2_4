@@ -96,7 +96,7 @@ struct mmap_ptrs_st {                     //  Collect all the pointers to the pa
    USER_VALUES_k  *nsres, *ewres ;
    UEVAL_CACHE_k  *cache ;
    HANDSTAT_k     *phs[4]; // pointers to copy of each hand's handstat_st in the MMAP area; saves having to use dldata ptr */
-   deal           *p_deal;
+   DEAL52_k       *p_deal;
 } ;
 struct mmap_off_st {                      // Pointer = BasePtr + Offset ; mostly for debugging.
    off_t    header;

@@ -148,9 +148,10 @@
 %token <y_distr> DISTR
 %token <y_distr> DISTR_OR_NUMBER
 
-  // :JGM: added next 2 lines: DECNUM= nn.mm; side = NS or EW
+  // :JGM: added next 3 lines: DECNUM= nn.mm; side = NS or EW; VULNERABILITY = ns ew none both all (lower case only)
 %token <y_int> DECNUM
 %token <y_int> SIDE
+%token <y_int> VULNERABILITY
 
 %type <y_tree>  expr
 %type <y_int> number
@@ -425,8 +426,9 @@ expr
        | DDS '(' compass ',' NOTRUMPS ')'
                 { $$ = newtree(TRT_DDS, NIL, NIL, $3,  SUIT_NT); }
        | PAR '(' side ')'
-                { $$ = newtree(TRT_PAR, NIL, NIL, $3,  0);  /* PAR needs all 20 results. Forces mode=2. */ }
-      // PAR ( side , both|none|NS|EW ) will need to resurrect the VULNERABLE token that is now just a flex action.
+                { $$ = newtree(TRT_PAR, NIL, NIL, $3,  -1);  /* PAR Forces mode=2. -1 means VULN set by -P switch */ }
+       | PAR '(' side ',' VULNERABILITY ')' 
+                { $$ = newtree(TRT_PAR, NIL, NIL, $3,  $5);  /*  PAR Forces mode=2. VULN per call */ }
 
         | USEREVAL '(' number ',' side ',' number ')'
                { $$ = newquery( $3 , $5 , -1 , -1 , $7 ) ; }
@@ -791,39 +793,41 @@ void predeal_holding(int compass, char *holding) {
 } /* end predeal_holding() */
 
   // There does not seem to be any code to actually generate bias deals only to handle the parsing.
+  // There does not seem to be any code to actually generate bias deals only to handle the parsing.
 
-extern int biasdeal[4][4];
-extern char*player_name[4];
+extern int   bias_suits[4][4];
+extern char *player_name[4];
 extern char *suit_name[4];
 
 
 int bias_len(int compass){
   return
-    TRUNCZ(biasdeal[compass][0])+
-    TRUNCZ(biasdeal[compass][1])+
-    TRUNCZ(biasdeal[compass][2])+
-    TRUNCZ(biasdeal[compass][3]);
+    TRUNCZ(bias_suits[compass][0])+
+    TRUNCZ(bias_suits[compass][1])+
+    TRUNCZ(bias_suits[compass][2])+
+    TRUNCZ(bias_suits[compass][3]);
 } /* end bias_len() */
 
 int bias_totsuit(int suit){
   return
-    TRUNCZ(biasdeal[0][suit])+
-    TRUNCZ(biasdeal[1][suit])+
-    TRUNCZ(biasdeal[2][suit])+
-    TRUNCZ(biasdeal[3][suit]);
+    TRUNCZ(bias_suits[0][suit])+
+    TRUNCZ(bias_suits[1][suit])+
+    TRUNCZ(bias_suits[2][suit])+
+    TRUNCZ(bias_suits[3][suit]);
 } /* end bias_totsuit() */
 
  /* routine to handle alternate predeal specs  of form spades(north)==4 */
  /* JGM says: What? it checks for errors but there is no code in the main loop that takes this into account */
 void bias_deal(int suit, int compass, int length){
-  if(biasdeal[compass][suit]!=-1){
+  bias_deal_wanted = 1; /* global var */
+  if(bias_suits[compass][suit]!=-1){
     char s[256];
     sprintf(s,"%s's %s suit has length already set to %d",
       player_name[compass],suit_name[suit],
-      biasdeal[compass][suit]);
+      bias_suits[compass][suit]);
     yyerror( s);
   }
-  biasdeal[compass][suit]=length;
+  bias_suits[compass][suit]=length;
   if(bias_len(compass)>13){
       char s[256];
     sprintf(s,"Suit lengths too long for %s",
@@ -836,7 +840,6 @@ void bias_deal(int suit, int compass, int length){
     yyerror( s);
   }
 }  /* end bias_deal() */
-
 
 /* JGM added Code for the CSV Report action */
 struct csvterm_st *new_csvterm (struct tree *tr1, char *str1, int hand_mask,  int trix_mask, struct csvterm_st *csv1) {

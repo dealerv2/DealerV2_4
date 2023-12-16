@@ -1,0 +1,10 @@
+generate   100000000
+produce    5
+seed 283
+title "Bias requirements for all four hands"
+predeal hearts(west)==6  club(east)==4 spade(east)==2
+predeal spades(north)==3 spades(south) == 5
+
+action
+		  printrpt(deal, "Par for NS Vul NS=", par(NS,ns), "Par for both Vul EW=",par(EW,both) ),
+

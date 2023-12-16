@@ -1,0 +1,8 @@
+generate 100
+produce   10
+seed  919
+title "Minimal Input File seed=919"
+
+# No condition
+
+action printrpt( deal ) 

@@ -1,0 +1,17 @@
+# File ScriptFD.dls by JGM
+title " Simple Scripting Inside and Outside of Francois Shapes  "
+# you can run this example with :: dealerv2 -2 hcp -1 north -9 ' (55xx):d>c or h>s ' -5 20 FDScript_s233.dls
+
+generate 2000
+produce 8
+seed 233
+action
+    printoneline
+
+condition (
+     (shape{$1, $9 } )   //OK FDShape spec
+  && ($2($1) <= $5)		//OK hcp(east) <= 12
+ )
+
+
+

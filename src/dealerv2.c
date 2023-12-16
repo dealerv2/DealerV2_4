@@ -18,6 +18,8 @@
 // 2023/03/20  2.6.0  Added Library mode, to use Richard Pavlicek's database of 10 Million plus solved deals.
 // 2023/08/04  3.0.0  New version number for new GCC compiler version incompatible with old. Minor title fix
 // 2023/08/20  3.0.2  Redo rplib_fix. Create rp_err_check etc. 
+// 2023/11/03  4.0.1  Implement Library Modules for common functions 
+// 2023/12/10  4.2.0  Implement the bias deal functionality
 //
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
@@ -32,6 +34,7 @@
 #include "../src/UsageMsg.h"
 #include "../include/dealdebug_subs.h"
 #include "../include/dbgprt_macros.h"
+#include "../include/libVersion.h"
 
 #define FATAL_OPTS_ERR -10
 /* next file for some subs that main uses to setup runtime and debug statements */
@@ -57,12 +60,14 @@ int main (int argc, char **argv) {
     void finalize_options ( struct options_st *opt_ptr) ;
     void init_runtime(struct options_st *opts) ;
     void init_cards() ;
+    int  deal_cards(int dmode, DEAL52_k d) ; 
 
 
     /* opts collects all cmd line parms in one place. Vars from previous versions of Dealer kept also so some duplication */
     struct options_st *opts ;
     struct param_st   *scr_varp ; /* pointer to script variables struct */
 
+	 int deal_rc = 0 ; 
     int keephand ;
 
     struct timeval tvstart, tvstop;
@@ -128,61 +133,54 @@ int main (int argc, char **argv) {
   yyparse ();
 
 #ifdef JGMDBG   /* print several results from the parsing phase */
-  if (jgmDebug >= 3) {
-    fprintf(stderr, " After yyparse:: maxproduce=%d, maxgenerate=%d, maxdealer=%d, maxvuln=%d, Opener=%c, Title=%s\n",
+    JGMDPRT(3, " After yyparse:: maxproduce=%d, maxgenerate=%d, maxdealer=%d, maxvuln=%d, Opener=%c, Title=%s\n",
                      maxproduce,    maxgenerate,    maxdealer,      maxvuln,   opc_opener, title );
-    fprintf(stderr, "Showing yyparse generated Decision tree, varlist, actionlist  \n");
-    fprintf(stderr, "Decision Tree starts at %p with type %d \n", (void *)decisiontree, decisiontree->tr_type);
+    JGMDPRT(3, "Showing yyparse generated Decision tree, varlist, actionlist  \n");
+    JGMDPRT(3, "Decision Tree starts at %p with type %d \n", (void *)decisiontree, decisiontree->tr_type);
     /* Expression List is only used by the printes action. Prob Not necessary to show it. */
-    showdecisiontree(decisiontree);
-    showvarlist(vars);  fprintf(stderr, "\nVARLIST DONE \n");
-    showactionlist(actionlist); fprintf(stderr, "\nACTION List DONE \n");
+    DBGDO(3, showdecisiontree(decisiontree) );
+    DBGDO(3, showvarlist(vars) );  				JGMDPRT(3,  "\nVARLIST DONE \n") ;
+    DBGDO(3, showactionlist(actionlist) ) ; 	JGMDPRT(3,  "\nACTION List DONE \n") ;
     if (jgmDebug >= 4) {
         //showdistrbits(distrbitmaps) ;
         //fprintf(stderr, "\nDistr Bit Maps DONE \n");
-        showAltCounts() ;
-        fprintf (stderr, "Show ALT Counts Done \n");
-        fprintf(stderr, "Post Parsing:: stacked_size=%d, small_size=%d, Fullpack,  Stacked pack, and Small_pack  \n",
-                              stacked_size, small_size);
-    }
-    fprintf(stderr, "\n-------MAIN PARSING DONE @ %s :: %d ----------------\n",__FILE__, __LINE__);
+        DBGDO(4, showAltCounts() );
+        JGMDPRT(4, "Show ALT Counts Done \n");
+        JGMDPRT(4, "Post Parsing:: stacked_size=%d, small_size=%d \n", stacked_size, small_size) ;
+        if(stacked_size > 0 ) {
+			  sr_deal_show(stacked_pack) ;
+			  sr_deal_show(fullpack) ; 		/* should contain NO_CARD where stacked pack has a card */
+		  }
+     JGMDPRT(3, "\n-------MAIN PARSING DONE @ %s :: %d ----------------\n",__FILE__, __LINE__);
   } /* end if jgmDebug */
 #endif
 
 
   /* ----------- Parsing of User Specs done. Decision Tree built. Action list built. cmd_line opts saved ---------*/
 
-    finalize_options ( opts ) ;   /* resolve diffs between yyparse and cmd line. alloc runtime RAM. set RNG and DDS parms. start server etc. */
-    init_runtime     ( opts ) ;
+    finalize_options ( opts ) ;   /* resolve diffs between yyparse and cmd line.Choose DealMode for the run */ 
+    init_runtime     ( opts ) ;   /* set RNG and DDS RAM/Threads. Start usereval, setup bias deal setup_action() */
 	JGMDPRT(4,"Assertions Check:Maxproduce[%d] <= Maxgenerate[%d]\n", maxproduce, maxgenerate);
 	JGMDPRT(4," Assert: rp_cnt[%d]<Maxgen, rp_pass_num[%d]<=1, rplib_recnum[%d]<rplib_recs[%d]\n", rp_cnt, rp_pass_num, (rplib_recnum+1), rplib_recs);
  
  /* ----------- Begin the Main Loop ------------*/
   JGMDPRT(2,"^^^^^^ Begin Main Loop ^^^^^^ libMode=%d rp_pass_num=%d\n",opts->rplib_mode, rp_pass_num) ;
 
- if (progressmeter) { fprintf (stderr, "Calculating...  0%% complete\r"); }// \r CR not \n since want same line ..
+   if (progressmeter) { fprintf (stderr, "Calculating...  0%% complete\r"); }// \r CR not \n since want same line ..
 
- for (ngen = 1, nprod = 0; ngen <= maxgenerate && nprod < maxproduce; ngen++) { /* start ngen at 1; simplifies counting */
-      if (opts->rplib_mode == 0 ) { /* normal deal random hands mode */
-         JGMDPRT(8,"In Main Generating Hands: ngen=%d Calling deal_cards\n",ngen );
-         deal_cards(curdeal) ; /* NEW 2023-01-06 -- Shuffle, Swap, or Predeal then Shuffle as required */
-      }
-      else { /* RP lib mode */
-         /* get a deal from the RP database. Format as if it were 'dealt' by this program then continue as usual */
-         get_rpdeal(opts, curdeal) ; /*sets curdeal and also the dds_res_bin 20 results struct */
-
-         JGMDPRT(7,"get_rpdeal returned to main. nprod=%d, ngen=%d rp_cnt=%d, pass_num=%d, rplib_recnum=%d\n",
-												nprod, ngen, rp_cnt, rp_pass_num, rplib_recnum );
-         if (rp_pass_num >= 2 ) {
-         /* we are on our second wrap round, so we already scanned the whole library file.
-          * There is no point to any further efforts so show err message and quit
-          */
-            fprintf(stderr, " All records in Library file scanned. Cannot produce %d hands. Ending Early. \n",opts->max_produce );
-            break ;  /* Exit for ngen loop */
-         }
-      } /* end else RP lib mode */
+   for (ngen = 1, nprod = 0; ngen <= maxgenerate && nprod < maxproduce; ngen++) { /* start ngen at 1; simplifies counting */
+      
+      deal_rc = deal_cards( DealMode , curdeal) ; /* Default, Library, Bias, Stacked, Swap; deal_cards Uses lots of global Vars */
+      if (DL_ERR_RPLIB == deal_rc  ) {
+			fprintf(stderr, "%d : Too Many Passes through RP-Library. Ending Run Now \n", rp_pass_num ) ; 
+			break ;  /* break out of for ngen loop goto EOJ */
+		} 
+		if (DL_ERR_BIAS == deal_err ) { continue; } /* discard deal and try again */
+		
+		assert( DL_OK == deal_err ) ; 
+ 
    #ifdef JGMDBG
-      if (jgmDebug >= 9) {  sr_deal_show(curdeal); }
+      DBGDO(9, sr_deal_show(curdeal) ) ;
       if (jgmDebug >= 8 ) {
             struct handstat *hsp = hs;
             JGMDPRT(8, " Calling Analyze for ngen=%d \n", ngen);
@@ -191,16 +189,16 @@ int main (int argc, char **argv) {
          }
    #endif
 
-      analyze (curdeal, hs);  // Collect and save all info that will be needed by eval_tree() aka interesting() and server */
+      analyze (curdeal, hs);  // Create data (in handstat) needed by eval_tree() aka interesting() and server; deal NOT sorted */
 
       JGMDPRT(7, " Calling Interesting for ngen=%d ", ngen);
 
-      keephand = interesting() ;
+      keephand = interesting() ;  /* interesting() aka evaltree() needs deal sorted if doing opc evals; maybe others. */
       JGMDPRT(7, " Interesting aka evaltree Returns %d\n", keephand);
-      // showtree = 0 ;      /* no longer done here. done right after yyparse */
+
       if (keephand) {             /* evaltree returns TRUE for the condition user specified */
           JGMDPRT(9,"Interesting returns true Calling Action() now.");
-          action();                        /* Do action list */
+          action();               /* Do action list; action sorts deal as its first step */
           nprod++;
           if (progressmeter) {
             if ((100 * nprod / maxproduce) > 100 * (nprod - 1) / maxproduce)
@@ -209,11 +207,11 @@ int main (int argc, char **argv) {
           } /* end progress meter */
       }   /* end keephand */
    #ifdef JGMDBG
-      else { if ( jgmDebug >= 9) { fprintf(stderr, "Generated Hand %d is NOT interesting .. skipping actions \n",ngen) ; }
-      }
+      else { JGMDPRT(9, "Generated Hand %d is NOT interesting .. skipping actions \n",ngen) ; }
    #endif
       JGMDPRT(7,"----------Done with ngen=%d ---------\n",ngen);
-}    /* end for ngen */
+   }    
+   /* end for ngen */
    if ( ngen >= maxgenerate ) { ngen = maxgenerate ; } /* need this for end of run stats ... for loop leaves it at max+1 or one over */
    else if (ngen >= 2 ) {ngen-- ; }
     /* finished generating deals, either maxproduce or maxgenerate (which could be maxLib records) was reached */
@@ -243,11 +241,13 @@ int main (int argc, char **argv) {
       fprintf(stdout, "Tot Ask Query    =%6d, UserServer Calls=%6d\n", dbg_userserver_askquery, dbg_userserver_extcalls );
 
     } /* end if jgmDebug */
-  } /* end if verbose */
+  
+  } 
+  /* end if verbose */
 
    /*
     * If there was a user server started, then
-    * terminate the process, unmap the shared region, unlink the semaphores and send quit request to Server
+    * unmap the shared region, unlink the semaphores and send quit request to terminate the Server process,
     */
   if (userserver_pid > 0 ) {
       JGMDPRT(4,"Calling cleanup_userserver for pid=%d \n",userserver_pid ) ;

@@ -1,0 +1,9 @@
+generate 100
+produce   10
+seed  919
+title "Min_bias.dli seed=919 -- test also from cmd line with swap, predeal, Library"
+predeal spades(west)==7 spades(east)==0
+predeal south DJ2 north CT2   // this will pass the parser, but will be ignored at runtime as bias deal takes priority
+# No condition
+
+action printall

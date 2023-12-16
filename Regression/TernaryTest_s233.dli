@@ -7,10 +7,13 @@ title " Checking how to nest ternary tests "
 #         ( cond2 ) ? Var2 :
 #         ....
 #         ( condn ) ? Varn : DefaultVar
-# In Dealer Even this simple statement gives the wrong result
-# # Answ = ( cond1 ) ? Var1 :
+# In Dealer and earlier versions of DealerV2 there was a bug in the Precedence specs i
+# for the grammar such that even this simple example failed.
+# Answ = ( cond1 ) ? Var1 :
 #          ( cond2 ) ? Var2 : Default
 # If cond1 is false it always produces Default as the value of Answ
+# This has been fixed so that now DealerV2 behaves like C and the following workarounds are no longer necessary.
+#  ------ this example shows workaournds for dealer (version 1) and earlier versions of dealverV2
 # However you CAN do some Nesting.
 # To find the maximum of 4 Values you can do: (Note this returns the value, but not the name of the longest suit)
 ls =(  ( spades(west) >= hearts(west) ? spades(west) : hearts(west) ) >=    // if The len of longest Major >=

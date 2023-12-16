@@ -1,0 +1,9 @@
+title "Time Dealing Test. 10,000,000 hands. No conditions. Action is to average a constant."
+generate 10000000
+produce  10000000
+	
+# condition hcp(north) < 100
+condition 1
+action
+	average "Avg Constant 10           " 10 
+

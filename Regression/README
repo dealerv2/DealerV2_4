@@ -3,10 +3,22 @@ This is the directory Regression
 The Dealer Input files (suffix .dli) in this directory all have a seed cmd in them; 
 the seed number is typically a prime.
 The primes can be got from the ./Code/files_mod.pl
-The Makefile will run scripts in the Code sub-directory to:
-a) create files with suffix .out in the Output sub-directory by running dealerv2 on the .dli file
-b) create files with suffix .ref in the Refer  sub-directory by running production version of dealerv2 on the .dli file
-c) check the .out files vs the .ref files for differences. 
+The Makefile will run scripts in the current directory
+a) create files with suffix .dlo in the Output sub-directory by running the test version of dealerv2 on the .dli|.dls|.dlt|.dlx file(s)
+b) create files with suffix .ref in the Refer  sub-directory by 
+    first overwriting  the .dlo files in the Output directory by running the production version of dealerv2 on the .dli|.dls|.dlt|.dlx file(s)
+    copy-ing the new Output/*.dlo files to Refer/*.ref 
+c) check the .dlo files vs the .ref files for differences. 
+
+the "make all" target does the steps (b) (a) (c) in that order.
+other targets are:
+showme      displays the various makefile variables and the versison of whatever dealerv2 is to be run
+clean       deletes all the files in Output
+dli         runs dealer on all the .dli and .dlt files
+dls         runs dealer on all the .dls and .dlx files
+check_stats runs the dealer | fmt pipleline that checks dealer's generated stats for distribution and hcp vs the theoretical ones
+dlo_to_ref  makes a copy of the .dlo files in Output in  the Refer directory renaming the suffix to .ref
+cmp_refer   runs the diff command comparing Output/*.dlo to Refer/*.ref
 
 ---------
 

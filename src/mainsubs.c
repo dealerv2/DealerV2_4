@@ -3,6 +3,7 @@
 /* 2022-03-07 Fine tune Debug levels */
 /* 2022-10-27 Add -U option for userserver path */
 /* 2023/08/04  3.0.0  -- keep in step with dealerv2.c; slight mod to help msg re vers 3.0.0 */
+/* 2023/10/30 4.0.0  -- modified gen_rand_slot to use the drand since it is almost twice as fast as mrand when scaling */ 
 /* This file should NOT be compiled independently. #inlcude it in dealerv2.c */
 #if 0                            /* change to 0 when not testing */
 #include "../include/std_hdrs.h"  /* all the stdio.h stdlib.h string.h assert.h etc. */
@@ -12,60 +13,13 @@
 #include "../include/dealprotos.h"
 #include "../include/dealexterns.h"
 #endif
+
 #ifndef UsageMessage
   #include "../src/UsageMsg.h"
 #endif
 #define OPTSTR "hmqvVg:p:s:x:C:D:L:M:O:P:R:T:N:E:S:W:X:U:0:1:2:3:4:5:6:7:8:9:"
 
-long int init_rand48( long int seed ) {
-    union {
-        unsigned short int sss[3] ;
-                      char sbuff[6];
-    } su;
-    size_t numbytes;
-    long int u_seed48, two16, two32 ;
-    two16 = 1UL << 16 ;
-    two32 = two16 * two16 ;
 
-    if (seed != 0L ) { /* user has provided his own seed so just use it */
-        srand48(seed) ;
-        return seed ;
-    }
-    /* user has not specified a seed, so get one from the kernel and use seed48 instead of srand48*/
-    numbytes = getrandom(su.sbuff, sizeof(su.sbuff), 0) ;
-    if ( !numbytes ) {
-       perror("getrandom FAILED. Cannot seed rand48") ;
-       exit (-1) ;
-    }
-    assert( numbytes == 6 ) ;
-    seed48(su.sss) ;   /* ignore seed48 return value of pointer to internal buffer */
-    u_seed48 = (long int)su.sss[0] + (long int)su.sss[1]*two16 + (long int)su.sss[2]*two32;
-    JGMDPRT(3,"No Seed Provided. DONE Initializing RNG init_rand48, %d, %d, %d, %ld\n",
-                su.sss[0], su.sss[1], su.sss[2], u_seed48);
-    return u_seed48;
-} /* end init_rand48 */
-
-int gen_rand_slot ( int topval ) { /* return a random number in the range [0 .. (topval - 1)] */
-        /* mrand48 returns a number in range -2^31 .. +2^31 i.e. a 32 bit range. lrand48 and nrand48 range is 31 bits*/
-        return ( abs( (int) (mrand48() % (long int) topval) ) ) ;
-}
-
-/* Debugging Functions  */
-int bias_handdbg(int compass){
-  return
-    TRUNCZ(biasdeal[compass][0])+
-    TRUNCZ(biasdeal[compass][1])+
-    TRUNCZ(biasdeal[compass][2])+
-    TRUNCZ(biasdeal[compass][3]);
-} /* end bias_len() */
-
-int bias_suitdbg(int suit){
-  return
-    TRUNCZ(biasdeal[0][suit])+
-    TRUNCZ(biasdeal[1][suit])+
-    TRUNCZ(biasdeal[2][suit])+
-    TRUNCZ(biasdeal[3][suit]);
-} /* end bias_totsuit() */
 void show_options ( struct options_st *opts , int v ) {
     fprintf(stderr, "Showing Options with Verbosity = %d\n",v);
     fprintf(stderr, "\t %s=[%d]\n", "g:Maxgenerate", opts->max_generate ) ;
@@ -131,7 +85,7 @@ int srv_dbg (char *opt_D ) {
 }
 
 /* get_options function will set the opts in the options struct
- * and also the related global variable(s) for backwards compatitbility
+ * and also the related global variable(s) for backwards compatibility
  * It should ALWAYS update the related global var, when the equivalent opts->var is changed.
  */
     #include <sys/stat.h>  // for stat structure
@@ -145,6 +99,8 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
     int opt_c;
     int stat_rc ;
     struct stat statbuff ;
+    char mybuff[128];		// for printing library version 
+    int  mybuff_len ; 
 
     opterr = 0;
     opts->options_error = 0 ;  /* assume success */
@@ -159,14 +115,13 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
     opts->opc_opener = opc_opener ;    /* global */
     opts->opener = Opener ;            /* global */
     opts->dds_mode = dds_mode ;        /* global */
-    opts->par_vuln = par_vuln ;        /* global */
     opts->progress_meter = progressmeter; /* global */
     opts->quiet = quiet ;              /* global */
     opts->swapping = swapping;         /* global */
     opts->title_len = 0 ;              /* ignore global for this one. */
     opts->upper_case = 1 ;     		   /* removed obsolete cmd line switch */
     opts->verbose = verbose ;          /* global */
-    opts->nThreads = nThreads ;        /* global */
+    opts->nThreads = 1 ;        			/* default More does not help unless DDS mode 2 is needed */
     opts->maxRamMB = 160 * opts->nThreads ;
     opts->csv_fmode[0] = '\0';        // if null no csvfile specified.
     opts->csv_fname[0] = '\0';
@@ -224,6 +179,8 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
         printf ("Revision: %s \n", VERSION );
         printf ("Build Date:[%s] \n", BUILD_DATE );
         printf ("$Authors: Hans, Henk, JGM $\n");
+		  mybuff_len = GetLibVers(mybuff) ; 
+		  printf("Library ID= %s \n", mybuff ) ; 
         #ifdef JGMDBG
           printf("JGMDBG is defined. Debugging printing to stderr is active\n");
         #endif
@@ -290,7 +247,6 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
         break ;
       case 'P':  /* set the vulnerability for Par calculations */
         opts->par_vuln = atoi( optarg ) ; // Will Need to translate from Dealer coding to DDS coding when calling Par function
-        par_vuln = opts->par_vuln       ;
         break ;
       case 'R':
         opts->nThreads=atoi( optarg ) ;
@@ -300,8 +256,6 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
            opts->options_error = 2 ; // invalid thread value
         }
         opts->maxRamMB = 160*opts->nThreads ; /* DDS needs 160MB per thread */
-        nThreads = opts->nThreads;
-        MaxRamMB = opts->maxRamMB  ;
         break ;
       case 'T':
         strncpy( opts->title, optarg, 200); /* docs say 100; pgm allows 255 */
@@ -408,6 +362,10 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
       } /* end switch(opt) */
    } /* end while getopt*/
    if (opts->dbg_lvl >= 4 ) { fprintf(stderr, "Command Line switches done proceeding with main program \n") ; }
+   #ifdef JGMDBG
+	  extern int jgmDPRT ;
+	  jgmDPRT = jgmDebug ;
+   #endif
    return opts->options_error ;
 
 } /* end getopts */

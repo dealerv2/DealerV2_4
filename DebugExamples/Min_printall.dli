@@ -1,0 +1,8 @@
+generate 100
+produce   10
+seed  919
+title "Min_printall seed=919 -- to test swapping run with -x2 and|or -x3 on cmd line"
+
+# No condition
+
+action printall

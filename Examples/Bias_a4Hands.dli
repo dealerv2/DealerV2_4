@@ -1,0 +1,12 @@
+generate   100000000
+produce    10
+seed 919
+title "Bias requirements for all four hands"
+predeal hearts(west)==6  club(east)==4 spade(east)==4
+predeal spades(north)==3 spades(south) == 5
+// 2023/12/10 First Algorithm had to generate 623 deals to produce 100 satisfying the above, 
+// 2023/12/12 2nd Algorithm   had to generate 231 deals to produce 100 satisfying the above; same seed as first algorithm.
+
+action
+		  printrpt(deal, "Par for NS Vul NS=", par(NS,ns), "Par for both Vul EW=",par(EW,both) ),
+

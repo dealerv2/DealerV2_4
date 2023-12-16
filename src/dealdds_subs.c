@@ -11,9 +11,8 @@
 #define DDS_TABLE_MODE 2
 #define DDS_BOARD_MODE 1
 #define INV_TRIX -1
-/* These next two may never get used as there is really no reason to call DDS from Dealer with PBN mode.
- * unless you were not generating Dealer deals (Deal52) and just reading from a file
- * but why use Dealer for that ?
+/* 
+ * These next two not used in Dealerv2; may be useful in a library of generic bridge functions
  */
 #define DDS_INP_DEALER = 4
 #define DDS_INP_PBN    = 8
@@ -23,39 +22,33 @@
 #include <stdio.h>
 #include "../include/dealdefs.h"
 #include "../include/dds_dll.h"
-#include "../include/deal_dds.h"
 #include "../include/dbgprt_macros.h"
 
+#include "../include/dealdds_subs.h"
+extern struct options_st options ;
 extern int dds_dealnum;          /* keeps track of whether the dds cache needs refreshing */
-extern int par_vuln;             /* -1 no par calculations, 0=none, 1=ew, 2=ns, 3= both? */
 extern int dbg_dds_lib_calls;    /* print dds counts at end of run for debugging and timing */
 extern int dbg_dds_res_calls;
 extern int dbg_parscore_calls;
-extern int MaxRamMB;
-extern int nThreads;
-extern int TblModeThreads;
 extern int csv_firsthand;        /* not used was intending to allow user to print deal in arbitrary seq; but too confusing */
 extern int rplib_mode ;
+extern int TblModeThreads;
 
-/*API we export to the Dealer side */
-
-typedef unsigned char deal[52];
+/*API we export to the DDS side */
+typedef char     CARD52_k ; 
+typedef CARD52_k DEAL52_k[52];
 extern int dds_mode ; /* 1 = solveOneBoard, 2=CalcDDtable */
-extern int ngen, dds_dealnum, par_vuln, jgmDebug ;
-extern deal curdeal;
+extern int ngen, dds_dealnum, jgmDebug ;
+extern DEAL52_k  curdeal;
 
+/* Global var for use by Dealer code -- structure with tricks, parscore, error message etc.*/
 DDSRES_k dds_res_bin;
 
-/*    Prototypes From Dealer Side */
-    /* for Debugging .. To Be Deleted or in an #ifdef */
-extern void showRawResults(struct ddTableResults *dd );
-extern void showReturns(DDSRES_k *dd ) ;
-extern void dump_Deal(struct deal_st dl);
-    /* Real Protos */
-extern int Deal52_to_Holding(deal d , unsigned int kards[DDS_HANDS][DDS_SUITS] ) ;
-extern struct ddTableDeal Deal52_to_DDSBIN(deal d);  // ddTableDeal    uses [hands][suits] index order.
-DDSRES_k true_CalcTable(deal dl, int vul, int dds_mode ) ; // ddTableResults uses [suits][hands] index order.
-int      true_SolveBoard(deal curdeal, int compass, int strain ) ;
+/*    Prototypes of Dealer code, calling DDS library using DDS structs */
+#include "../include/Dealer_DDS_IF.h"
+
+DDSRES_k true_CalcTable(DEAL52_k  dl, int vul, int dds_mode ) ; // ddTableResults uses [suits][hands] index order.
+int      true_SolveBoard(DEAL52_k  curdeal, int compass, int strain ) ;
 int      rplib_Par(DDSRES_k *DealerRes, int par_vuln) ;
 
 void ZeroCache( DDSRES_k *Results) {
@@ -81,43 +74,49 @@ int SetDDSmode(int mode) {       /* Default is mode 1; but Par, csv_trix, and th
     if ( mode == DDS_BOARD_MODE ) {
         dds_mode = DDS_BOARD_MODE ;
         SetResources(320 , 2 ) ;     // We probably can only use 1 thread in this mode, but give it 2 just in case.
-        MaxRamMB = 320 ;            // update global vars for consistency
-        nThreads = 2 ;
+        options.maxRamMB = 320 ;            // update global vars for consistency
+        options.nThreads = 2 ;
         return 1 ;
     }
     if (mode == DDS_TABLE_MODE ) {
         dds_mode = DDS_TABLE_MODE ;
-        if (nThreads < 2 ) {                 // The user has not specified nThreads via a -R switch so use TBLMODE default
-            MaxRamMB = TblModeThreads*160 ;       // update global vars for consistency
-            nThreads = TblModeThreads ;
-            SetResources(MaxRamMB, TblModeThreads) ;
+        if (options.nThreads < 2 ) {                 // The user has not specified nThreads via a -R switch so use TBLMODE default
+            options.maxRamMB = TblModeThreads*160 ;       // update global vars for consistency
+            options.nThreads = TblModeThreads ;
+            SetResources(options.maxRamMB, TblModeThreads) ;
         }
         else {
-            MaxRamMB = TblModeThreads*160;
-            SetResources(MaxRamMB, nThreads) ;  // Honor Users -R switch value.
+            options.maxRamMB = options.nThreads*160;
+            SetResources(options.maxRamMB, options.nThreads) ;  // Honor Users -R switch value.
         }
         return 1 ;
     }
     else  {
         fprintf(stderr, "SetDDSmode:: dds mode[%d] is INVALID!!. Setting to TableMode with 9 Threads and 1440 MB \n", mode );
         dds_mode = DDS_TABLE_MODE ;
-        MaxRamMB = TblModeThreads*160 ;       // update global vars for consistency
-        nThreads = TblModeThreads ;
-        SetResources(MaxRamMB, TblModeThreads) ;
+        options.maxRamMB = TblModeThreads*160 ;       
+        options.nThreads = TblModeThreads ;
+        SetResources(options.maxRamMB, TblModeThreads) ;
 
         return 1 ;
     }
 } /* end SetDDSmode */
 
-/* compass is the hand we want the tricks for. If mode=2, no change needed
- * but for mode 1 we need to set the op leader to be the hand to the right of compass like true_dd does
- */
+int dds2dl_vuln( int dds_vuln ) {
+	int dl_vuln;
+	dl_vuln =  (dds_vuln == 0 ) ? 0 :  // none
+	           (dds_vuln == 1 ) ? 3 :  // both
+	           (dds_vuln == 2 ) ? 1 :  // NS
+	           (dds_vuln == 3 ) ? 2 :  // EW
+	            0 ;							// assume none if invalid entry
+	return dl_vuln ;
+}
 int dl2dds_vuln(int dealer_vuln) {
-   int dds_vuln = (dealer_vuln == 0 ) ? 0 :      // None
-                  (dealer_vuln == 1 ) ? 2 :      // NS
-                  (dealer_vuln == 2 ) ? 3 :      // EW
-                  (dealer_vuln == 3 ) ? 1 :      // Both.
-                    0 ;                         // assume none if invalid entry
+   int dds_vuln = (dealer_vuln == 0 ) ? 0 :  // None
+                  (dealer_vuln == 1 ) ? 2 :  // NS
+                  (dealer_vuln == 2 ) ? 3 :  // EW
+                  (dealer_vuln == 3 ) ? 1 :  // Both.
+                    0 ;                      // assume none if invalid entry
    return dds_vuln ;
 }
 int dds2dl_strain(int si) {
@@ -129,8 +128,9 @@ int dds2dl_strain(int si) {
                              4 ;     // si must equal 4 aka No Trump
    return dl_strain;
 }
+
 int dl2dds_tricks(DDSRES_k *DealerRes, struct ddTableResults *Res_20) {
-               // fill the DDS Tricks Results array for use by Par calcs
+               // fill the DDS Tricks Results array for use by Par calcs; need to do this when tricks comes from RPLIB
    int si, h;
    int dl_strain  ;
    for (si=0; si < DDS_STRAINS ; si++ ) {
@@ -144,11 +144,8 @@ int dl2dds_tricks(DDSRES_k *DealerRes, struct ddTableResults *Res_20) {
 
 
 int dds_tricks(int compass, int strain ) {  //ngen, dds_dealnum, dds_res_bin, dds_mode are globals
-    int t0, t1;
     int CacheState ;
     dbg_dds_res_calls++;
-
-
    JGMDPRT(5,"IN DDS_TRICKS res_calls=%d ngen=%d dds_dealnum=%d,hand[%c],strain[%c], dds_mode=%d \n",
                            dbg_dds_res_calls, ngen, dds_dealnum, "neswSW"[compass],"cdhsN"[strain], dds_mode );
    CacheState = CheckCache(&dds_res_bin, ngen, dds_dealnum, compass, strain ) ;
@@ -169,19 +166,18 @@ int dds_tricks(int compass, int strain ) {  //ngen, dds_dealnum, dds_res_bin, dd
                            dbg_dds_lib_calls, dds_mode, dds_dealnum );
 
         if (dds_mode == DDS_TABLE_MODE ) {
-            dds_res_bin = true_CalcTable (curdeal, par_vuln, DDS_TABLE_MODE) ;
+            dds_res_bin = true_CalcTable (curdeal, options.par_vuln, DDS_TABLE_MODE) ;
         }
         else if (dds_mode == DDS_BOARD_MODE) {
 
             dds_res_bin.tricks[compass][strain] = true_SolveBoard(curdeal, compass, strain ) ;
-            t1 = dds_res_bin.tricks[compass][strain];
             JGMDPRT(5,"SOLVEBOARD for compass=%c strain=%c, returns %d trix \n",
-                           "neswSW"[compass], "cdhsN"[strain], t1 );
+                           "neswSW"[compass], "cdhsN"[strain], dds_res_bin.tricks[compass][strain] );
         }
         else {
             fprintf(stderr, "Cant Happen in dds_tricks. dds_mode=[%d] is Invalid!! Continuing with TableMode\n", dds_mode );
             SetDDSmode(DDS_TABLE_MODE) ;
-            dds_res_bin = true_CalcTable (curdeal, par_vuln, DDS_TABLE_MODE) ;
+            dds_res_bin = true_CalcTable (curdeal, options.par_vuln, DDS_TABLE_MODE) ;
         }
     }  /* end if CacheState */
       JGMDPRT(6,"IN DDS_TRICKS res_calls=%d ngen=%d dds_dealnum=%d, trix[%d,%d]=%d \n",
@@ -191,17 +187,16 @@ int dds_tricks(int compass, int strain ) {  //ngen, dds_dealnum, dds_res_bin, dd
 
     /* Just a normal compass, north,east,south,west. */
     /* Then return the relevant result from the cache */
-    t0 = dds_res_bin.tricks[compass][strain];
-    t1 = dds_res_bin.parScore_NS ;
+
     JGMDPRT(6," ngen=%d  lib_calls=%d, res_calls=%d tricks=%d, par=%d\n",
-                           ngen, dbg_dds_lib_calls, dbg_dds_res_calls, t0, t1 );
+                ngen, dbg_dds_lib_calls, dbg_dds_res_calls, dds_res_bin.tricks[compass][strain], dds_res_bin.parScore_NS );
 
    JGMDPRT(6,"DDS tricks RETURNS dds_res_bin[%d][%d] = %d ******* \n",
                         compass, strain, dds_res_bin.tricks[compass][strain] );
        return dds_res_bin.tricks[compass][strain];
 } /* end dds_tricks */
 
-DDSRES_k true_CalcTable(deal dl, int par_vul, int dds_mode ) {  // Mode should always be DDS_TABLE_MODE here...
+DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode should always be DDS_TABLE_MODE here...
     int dds_rc = 1; /* OK*/
     int si, so, h, t;
     struct ddTableResults    Res_20;    /* 20 Results */
@@ -221,11 +216,11 @@ DDSRES_k true_CalcTable(deal dl, int par_vul, int dds_mode ) {  // Mode should a
 
     // dbg_dds_lib_calls and dbg_dds_res_calls updated by dds_tricks before calling this function
 
-JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d --  jgmDebug=%d, dds_mode=%d\n",
-                           dbg_dds_lib_calls, ngen, dds_dealnum, jgmDebug, dds_mode );
+JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d jgmDebug=%d, dds_mode=%d\ dds_vuln=%dn",
+                           dbg_dds_lib_calls, ngen, dds_dealnum, jgmDebug, dds_mode, dds_vuln );
         dds_BIN_deal =  Deal52_to_DDSBIN (dl);
         dds_rc = CalcDDtable(dds_BIN_deal, &Res_20 );
-        JGMDPRT(7, "  CalcDDtable returned with %d \n", dds_rc);
+        JGMDPRT(7, " DDS CalcDDtable returned with RetCode=%d \n", dds_rc);
 
         // check return code; print error msg if not OK  NO_FAULT is 1
         if (dds_rc != RETURN_NO_FAULT)  {
@@ -234,14 +229,22 @@ JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d --  jgmDeb
             strncpy(DealerRes.ddsmsg, line, 40);
             DealerRes.errcode = -1 ;
         }
-        dds_rc = SidesParBin(&Res_20, sidesRes, dds_vuln);  /* calculate Par result */
+        /* Calculate the Par for all VUL. Does not take long, and simplifies caching */
+        for (dds_vuln = 0 ; dds_vuln < 4 ; dds_vuln++) {
+				dds_rc = SidesParBin(&Res_20, sidesRes, dds_vuln);  /* calculate Par result */
             // check return code; print error msg if not OK
-        if (dds_rc != RETURN_NO_FAULT)  {
-            ErrorMessage(dds_rc, line);
-            fprintf(stderr, "Table Mode DDS error: %s\n", line);
-            strncpy(DealerRes.ddsmsg, line, 40);
-            DealerRes.errcode = -1 ;
-        }
+				if (dds_rc != RETURN_NO_FAULT)  {
+						ErrorMessage(dds_rc, line);
+						fprintf(stderr, "Table Mode DDS error: %s\n", line);
+						strncpy(DealerRes.ddsmsg, line, 40);
+						DealerRes.errcode = -1 ;
+				}
+				DealerRes.parScores_NS[dds2dl_vuln(dds_vuln)] = sidesRes[0].score;
+		  } /* end for dds_vuln */
+		  DealerRes.parScore_NS = DealerRes.parScores_NS[0] ;
+		  JGMDPRT(7, " DefParScore(NoneVul)=%d, 4xParScores Calc=[%d,%d,%d,%d]\n",
+						DealerRes.parScore_NS,DealerRes.parScores_NS[0],DealerRes.parScores_NS[1],
+						DealerRes.parScores_NS[2],DealerRes.parScores_NS[3] );	
         DBGDO(7,showRawResults(&Res_20) );
 
         // successful DDS call. Fill the Dealer Results struct and return it
@@ -261,21 +264,19 @@ JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d --  jgmDeb
 
         DBGDO(7, showReturns(&DealerRes) );
         // report the par score and (one of) the corresponding contract(s)
-        DealerRes.parScore_NS = sidesRes[0].score;
+        DealerRes.parScore_NS = DealerRes.parScores_NS[options.par_vuln] ; // set the default one
         sprintf( DealerRes.ddsmsg,"%2d%c by %s  ", sidesRes[0].contracts[0].level,
                         Denom[sidesRes[0].contracts[0].denom], seatNames[sidesRes[0].contracts[0].seats] );
         DealerRes.CacheStatus = CACHE_OK ;
         dds_dealnum = ngen ; /* mark the cache as up to date. */
-         int t1 = DealerRes.parScore_NS ;
-         int t0 =  DealerRes.tricks[0][3] ; /* North Spades Just for Debug */
 
-        JGMDPRT(7,"Done trueCalcTable: North Spades Tricks=%d, parScore_NS=%d \n ", t0, t1 );
+        JGMDPRT(7,"Done trueCalcTable: North Spades Tricks=%d, parScore_NS=%d \n ",  DealerRes.tricks[0][3], DealerRes.parScore_NS );
 
         return DealerRes ;
 } /* end true_CalcTable*/
 
 /* end true_CalcTable */
-void init_deal_st (struct deal_st *dl_ptr) { /* deal_st is what is passed to the DDS solveOneBoard routine */
+void init_DDS_deal_st (struct deal_st *dl_ptr) { /* deal_st is what is passed to the DDS solveOneBoard routine */
     int h, s ;
     dl_ptr->first = 0 ;
     dl_ptr->trump = 0 ;
@@ -288,10 +289,10 @@ void init_deal_st (struct deal_st *dl_ptr) { /* deal_st is what is passed to the
             dl_ptr->remainCards[h][s] = 0 ;
         }
     }
-} /* end init_deal_st */
+} /* end init_DDS_deal_st */
 
-// true_SolveBoard called with Dealer encoding for strain where 0=clubs and 3=spades
-int true_SolveBoard (deal curdeal, int h, int s ) {
+// true_SolveBoard called with Dealer encoding for strain where 0=clubs and 3=spades, 4=NT
+int true_SolveBoard (DEAL52_k  curdeal, int h, int s ) {
 struct futureTricks        fut;
 struct deal_st              dl;
 int rc, trix ;
@@ -300,7 +301,7 @@ int dds_strain[5]={3,2,1,0,4} ; /* translate from Dealer stain to DDS strain; Cl
 char line[120] ;
 // dbg_dds_lib_calls and dbg_dds_res_calls updated by dds_tricks before calling this function
 // memset( &dl, 0 , sizeof(dl) ); /* set the whole struct to zeroes */
-  init_deal_st ( &dl ) ;
+  init_DDS_deal_st ( &dl ) ;
 
  #ifdef JGMDBG
     if (jgmDebug >= 7) {
@@ -318,7 +319,7 @@ char line[120] ;
 
 //syntax dl.trump dl.first dl.remainCards[Compass][Suit] dl.currentTrickSuit[3] dl.currentTrickRank[3]=0,
  dl.first = lho[h];  /* solveOneboard results depend on who is on lead. CalcDDtable results dont */
- dl.trump = dds_strain[s] ;
+ dl.trump = dds_strain[s] ;  /* 0=Clubs, 3=Spades, 4=NT */
  #ifdef JGMDBG
     if (jgmDebug >= 6) {
         fprintf(stderr, "true_SolveBoard.312 Calling Solveboard ,Dealer[trump=%d, Decl=%d] DDS[ trump=%d, First=%d] ,dbg_dds_lib_calls=%d\n",
@@ -344,14 +345,19 @@ char line[120] ;
 } /* End true_SolveBoard */
 /* End true_SolveBoard */
 
-int dds_parscore(int compass ) {
+int dds_parscore(int compass, int vuln ) {  /* uses globals */
     int CacheState;
     int par_NS ;
+    int vuln_par = 0;   /* nobody vul either coding */
     dbg_parscore_calls++;
-    JGMDPRT(6,"IN DDS_PARSCORE par_calls=%d ngen=%d dds_dealnum=%d, dds_mode=%d \n",
-                           dbg_parscore_calls, ngen, dds_dealnum, dds_mode );
+    JGMDPRT(6,"IN DDS_PARSCORE par_calls=%d ngen=%d dds_dealnum=%d, dds_mode=%d, compass=%d, vuln=%d DefVuln=%d \n",
+                           dbg_parscore_calls, ngen, dds_dealnum, dds_mode, compass, vuln,options.par_vuln );
+    vuln_par = (vuln     >= 0 ) ? vuln :				          /* vul in input file takes priority */
+               (options.par_vuln >= 0 ) ? options.par_vuln : /* use vul set on cmd line with -P switch */
+               0 ; 											          /* default value */
+ 
     if ( rplib_mode == 1 ) {
-       par_NS =  rplib_Par(&dds_res_bin , par_vuln) ; /* these globals will have been set by get_rp_deal and parsing stage */
+       par_NS =  rplib_Par(&dds_res_bin , vuln_par) ; /* these globals will have been set by get_rp_deal and parsing stage */
        if(compass == COMPASS_NORTH || compass == COMPASS_SOUTH || compass == SIDE_NS ) {
           return par_NS ;
        }
@@ -368,22 +374,20 @@ int dds_parscore(int compass ) {
     if    (CacheState == CACHE_INV || CacheState == CACHE_UPD ) {
         dds_res_bin.CacheStatus = CACHE_INV ;
         dbg_dds_lib_calls++;
-        dds_res_bin = true_CalcTable (curdeal, par_vuln, DDS_TABLE_MODE) ;
+        dds_res_bin = true_CalcTable (curdeal, vuln_par, DDS_TABLE_MODE) ;
     }
 
-    int t1 = dds_res_bin.parScore_NS ;
-   JGMDPRT(6,"Leaving DDS_PARSCORE dbg_dds_lib_calls=%d, par=%d\n", dbg_dds_lib_calls, t1 );
+   JGMDPRT(6,"Leaving DDS_PARSCORE dbg_dds_lib_calls=%d, par=%d\n", dbg_dds_lib_calls,dds_res_bin.parScore_NS  );
 
-    /* at this point the global cache of 20 results + a par score is valid */
+    /* at this point the global cache of 20 results + 4 par scores is valid */
      if(compass == COMPASS_NORTH || compass == COMPASS_SOUTH || compass == SIDE_NS ) {
-         return dds_res_bin.parScore_NS ;
+         return dds_res_bin.parScores_NS[vuln_par] ;
      }
-     else return -(dds_res_bin.parScore_NS) ;
+     else return -(dds_res_bin.parScores_NS[vuln_par]) ;
 } /* end dds_parscore */
 
-/* csv_trix will return tricks for all 5 strains,  for any number of hands 1-4 */
+/* csv_trix will return tricks for all 5 strains,  for any number of hands 1-4 parscores not relevant but calc'ed anyway*/
 int csv_trix( char *buff, int h_mask ) {  //ngen, dds_dealnum, dds_res_bin, dds_mode are globals
-    int t0, t1;
     int CacheState ;
     int i, h, s, nch ;
 
@@ -414,7 +418,7 @@ int csv_trix( char *buff, int h_mask ) {  //ngen, dds_dealnum, dds_res_bin, dds_
          JGMDPRT(6,"IN csv_trix:: CacheInvalid lib_calls=%d, mode=%d, dds_dealnum=[%d]  \n",
                            dbg_dds_lib_calls, dds_mode, dds_dealnum );
 
-        dds_res_bin = true_CalcTable (curdeal, par_vuln, DDS_TABLE_MODE) ;
+        dds_res_bin = true_CalcTable (curdeal, options.par_vuln, DDS_TABLE_MODE) ;
      }  /* end if CacheState */
 
     JGMDPRT(6,"IN csv_trix:: true_CalcTable Done. res_calls=%d ngen=%d dds_dealnum=%d \n",
@@ -423,8 +427,8 @@ int csv_trix( char *buff, int h_mask ) {  //ngen, dds_dealnum, dds_res_bin, dds_
     // assert The cache entry for dds_res_bin.tricks[compass][strain] is valid
 
 
-      JGMDPRT(6,"Leaving csv_trix. ngen=%d  lib_calls=%d, res_calls=%d tricks=%d, par=%d\n",
-                           ngen, dbg_dds_lib_calls, dbg_dds_res_calls, t0, t1 );
+      JGMDPRT(6,"Leaving csv_trix. ngen=%d  lib_calls=%d, res_calls=%d tricks[0][0]=%d, par=%d\n",
+                           ngen, dbg_dds_lib_calls, dbg_dds_res_calls, dds_res_bin.tricks[0][0], dds_res_bin.parScore_NS);
 
       // now format the buffer giving trix in all 5 strains for each hand asked for.
       nch = 0 ;
@@ -443,13 +447,13 @@ int csv_trix( char *buff, int h_mask ) {  //ngen, dds_dealnum, dds_res_bin, dds_
 
 } /* end csv_trix */
 
-int rplib_Par(DDSRES_k *DealerRes, int par_vuln) {
+int rplib_Par(DDSRES_k *DealerRes, int vuln_par) {
     int dds_rc = 1; /* OK*/
     char line[128];
 
     struct ddTableResults    Res_20;    /* 20 Results */
     struct parResultsMaster  sidesRes[2] ;
-    int dds_vuln = dl2dds_vuln(par_vuln) ;
+    int dds_vuln = dl2dds_vuln(vuln_par) ;
 
 /* copy DealerRes.tricks to Res_20 in the right order . */
    dl2dds_tricks(DealerRes, &Res_20) ;
@@ -471,5 +475,13 @@ int rplib_Par(DDSRES_k *DealerRes, int par_vuln) {
 } /* end  rplib_Par */
 
 
+/* One Time Setup of the DDS environment. Not used by Dealer at present; allows for dds_subs to be made into a lib module */
+void setup_DDS_env(DDSRES_k *dds_res_bin, int mode, struct deal_st *deal_st_ptr ) {
+	init_DDS_deal_st(deal_st_ptr) ; 
+	ZeroCache(dds_res_bin) ; 
+	SetDDSmode(mode);
+	return ; 
+}
+	
 
 

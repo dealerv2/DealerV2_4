@@ -1,0 +1,10 @@
+generate   100000000
+produce    10000
+seed 919
+title "Generating hands with diamond(west)==7 and spades(east)==0 using shape () in condtion clause"
+
+condition  shape(west, xx7x) and shape(east, 0xxx)
+
+action
+	//	  printrpt(EW),
+        average "Shape condition: Diamonds(west)" diamond(west)

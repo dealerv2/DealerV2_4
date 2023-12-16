@@ -18,7 +18,8 @@ seed 149
 title "100 1NT openers by North with GIB analysis. South has <= than 12hcp. No shape restrictions on South " 
 generate 1000000
 #produce 1000				/* 1000 is a commonly used adequate sample size in stats based on the Central Limit Theorem */
-produce 100					// But we do only 100 here for sake of speed of demo.	
+produce 10					// But we do only 10 here for sake of speed of demo. 
+                            // And no one should be using GIB with dealerv2 anyway. use dds instead.	
 
 nNtrix = tricks(north, notrumps) 
 nStrix = tricks(north, spades)

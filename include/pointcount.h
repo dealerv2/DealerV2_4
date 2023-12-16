@@ -6,6 +6,7 @@
 
 /* JGM has redone this so that when the user enters "altcount n" it is "pt n" that is redefined */
 enum idxPointcount {
+	idxSpot = -1 ,      /* a hack to force enum to use signed ints, instead of unsigned ints */
     idxTens = 0 ,       /* pt0 is Tens */
     idxJacks ,
     idxQueens ,
@@ -20,7 +21,8 @@ enum idxPointcount {
     idxHcp  ,           /* Last one since it has its own keyword, and does not need numeric tag */
     idxEnd
 } ;
-enum idxCardAttrRO {
+enum idxCardAttrRO { 
+	  idxNoAttr = -1 , /* a hack to force enum to use signed ints, instead of unsigned ints */
       idxControls = 0,
       idxLTCwts,
       idxKleinman,

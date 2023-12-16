@@ -1,0 +1,17 @@
+10,000,000 loops selecting one of 13 slots
+Seed=929 Tot Dev Sq=      3421843.00  13  # 3rd best
+Seed=751 Tot Dev Sq=      2666079.00  13 ## 2nd best
+Seed=569 Tot Dev Sq=      2528697.00  13### best
+
+10,000,000 loops selecting one of 50 slots 
+Seed=593 Tot Dev Sq=      6511687.00    50  # 3rd best
+Seed=109 Tot Dev Sq=      5909651.00    50 ## 2nd best
+Seed=919 Tot Dev Sq=      5157531.00    50### best
+
+	int best_seeds13[3] = {569,751,929}; //best, 2ndbest, 3rdbest
+	int best_seeds50[3] = {919,109,593};
+
+Mersenne Primes of the form 2^n - 1; should have lots of binary ones in the
+number, hence good seed?
+3, 7, 31, 127, 8191, 131071, 524287, 2147483647,2305843009213693951
+

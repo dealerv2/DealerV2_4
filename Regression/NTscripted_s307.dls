@@ -1,0 +1,19 @@
+generate 100000
+produce 8
+seed 307
+### Convention for cmd parms: compass:0,1 verbs:2,3,4 number:5 number_or_dotnum:6 suit:7 shape:8 FDshape:9
+# Ex: To Generate Weak NT hands for West and 5 card Major in East We run this from the cmd line with 
+#	-0 west -1 east -2 hcp -5 12 -6 14 -8 '5xxx + x5xx' 
+#     To Generate hands with 15 -17 C13 points we use:
+#  -0 west -1 east -2 pt9 -5 15 -6 17 -8 '5xxx + x5xx' 
+
+title "Scripting Demo for $1=West with Weak or Strong opener and East with 5cMajor"  
+NTshape = shape($0, any 4333 + any 4432 + any 5332 - 5xxx - x5xx)
+condition
+   NTshape  && 
+   ($2($0) >= $5) && ($2($0) <= $6) && 
+   shape($1, $8 )
+#
+action printside( EW )
+
+

@@ -1,10 +1,11 @@
-/* File dealtypes.h -- by :JGM Dealer Version 2 Types and Templates. */
+/* File dealtypes.h -- by :JGM Dealer Version 4 Types and Templates. */
 
 /* Date      Version  Author  Description
 * 2021/12/28 1.0.0    JGM     Collect all dealer symbolic constants and macros in one place.
 * 2022/02/09 2.1.5    JGM     FD shapes, and printrpt ported from deal_v3
 * 2022/09/25 2.2.0    JGM     Added constants for Bucket Frequency functionality
 * 2022/10/18 2.5.0    JGM     Changed typedef for card; added Has_cards array; other changes for user_eval functionality.
+* 2023/11/03 4.0.0    JGM     COnverting code to use DEAL52_k and CARD52_k
 */
 #ifndef DEALTYPES_H
 #define DEALTYPES_H 1
@@ -20,20 +21,15 @@
 typedef int decimal_k ; /* to allow easy switch to float if ever.*/
 typedef int numx100_k ; /* Not used at present. Future may allow for different eval tree functions */
 /*
- * JGM refers to Dealer deals as deal52 since it takes 52 bytes to store one.
+ * JGM refers to Dealer deals as DEAL52 since it takes 52 bytes to store one.
  * These next two for future change to legacy Dealer code to make the types _k so that card and deal don't conflict with
- * other users. card and deal are really names that are too generic to be used in this way
+ * other users. 'card' and 'deal' are names that are too generic to be used in this way
  */
 typedef unsigned char BYTE_k ;
-typedef char     card52_k ;                  /* not used anywhere */
-typedef card52_k DEAL52_k[52] ;
-/* The legacy Dealer definitions. Too embedded in code to be changed at this point. TODO list */
-/* 2022-10-18. Removed unsigned Since JGM changed the macros to shift 4 from shift 6,
- * unsigned causes warnings and requires casting to avoid them
- */
-//typedef unsigned char card;
-typedef char card;
-typedef card deal[52];
+typedef char      CARD52_k ;       /* Dealerv2 card normal char with special type  */          
+typedef CARD52_k  DEAL52_k[52] ;   /* Dealerv2 deal; 52 chars of type CARD52_k per deal */
+typedef int       DEAL64_k[4][4] ; /* deal where card ranks are stored as a bit mask; [hand][suit] 64 bytes reqd*/
+typedef short int DEAL32_k[4][4] ; /* same as DEAL64_k but using short ints which are more than adequate */ 
 
 /*
  * decision tree and other expression stuff. JGM added a float to struct tree for future use. Not used at present
@@ -89,6 +85,7 @@ struct fd_shape_st {
 
 } ;
 
+	/* structs for usereval queries */
 struct qcoded_st {
         unsigned int idx   : 8 ;  // low bits
         unsigned int suit  : 8 ;
@@ -173,10 +170,10 @@ struct action {
         } ac_u;
 };
 
-/* For cccc and quality --- Does not seem to be used by either c4.c or c4.h*/
+/* For cccc and quality --- Does not seem to be used by either deal_knr.c or deal_knr.h*/
 /* might be useful for the upcoming user_eval functionality */
 struct context_st {
-  deal *pd ; 					/* pointer to current deal */
+  DEAL52_k *pd ; 					/* pointer to current deal */
   struct handstat *ps ; 		/* Pointer to stats of current deal */
 };
 
@@ -198,11 +195,10 @@ struct handstat {
     int hs_ltc[NSUITS];     	/* Modern  Losing trick count per suit. Counts in half losers. Values x 100 */
     int hs_totalltc;        	/* Total ltc in the hand Counts in half losers. Values x 100 */
     int topcards[NSUITS][3];    /* These are bit masks that allow easy calc of LTC via a switch statement */
-    int Has_card[NSUITS][13];   /* CCCC uses cards down to the 8; printoneline and others use hascard a lot. */
+    int Has_card[NSUITS][13];   /* CCCC/KnR uses cards down to the 8; printoneline and others use hascard a lot. */
 
 };  /* end struct handstat */
 typedef struct handstat HANDSTAT_k ;
-
 
 /*
  * Minimal set of opc values. Only ones returned by perl program for now; as returned as floats, and as used in pgm
@@ -234,9 +230,9 @@ struct options_st {
   int       options_error;          //  0 = none. 3= Version Info. 1= Invalid option. 2=Fixed Thread. 4=Usage msg*/
   int       swapping;               // -x 0|2|3 (eXchange) JGM needs 0-9 for scripting parameter passing
   int       progress_meter;         // -m
-  int       quiet;                  // -q
-  int       upper_case;             // -u default? toggle?
-  int       verbose;                // -v   print stats re seed and time taken at end of run
+  int       quiet;                  // -q for PBN printout. Seldom used.
+  int       upper_case;             //     was toggled by -u switch. Never used. always set to 1 now. 
+  int       verbose;                // -v  toggle print stats re seed and time taken at end of run. -v turns them off.
   int       show_version;           // -V
   /* These next options all need  a value */
   int       max_generate;           // -g:
@@ -246,13 +242,13 @@ struct options_st {
   /* these next ones are by JGM.  */
   char      title[MAXTITLESIZE];    // -T:   descriptive title for the set of hands.(MAXTITLE=100 in docs, 256 in defs)
   size_t    title_len ;
-  char      preDeal[4][32] ;        // Predeal Holdings in Dealer fmt Sxxxx,Hxxxxx, etc. -N, -E, -S, -W options
+  char      preDeal[4][32] ;        // Predeal Holdings in Dealer fmt Sxxxx,Hxxxxx, etc. -N, -E, -S, -W options (each hand could take 13 cards + 4 suit Chars + 3 commas = 20 chars)
   int       preDeal_len[4] ;        // length of preDeal strings on cmd line.
   int       dbg_lvl;                // -D:  run program with this value of debug verbosity.
   int       srv_dbg_lvl;            //      If usereval forks a server, run server with this value of debug verbosity
   char      rplib_fname[128];       // -L  path to rpdd.zrd db file. ../rpdd.zrd will work.
   int       rplib_mode;             //      zero if not in lib mode; 1 if -L switch
-  long int  rp_seed;                //     offset in 1000 record incr into the DB. re-use of -s switch.
+  long int  rp_seed;                // -s   offset in 1000 record incr into the DB. re-use of -s switch.
 
   int       dds_mode ;              // -M  1 Single result mode; 2 all 20 strain-compass combinations; used for par etc.
   char      opc_opener ;            // -O  mostly for OPC; N/E  or W/S; assume W if not set.
@@ -265,11 +261,11 @@ struct options_st {
   char      csv_fmode[8];
   char      userpgm[256]  ;         // -U   Path of the User provided external server executable. Default=UserServer ROOT Dir.
 } ;   /* end options_st */
-#define PARAM_SIZE 126
+#define PARAM_SIZE 126					// Script var from cmd line. Allocate 128 since Flex needs two terminating Nulls to work properly.
 struct param_st {
    int  scripting ;
-   char script_var[10][128] ;         // Two more than PARAM_SIZE bec Flex needs two string terminators.
-   size_t script_var_len[10];         //
+   char script_var[10][PARAM_SIZE+2] ;  // Two more than PARAM_SIZE bec Flex needs two string terminators.
+   size_t script_var_len[10];         
 } ;
 
 typedef struct tree *TREE_PTR ;         /* JGM?+ to keep track of trees for debug and learn */

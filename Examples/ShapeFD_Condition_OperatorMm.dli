@@ -1,0 +1,17 @@
+# File ShapeFD_Condition_Operator by JGM
+title " Conditional Operators using the letters M and m instead of suits c,d,h,s "
+
+generate 2000
+produce 10
+seed 13
+action
+    print(north)
+
+# Using M and m in the Condition Clause. In General Not advised. The results are hard to interpret even when they parse.
+# Cannot put multiple M ; M>c,M>d fails. (ditto multiple m) Also M>m  parses but is not advised. Gives results that are hard to interpret
+# Even the clauses below can be misleading as the conditional operator returns true if: 
+# EITHER Major length is > club length and EITHER minor length is less than spade length.
+# example a shape such as 1408 for south will pass because 0 diamonds is less than 1 spade.
+
+condition
+ shape{north, x4+xx:M>c} and   shape{south, x4+xx:m<s}

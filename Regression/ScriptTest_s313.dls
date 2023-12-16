@@ -1,0 +1,25 @@
+generate 100000
+produce 12
+seed 313
+# Ex: a generic set of script vars some used in some script files some used in others.
+# Convention: 0,1:compass, 2,3,4:verbs, 5:number, 6:dotnum or number, 7:suit/strain 8:HvS shape, 9:FDshape
+# -0 east -1 west -2 hcp -3 opc -4 top4 -5 12 -6 6.5 -7 spade -8 ' any 4333 + any 4432 + any 5332 ' -9 ' 5+s4+mxx + 6+mxxx '
+// The following line works with the in production dealerv2
+// dealerv2 -D2 /tmp/script.dls -0 east -1 west -2 hcp -3 opc -4 top4 -5 12 -6 6.5 -7 spades -8 'any 4432 + any 5332' -9 '5+s4+mxx + 6+Mxxx' 
+ // but with the new dealerv2 it coredumps. 
+
+
+title "Scripting Demo with 9 script vars defined. "
+condition 
+	shape{$1 ,$9}  &&	shape($0, $8)     //OK west FD shape and east HvS shape
+	&& hcp($0,$7) >= 4 					   //OK east hcp in spades >= 4
+	&& $2($1) + $2($0) >= $5 + $5 		//OK hcp (west) + hcp(east) >= 12 + 12
+	or (
+	   $3(east, $7) >= 2 					   //OK top4(east, spades) >= 2
+      && $4($1) <= $6 							//OK ltc(west) < 6.5
+      && $3($0) >= 5						   //OK top4(east) > 5
+  )
+action 
+		printrpt( $1 , $0, "East Top4=", $3($0), "West LTC=", $4($1) )
+
+ // -0 east -1 west -2 hcp -3 top4 -4 ltc -5 12 -6 6.5 -7 spade -8 'any 4333 + any 4432 + any 5332' -9 '5+s4+mxx + 6+Mxxx'

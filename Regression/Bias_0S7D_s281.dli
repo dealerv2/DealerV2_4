@@ -1,0 +1,10 @@
+generate   100000000
+produce    5
+seed 281
+title "Generating hands with diamonds(west)==7 and spades(east)==0 using Bias Predeal"
+predeal diamond(west)==7 spade(east)==0
+  // condition  shape(west, xx7x) and shape(east, 0xxx)
+
+action
+		  printrpt(EW),
+        average "Diamonds west " diamonds(west)

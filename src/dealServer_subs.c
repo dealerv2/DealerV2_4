@@ -3,7 +3,7 @@
  * Subs used by Dealer to setup mmap and semaphores and launch the Server. No metrics calculations here.
  */
 #define _GNU_SOURCE
-#define JGMDBG 1         /* Define this on the gcc line with -DJGMDBG if needed */
+// #define JGMDBG 1         /* Define this on the gcc line with -DJGMDBG if needed */
 #include <assert.h>         /* dbg  suppress with -DNDEBUG on the gcc line*/
 #include <ctype.h>          /* toupper, tolower, isalpha*/
 #include <errno.h>          /* errno, ECHILD            */

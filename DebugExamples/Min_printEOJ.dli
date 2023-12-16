@@ -1,0 +1,8 @@
+generate 100
+produce   10
+seed  919
+title "Min_printEOJ.dli seed = 919"
+
+# No condition
+
+action print(north),print(south),print(east),print(west) 

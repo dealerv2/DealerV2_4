@@ -1,0 +1,19 @@
+generate 100000
+produce 8
+seed 293
+# Ex: a generic set of script vars some used in some script files some used in others.
+ // -0 east -1 west  -2 hcp -3 opc -4 top4 -5 12 -6 5.5 -7 spades -8 ' any 4333 + any 4432 + any 5332 '  -9 ' 5+s4+mxx '
+
+title "Scripting Demo with 10 script vars defined. "
+condition 
+ //	shape($0 , $8 ) && shape{$1 , $9 } &&		// HvS shape(balanced) for east, FDshape(5+ spades, 4+minor) for west
+ //   	$2($0, $7) >= 4                    &&     // hcp(east,spades) >= 4
+  	$3(EW) >= 24.5                 //  &&     // opc pts playing in spades >= 24.5
+ //	$5($0, $7) >= 2                    &&     // top4(east, spades) >= 2
+	// ltc($1)    < 6.5  && $2($1) >= $5         // ltc(west) < 6.5  && hcp(west) >= 12
+	
+#
+#   NTshape  &&  (hcp($0) >= $1) &&  (hcp($0) <= $2) &&  shape($3, $4 )
+action printside( EW )
+
+

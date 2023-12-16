@@ -83,9 +83,41 @@ void setshapebit (int cl, int di, int ht, int sp, int msk, int excepted) {
     distrbitmaps[cl][di][ht][sp] |= msk;
 }
 
-card make_card (char rankchar, char suitchar) {
+/* Convert suit letters (C,D,H,S) and Ranks (0-9TJQKA) to coded CARD52_k card */
+/* Used by yacc and flex for predeal and hascard, and by init for predeal cmdline parms */
+int card_rank(char ch ) {
+	char uc_ranks[] = "23456789TJQKA";
+	char *p_ranks = &uc_ranks[0] ;
+	char *ch_pos ; 
+	int ch_rank;
+	if ( (ch_pos = strchr(uc_ranks, (int) ch )  ) ) {
+		ch_rank = (int) (ch_pos - p_ranks) ;
+	}
+	else { ch_rank = -1 ; }
+	return ch_rank ; 
+}
+CARD52_k  make_card (char rankchar, char suitchar) {
   int rank, suit = 0;
+  char *ch_pos;
+  char uc_ranks[] = "23456789TJQKA";
+  
+  rank = (ch_pos = strchr(uc_ranks, (int)rankchar) ) ? (ch_pos - &uc_ranks[0]) : -1 ; 
+  
+  assert ( -1 <= rank && rank < 13 )  ;
+  if (-1 == rank ) return NO_CARD ;   // yacc and flex should never call this code with non-card chars.
+  switch (suitchar) {
+    case 'C':      suit = 0;      break;
+    case 'D':      suit = 1;      break;
+    case 'H':      suit = 2;      break;
+    case 'S':      suit = 3;      break;
+    default:
+      assert (0);
+    }
+  return MAKECARD (suit, rank);
+} /* end new make_card (rank, suit) */
 
+CARD52_k  Make_Card (char rankchar, char suitchar) { // was make_card; new make_card replaces it
+  int rank, suit = 0;
   for (rank = 0; rank < 13 && ucrep[rank] != rankchar; rank++) ; /* incr until we find the card rank */
   assert (rank < 13);
   switch (suitchar) {
@@ -97,7 +129,7 @@ card make_card (char rankchar, char suitchar) {
       assert (0);
     }
   return MAKECARD (suit, rank);
-} /* end make_card (rank, suit) */
+} /* end obsolete Make_Card (rank, suit) */
 
 
 /* In Flex we define a contract as [z][1-7][CDHSN][x]{0,2} so we can have z3N, z3Nx, and z3Nxx
@@ -155,7 +187,7 @@ struct contract_st decode_contract(int coded_contract ) {
     return c_res ;
 } /* end decode contract */
 
-void predeal (int player, card onecard) {  /* this moves a card from fullpack to stacked_pack, replacing it with NO_CARD */
+void predeal (int player, CARD52_k  onecard) {  /* this moves a card from fullpack to stacked_pack, replacing it with NO_CARD */
   int i, j;
 
   for (i = 0; i < 52; i++) {

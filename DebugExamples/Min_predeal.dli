@@ -1,0 +1,9 @@
+generate 100
+produce   10
+seed  919
+title "Min_predeal.dli seed=919 -- test also from cmd line with -N SAJ -SHQ8 -EDT5 -WCA2"
+predeal west SK2 east HQ2 
+predeal south DJ2 north CT2
+# No condition
+
+action printall

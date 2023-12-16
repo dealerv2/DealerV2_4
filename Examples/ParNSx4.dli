@@ -1,0 +1,11 @@
+generate   10000
+produce    10
+seed 919
+title " Different Par Score Calculations for NS 21..24 hcp"
+condition ( (hcp(north)+hcp(south)) >= 21 && (hcp(north)+hcp(south)) <= 24 ) or
+            par(EW,ns) > 100 or par(EW,both) > 100
+
+action 
+    printrpt( "HCP NS", hcp(north)+hcp(south), "Par NSx4", par(NS,none), par(NS,ns), par(NS,ew), par(NS,both), "EW_Par_def",par(EW) ),
+ // to see the effect of different default par vulnerabilities, use -Pn on the cmd line and notice the EW par number
+    

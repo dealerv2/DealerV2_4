@@ -14,24 +14,19 @@
 #include "../include/dealdebug_subs.h"
 #include "../include/deal_bktfreq_subs.h"
 #include "../include/dbgprt_macros.h"
+#include "../include/deal_conversion_subs.h"
 
 /* Code for New Actions by JGM */
-void printside (deal d, int side ) ;
-void init_export_buff( char *bp , size_t buff_len) ;
-char *fmt_compass_export(char *buff, int p, deal dl ) ;
-char *fmt_side_export(char *buff, int side, deal dl ) ;
-void printhands_pbn(FILE *fp, int mask, deal curdeal ) ;
+void printside (DEAL52_k d, int side ) ;
+void printhands_pbn(FILE *fp, int mask, DEAL52_k curdeal ) ;
 
 char sep ;
 
 /* Action Oriented Procedures */
 void setup_action () { /* run once right after the parsing done */
   struct action *acp;
-     #ifdef JGMDBG
-        if(jgmDebug >= 6) {
-            fprintf(stderr, "Setup Action Entered\n");
-        }
-   #endif
+  JGMDPRT(6, "Setup Action Entered\n");
+
 
   /* Initialize all actions */
   for (acp = actionlist; acp != 0; acp = acp->ac_next) {
@@ -50,7 +45,7 @@ void setup_action () { /* run once right after the parsing done */
       case ACT_PRINTRPT :
         break;
       case ACT_PRINT:
-        deallist = (deal *) mycalloc (maxproduce, sizeof (deal));
+        deallist = (DEAL52_k *) mycalloc (maxproduce, sizeof (DEAL52_k));
         JGMDPRT(3, "Setup Action ACT_PRINT maxproduce*52 =%d,  malloc succeeded\n", maxproduce*52 );
         break;
       case ACT_AVERAGE:
@@ -98,14 +93,11 @@ void setup_action () { /* run once right after the parsing done */
 void action () {            /* For each 'Interesting' deal, Walk the action_list and do the actions requested */
   struct action *acp;
   int expr, expr1, expr2, val1, val2, high1 = 0, high2 = 0, low1 = 0, low2 = 0;
-  char *expbp = export_buff ;
+  // char *expbp = export_buff ;
   double  dcount, dsum, dsqsum ;
   int actionitem = 0;  /* Debugging tracer var */
   JGMDPRT(8," .... Just entered Action() actionitem=%d\n",actionitem );
-  sortDeal(curdeal) ; /* JGM sort each hand, Spade Ace downto Club deuce. Simplifies many actions and hardly costs */
-  /* next ones not needed now that always sorting, but might be useful error check */
-  deal_sorted = 1;
-  hand_sorted[0] = 1 ; hand_sorted[1] = 1 ; hand_sorted[2] = 1 ; hand_sorted[3] = 1 ;
+  sortDeal(curdeal) ; /* JGM sort each hand, Spade Ace downto Club deuce. Simplifies many actions. Now uses dsort13 */
 
   for (acp = actionlist; acp != 0; acp = acp->ac_next) {
     actionitem++;
@@ -121,7 +113,7 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
         }
         break;
       case ACT_PRINTONELINE:
-        printoneline (curdeal);
+        printoneline (curdeal);   // could be sped up now that hands are sorted
         if (acp->ac_expr1) {
           expr = evaltree (acp->ac_expr1);
           printf ("%d", expr);
@@ -159,8 +151,8 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
           printpbn (nprod, curdeal);
         break;
       case ACT_PRINT:
-        memcpy (deallist+nprod, curdeal, sizeof (deal));  /*save sorted curdeal in malloc'ed area for later printing */
-        JGMDPRT(6,"nprod=%d,dealsize=%ld,@deallist[0]=%p,@deal_dest=%p\n",nprod,sizeof(deal),(void *)deallist, (void *)(deallist+nprod) );
+        memcpy (deallist+nprod, curdeal, sizeof (DEAL52_k));  /*save sorted curdeal in malloc'ed area for later printing */
+        JGMDPRT(6,"nprod=%d,dealsize=%ld,@deallist[0]=%p,@deal_dest=%p\n",nprod,sizeof(DEAL52_k),(void *)deallist, (void *)(deallist+nprod) );
         break;
       case ACT_AVERAGE:  /* mods by JGM to a) have a running avg, and b) include Variance as well as avg in final rpt */
         expr = evaltree (acp->ac_expr1);   /* calculate the expr we are averaging */
@@ -219,12 +211,12 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
         break;
       case ACT_EXP_SIDE_HLD :
          init_export_buff(export_buff, sizeof(export_buff) );
-         expbp = fmt_side_export(export_buff, acp->ac_int1, curdeal ) ;
+         Side52_export(export_buff, acp->ac_int1, curdeal ) ;
          fprintf(fexp, "%s\n", export_buff );
          break ;
       case ACT_EXP_SEAT_HLD :
          init_export_buff(export_buff, sizeof(export_buff) );
-         expbp = fmt_compass_export(export_buff, acp->ac_int1, curdeal ) ;
+         Hand52_export(export_buff, acp->ac_int1, curdeal ) ;
          fprintf(fexp, "%s\n", export_buff );
          break ;
      case ACT_CSVRPT:         /* print a new line, of many terms, to the csvrpt file */
@@ -364,13 +356,10 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
         printf("Mean=%10.4f, Std Dev=%10.4f, Var=%10.4f, Sample Size=%ld \n",
               (double)acp->ac_u.acuavg.sum/acp->ac_u.acuavg.count,
               sqrt(d_var), d_var, acp->ac_u.acuavg.count );
-   #ifdef JGMDBG
-        if (jgmDebug >= 4 ) {
-         fprintf(stderr, "Original Average=%g\n", (double) acp->ac_int1 / nprod);
-         fprintf(stderr, "Running Totals: avg=%10.4f, sqrt(vary)=%10.4f, vary=%10.4f, count=%ld \n",
+
+         JGMDPRT(4, "Original Average=%g\n", (double) acp->ac_int1 / nprod);
+         JGMDPRT(4,"Running Totals: avg=%10.4f, sqrt(vary)=%10.4f, vary=%10.4f, count=%ld \n",
               acp->ac_u.acuavg.avg, sqrt(acp->ac_u.acuavg.vary), acp->ac_u.acuavg.vary, acp->ac_u.acuavg.count );
-        } /* endif jgmDebug */
-   #endif
         break;
       case ACT_FREQUENCY:
         printf ("Frequency %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
@@ -432,14 +421,14 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
 } /* end cleanup_action line 264 */
 
 /* Has_card array mow makes this simpler */
-void fprintcompact (FILE * f, deal d, int ononeline) {  /* this is the routine used to spec to GIB */
+void fprintcompact (FILE * f, DEAL52_k d, int ononeline) {  /* this is the routine used to spec to GIB */
   char pt[] = "nesw";
   int s, p, r;
   for (p = COMPASS_NORTH; p <= COMPASS_WEST; p++) { /*after each hand print newline (for compact) or not (oneline)*/
     fprintf (f, "%c ", pt[p]);
     for (s = SUIT_SPADE; s >= SUIT_CLUB; s--) {
       for (r = 12; r >= 0; r--)  { /* r goes from Ace to deuce This loop would give an enum problems*/
-        if ( HAS_KARD ( (p), (s), (r) ) ) {  /* Look up the card in the Has_card array */
+        if ( HAS_CARD ( (p), (s), (r) ) ) {  /* Look up the card in the Has_card array */
           fprintf (f, "%c", ucrep[r]);
         }
       }
@@ -449,7 +438,7 @@ void fprintcompact (FILE * f, deal d, int ononeline) {  /* this is the routine u
   } /* end for p = compass */
 }   /* end printcompact -- The one line version does not put a \n at the end of output. allows integer expr to follow */
 
-void printdeal (deal d) {   /* the PRINTALL action. Print All 4 hands on the fly. 4 across*/
+void printdeal (DEAL52_k d) {   /* the PRINTALL action. Print All 4 hands on the fly. 4 across*/
   int suit, player, rank, cards;
   static int do_title = 1 ;
   if (do_title == 1 && title_len > 0 ) {
@@ -468,7 +457,7 @@ void printdeal (deal d) {   /* the PRINTALL action. Print All 4 hands on the fly
       }
       cards = 0;
       for (rank = 12; rank >= 0; rank--) {
-        if (HAS_CARD (d, player, MAKECARD (suit, rank))) {
+        if ( HAS_CARD(player, suit, rank) ) { 
           printf ("%c ", ucrep[rank]);
           cards++;
         }
@@ -489,7 +478,7 @@ void printdeal (deal d) {   /* the PRINTALL action. Print All 4 hands on the fly
     /* 'n-hands' across at a time (n=4 usually) from an array of hands saved during the generation phase
      * This routine could be made much more efficient by using the fact that the hands are sorted.
      */
-void printhands (int boardno, deal *dealp, int player, int nhands) {
+void printhands (int boardno, DEAL52_k *dealp, int player, int nhands) {
 
   int i, suit, rank, cards;
   JGMDPRT(6,"printhands called with boardno=%d, player=%d, nhands=%d, dealptr=%p \n",boardno,player,nhands,(void *)dealp);
@@ -522,7 +511,7 @@ void printhands (int boardno, deal *dealp, int player, int nhands) {
 } /* end printhands */
 
 /* REWRITE TO USE SORTED DEAL THEN use Deal52_to_GIB to create the text string */
-void printside (deal d, int side ) {  /* JGM Replacement for printew to allow NS also and with title, board#s player names */
+void printside (DEAL52_k d, int side ) {  /* JGM Replacement for printew to allow NS also and with title, board#s player names */
      /* This function prints a partnerships hands (N/S or E/W with S/W on the left)
         primarily intended for examples of auctions with 2 players only.  HU & JGM  */
   static int do_title = 1 ;
@@ -536,12 +525,8 @@ void printside (deal d, int side ) {  /* JGM Replacement for printew to allow NS
       do_title = 0;
   }
   printf ("%4d. %-5s              %-5s\n", (nprod+1), player_name[players[0]], player_name[players[1]] );
-  #ifdef JGMDBG
-    if (jgmDebug > 7 ) {
-       fprintf(stderr, "Printing parnership side [%d] players=[%s , %s]\n",
+  JGMDPRT(7,"Printing parnership side [%d] players=[%s , %s]\n",
                                      side, player_name[players[0]], player_name[players[1]]);
-    }
-  #endif
   for (suit = SUIT_SPADE; suit >= SUIT_CLUB; suit--) {
     printf("     "); /* indent on page to allow room for board number */
     cards = 10;
@@ -552,12 +537,10 @@ void printside (deal d, int side ) {  /* JGM Replacement for printew to allow NS
           cards++;
         }
         cards = 0;   /* reset card count for this player */
-         /* HAS_CARD now just checks the Has_card[][] array in handstat. avoids the
-          *  on average 4*13*13 = 676 probes of the deal array per hand printed
-          */
+         /* HAS_CARD now just checks the Has_card[][] array in handstat. avoids brute force scanning */
         for (rank = 12; rank >= 0; rank--) {
-            if (HAS_CARD (d, player, MAKECARD (suit, rank))) {
-            printf ("%c ", rank_ids[rank]);
+            if ( HAS_CARD(player, suit, rank) ) {
+            printf ("%c ", rank_id[rank]);
             cards++;
           }
         } /* done one suit for this player */
@@ -574,7 +557,7 @@ void printside (deal d, int side ) {  /* JGM Replacement for printew to allow NS
    if ( (((nprod+1) % 10) == 0) && (title_len > 0)) { printf("\f"); do_title = 1 ; } /* 10 deals per page then a form feed and another title */
 }  /* end print side */
 
-int printpbn (int board, deal d) {  /* Rudimentary PBN report primarily to exg with others */
+int printpbn (int board, DEAL52_k d) {  /* Rudimentary PBN report primarily to exg with others */
                                     /* the variables maxdealer and maxvulnerable will show up here */
   /* Symbols for the cards */
   char representation[] = "23456789TJQKA";
@@ -633,7 +616,7 @@ int printpbn (int board, deal d) {  /* Rudimentary PBN report primarily to exg w
   for (player=COMPASS_NORTH; player<=COMPASS_WEST; player++) {
      for (suit = SUIT_SPADE; suit>= SUIT_CLUB; suit--) {
         for (rank=12; rank >= 0; rank--) {
-          if (HAS_CARD(d, player, MAKECARD(suit,rank))) {
+          if ( HAS_CARD(player,suit,rank) ) {
               printf ("%c", representation[rank]);
            }
         }
@@ -763,140 +746,14 @@ void evalcontract(struct action *acp ) { /* Updates the counts if the deal is 'i
     if(0 == side ) {
       ddtricks = dds_tricks( 2, strain ) ;  // if NS make S declarer
     }
-    else ddtricks = dds_tricks( 3, strain ) ; // if EW make W declarer
+    else { ddtricks = dds_tricks( 3, strain ) ; } // if EW make W declarer
 
     ac_cp->trix[ddtricks]++ ; /* add +1 to the number of times ddtricks were taken in this contract */
-    #ifdef JGMDBG
-      if (jgmDebug >= 6 ) show_evalres(acp) ;
-    #endif
-
+	 DBGDO(6, show_evalres(acp) );
     return ;
 } /* end evalcontract */
 
-void init_export_buff( char *bp , size_t buff_len) {
-     memset(bp, '\0', buff_len ) ;
-}
-
-char *fmt_compass_export(char *buff, int p, deal dl ) {
-/* hand is sorted already. dl[p*13+0] = Highest Spade; dl[p*13+12] = lowest club. */
-/* Output to look like -N Sxxxx,Hxxxx,Dxx,Cxxx ; no need to put anything for void suits. */
-   char suit_sep = ',';
-   int curr_suit, card_rank, card_suit;
-   int di, count;
-   unsigned char kard ;
-   char *bp ;
-   bp = buff ;
-#ifdef JGMDBG
-   if (jgmDebug > 8) fprintf(stderr, "Hand52:: bp=%p \n",bp ) ;
-#endif
-   di = p*13 ;
-   count = 0 ;
-   curr_suit = 3 ; // spades
-#ifdef JGMDBG
-   if (jgmDebug > 6 ) {
-       fprintf(stderr, "Hand52_to_buff:: p=%d, di=%d, dl[di]=%02x\n",p,di,dl[di] ) ;
-       fprintf(stderr, "buff=%p, bp=%p \n", buff, bp );
-       }
-#endif
-   *bp++ = '-'; *bp++ = seat_id[p] ; *bp++ = ' ';
-   while (count < 13 ) {
-       kard = dl[di] ; card_suit = C_SUIT(kard); card_rank = C_RANK(kard) ;
-    #ifdef JGMDBG
-        if (jgmDebug > 7 ) { fprintf(stderr,"Top Big While::Kard=%02x, card_suit=%d, card_rank=%d, count=%d, curr_suit=%d\n",
-                                                kard, card_suit, card_rank, count, curr_suit ) ; }
-    #endif
-       while( curr_suit != card_suit ) curr_suit-- ;
-        assert(card_suit == curr_suit) ;
-        *bp++ = strain_id[card_suit];  /* Write the suit Letter */
-        while ( (curr_suit == card_suit) && (count < 13) ) { /* write the cards in this suit */
-            kard = dl[di]; card_suit = C_SUIT(kard); card_rank = C_RANK(kard) ;
-   #ifdef JGMDBG
-            if (jgmDebug > 8 ) {
-                fprintf(stderr,"Top Small While::Kard=%02x, card_suit=%d, card_rank=%d, count=%d, curr_suit=%d\n",
-                                                kard, card_suit, card_rank, count, curr_suit ) ;
-            }
-   #endif
-            if (curr_suit != card_suit ) break;
-           *bp++ = rank_ids[card_rank];
-           count++; di++;
-   #ifdef JGMDBG
-              if (jgmDebug > 7 ) { fprintf(stderr," Num[%d]=%c%c ", count, "CDHS"[curr_suit], *(bp-1) ) ; }
-   #endif
-        } /* end while curr_suit == card_suit */
-   #ifdef JGMDBG
-        if (jgmDebug > 7 ) { fprintf(stderr,"\n"); }
-   #endif
-       *bp++ = suit_sep;
-        curr_suit-- ; /* Move to next suit */
-    } /* end while count < 13 */
-    assert(count == 13 ) ;
-     /* no need to write anything for voids here. wrote 13 cards that's it */
-        /* the last char is the suit separator which we don't need after the club suit, so replace it with a space */
-        if ( *(bp-1) == suit_sep ) { *(bp-1) = ' ' ; }
-        else { fprintf(stderr, "CANT HAPPEN in Hand52_to_Predeal, last char is not a suit_separator %c \n", *(bp-1) ); }
-        *bp = '\0' ; // terminate the buffer as a string
-        return bp  ; /* return pointer to null byte in case we want to append another hand to the buffer */
-} /* end fmt_compass_export*/
-
-char *fmt_side_export(char *buff, int side, deal dl ) {
-   char *pdbp = buff ;
-   pdbp = fmt_compass_export( pdbp, side_hand[side][0], dl ) ;
-   *pdbp++ = ' ';
-   fmt_compass_export( pdbp, side_hand[side][1], dl ) ;
- #ifdef JGMDBG
-      if(jgmDebug >= 5) {
-         fprintf(stderr, "Export Side[%d] Result:[%s]\n------------------------------------------\n", side, buff );
-      }
- #endif
-
-   return pdbp ;
-
-} /* end fmt_side_export */
-char *Hand52_to_pbnbuff (int p, char *dl, char *buff ) {  //pbnbuff has no - for voids suit_sep=Dot, hand_sep=spc
-/* hand sorted. dl[p*13+0] = Highest Spade; dl[p*13+12] = lowest club. */
-   char r_ids[] = "23456789TJQKA";
-   int curr_suit, card_rank, card_suit;
-   int di, count;
-   char *bp ;
-   unsigned char kard ;
-   char suit_sep = '.';
-   di = p*13 ;
-   bp = buff ;
-   count = 0 ;
-   curr_suit = 3 ; // spades
-   while (count < 13 ) {  // a hand ALWAYS has exactly 13 cards
-       kard = dl[di] ; card_suit = C_SUIT(kard); card_rank = C_RANK(kard) ;
-       while( curr_suit != card_suit ) { /* write a suit separator for missing suits spades downto first one*/
-            *bp++ = suit_sep;
-            if (jgmDebug > 6 ) { fprintf(stderr, "Wrote Void for suit %d \n",curr_suit ) ; }
-            curr_suit-- ;
-        } /* end while curr_suit != card_suit */
-        assert(card_suit == curr_suit) ;
-        while ( (curr_suit == card_suit) && (count < 13) ) { /* write the cards in this suit */
-            kard = dl[di]; card_suit = C_SUIT(kard); card_rank = C_RANK(kard) ;
-            if (curr_suit != card_suit ) break;
-           *bp++ = r_ids[card_rank];
-           count++; di++;
-           if (jgmDebug > 7 ) { fprintf(stderr," Num[%d]=%c%c ", count, "CDHS"[curr_suit], *(bp-1) ) ; }
-        } // end while curr_suit
-        if (jgmDebug > 7 ) { fprintf(stderr,"\n"); }
-       *bp++ = suit_sep;
-        curr_suit-- ; /* Move to next suit */
-    } /* end while count < 13*/
-    assert(count == 13 ) ;
-    // Normal case curr_suit is -1; void clubs curr_suit = 0, void clubs, diamonds, and hearts curr_suit = 2
-    // In case there were voids at the end of 13 cards
-        while ( curr_suit >= 0 ) { /* write a suit separator for missing suits after the last one downto clubs*/
-            *bp++ = suit_sep ;
-            curr_suit-- ;
-        }
-        /* the last char is the suit separator which we don't need after the club suit, so replace it with a space */
-        if ( *(bp-1) == suit_sep ) { *(bp-1) = ' ' ; }
-        else { fprintf(stderr, "CANT HAPPEN in Hand52_to_Buff, last char is not a suit_separator %c \n", *(bp-1) ); }
-        *bp = '\0' ; // terminate the buffer as a string
-        return bp  ; /* return pointer to null byte in case we want to append another hand to the buffer */
-} /* end Hand52_to_pbnbuff */
-void printhands_pbn( FILE *fp, int mask, deal d ) {   // No newline at end of print. Caller to put \n or comma as reqd.
+void printhands_pbn( FILE *fp, int mask, DEAL52_k d ) {   // No newline at end of print. Caller to put \n or comma as reqd.
 /* print the hands in the same format as printoneline does but option to print 1,2,3,or 4 hands */
 /* Hands are always printed in order of N,E,S,W but some may be omitted e.g. might be only E and S */
 /* also do not print newline at end. */
@@ -911,7 +768,7 @@ void printhands_pbn( FILE *fp, int mask, deal d ) {   // No newline at end of pr
   for (p=0 ; p< 4; p++ ) {
      if ( !(mask & 1 << p ) ) continue ; /* skip this player if he was not called for */
     *pbn_ptr++ = pt[p]; *pbn_ptr++ = ' ' ; // player names are followed by a space */
-    pbn_ptr = Hand52_to_pbnbuff (p, (char *)d, pbn_ptr ); // append a hand to end of pbnbuff; returns ptr to null at end.
+    pbn_ptr = Hand52_to_PBNbuff (p, (char *)d, pbn_ptr ); // append a hand to end of pbnbuff; returns ptr to null at end.
   }
   /* pbnbuff formatted now print it out */
   fprintf(fp, "%s",pbn_buff ) ; /* no newline at this point. */

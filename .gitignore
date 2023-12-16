@@ -1,4 +1,7 @@
+Ignore/*
+Utils/Testing/*
 DOP_Validate/*
+Utils/Testing/*
 JUNK/*
 JUNK
 junk/*

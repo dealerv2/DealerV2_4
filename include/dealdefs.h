@@ -1,5 +1,7 @@
-  /* File dealdefs.h --
-   * Date      Version   Author  Description
+  /* File dealdefs.h -- */
+#ifndef DEALDEFS_H
+#define DEALDEFS_H 1
+  /* Date      Version   Author  Description
    * 2022/01/02 1.0.0    JGM     Collect all dealer symbolic constants and macros in one place.
    * 2022/02/09 2.1.5    JGM     FD shapes, and printrpt ported from deal_v3
    * 2022/10/05 2.3.0    JGM     Added Bucket Frequency histograms functionality. Re-Orged globals.c treatment.
@@ -11,19 +13,19 @@
    * 2023/08/04 3.0.2	 JGM 	 Redo rplib_fix. Create rp_err_check etc. 
    * 2023/10/10 4.0.0    JGM     Finalize switch to Mint21 code and libraries because of new GCC/g++ compilers 
    * 							 Also modify Precedence and Associativity for ?: to fix nesting bug. 
+   * 2023/11/10 4.0.1    JGM	 Cleaned up HASKARD, HAS_KARD, HASCARD, HAS_CARD usage and defintions. eliminated unused ones.
    */
 
   /* Make the header file guard .. */
-#ifndef DEALDEFS_H
-#define DEALDEFS_H 1
+
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
 #endif
-#define BUILD_DATE "2023/10/10"
+#define BUILD_DATE "2023/12/10"
 #ifndef JGMDBG
-  #define VERSION "4.0.0"
+  #define VERSION "4.2.1"
 #else
-  #define VERSION "104.0.0"
+  #define VERSION "104.2.1"
 #endif
 
 #ifndef UNUSED
@@ -34,19 +36,28 @@
 #ifndef NOTUSED
    #define NOTUSED(v) ( (void)(v) )
 #endif
-  /* this next one used in the  defs.y file in bias deal code converts -ve numbers to zero, leaves +ve numbers as is*/
+  /* this next one used in the  dealyacc.y file in bias deal code converts -ve numbers to zero, leaves +ve numbers as is*/
 #ifndef TRUNCZ
  #define TRUNCZ(x) ((x)<0?0:(x))
 #endif
+#ifndef TRUE
+	#define TRUE 1
+#endif
+#ifndef FALSE
+	#define FALSE 0
+#endif
+
 #define ARRAY_SIZE(arr) (sizeof( (arr) ) / sizeof( (arr)[0] )
 #define MIN(x,y)    ( (x) < (y) ) ? (x) : (y)
 #define MAX(x,y)    ( (x) > (y) ) ? (x) : (y)
+ // This swap is not as efficient as t=x;x=y;y=t; but is not type dependent nor need a tmp variable.
 #define SWAP(x,y) { (x) ^= (y) ; (y) ^= (x) ; (x) ^= (y) ; }
 
 /* this next one added because Linux has a BRIDGE utility that refers to ethernet cards */
 /* will have to make sure there is an ln /usr/games/gibcli to /usr/games/bridge which is the real name of the GIB binary*/
 #define DD_PGM "/usr/games/gibcli"
 #define OPC_PGM "/usr/local/bin/DOP/dop"
+// There is a linux utility program 'fdp' in /usr/bin that is related to graphviz
 #define FDP_PGM "/usr/local/bin/DealerV2/fdp"
 #define SERVER_PATH_SIZE 255
 #define SUCCESS 1
@@ -55,10 +66,15 @@
 #define CACHE_INV 0
 #define CACHE_OK  1
 #define CACHE_UPD 2
+#define BIG_XS    999  
+#define NO_XS      99  
+
 
 /* ENUMS need spot, no suit = -1 to force enum type to signed int instead of unsigned int */
 enum rank_ek {TWO=0, DEUCE=0, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE, SPOT=-1 } ;
-enum suit_ek {CLUBS=0, DIAMONDS, HEARTS, SPADES, nosuit=-1 } ;
+enum suit_ek {CLUBS=0, DIAMONDS, HEARTS, SPADES, NOTRUMP, nosuit=-1 } ;
+enum dealmode_k {INV_MODE= -1, DEF_MODE = 0, LIB_MODE, BIAS_MODE, PREDEAL_MODE, SWAP_MODE   };
+enum deal_err_k {DL_ERR_FATAL=-9, DL_ERR_BIAS= -2, DL_ERR_RPLIB= -1, DL_OK = 0 };
 
  /* these next ones mostly by JGM */
  /* These next three numbers do NOT include room for a terminating NULL char */
@@ -66,6 +82,7 @@ enum suit_ek {CLUBS=0, DIAMONDS, HEARTS, SPADES, nosuit=-1 } ;
  #define COMPACT_DEAL_SIZE 96
  #define PBNLINE 69
  #define MAXLINE 256
+ #define MAXBUFFSZ 256    /* Should not be any buffers in Dealer that are bigger than 255 */
 
 /* RP_BLOCKSIZE will be adjusted at run time based on the number of records in the Library file
  * The max_seed value will also be adjusted based on the blocksize
@@ -94,14 +111,14 @@ enum suit_ek {CLUBS=0, DIAMONDS, HEARTS, SPADES, nosuit=-1 } ;
 #define CARD_SUIT(c) ( ((int) ( (c)>>4)&0x0F)  )
 #define MAKECARD(suit,rank) ( (char) (((suit)<<4) | ((rank)&0x0F)) )
 #ifndef C_SUIT
-  #define C_SUIT(c)    ( ((c)>>4)&0xF )
-  #define C_RANK(c)    (  (c)&0xF     )
+  #define C_SUIT(c)    ( (int) ((c)>>4)&0xF )
+  #define C_RANK(c)    ( (int)  (c)&0xF     )
 #endif
 #define NO_CARD     0x7F   /* was 0xFF; changed when card became signed char */
-#define HASKARD(d,p,c) hasKard(d,p,c)  // we need this one for printcompass; handstat is not current at that point.
+#define IS_CARD(c)   ( (( 0x00 <= (c) && (c) <= 0x3C ) ? 1 : 0) )
+
 /* HAS_CARD redefined. 2022/11/10; Analyze now populates the array Has_card[h][13] simplifying a frequent lookup */
-#define HAS_CARD(d,p,c) hs[(p)].Has_card[C_SUIT((c))][C_RANK((c))]
-#define HAS_KARD(p,s,r) hs[(p)].Has_card[ (s) ][ (r) ]
+#define HAS_CARD(p,s,r) hs[(p)].Has_card[ (s) ][ (r) ]				// 0 if not in hand, 1 if in hand
 
 #define NSEATS          4
 #define SIDE_NS         0
@@ -221,7 +238,9 @@ enum suit_ek {CLUBS=0, DIAMONDS, HEARTS, SPADES, nosuit=-1 } ;
 #define RK_EIGHT         6
 
 #define TWO_TO_THE_13 (1<<13)
-/* since int is 4 bytes get 32 different shape statements.
+
+/*          Distribution Shape clauses 
+ * Since int is 4 bytes get 32 different shape statements.
  * On 64 bit system could get 64 shape statements if were to use long ints.
  * This would require changing several declarations in various locations.
  */
@@ -232,7 +251,7 @@ enum suit_ek {CLUBS=0, DIAMONDS, HEARTS, SPADES, nosuit=-1 } ;
 
 /* --------------------JGM LATER ADD ONS ------------------------------- */
   // #define RANDOM drand48
-#define RANDOM(top)  gen_rand_slot( (top) )
+#define RANDOM(top)  gen_rand_slot( (top) )  // returns int in range 0 .. top-1 inclusive by truncating a double 
 #define SRANDOM(s)   init_rand48((s))
 
 #endif /*ifndef DEALDEFS_H */

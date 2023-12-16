@@ -4,7 +4,7 @@
  * 2023/08/12  1.1.0	   JGM			Wrap-around Bug?
  */
 #define GNU_SOURCE
-#define JGMDBG 1              /* so the dbgprt_macros.h works ok */
+// #define JGMDBG 1              /* so the dbgprt_macros.h works ok use -DJGMDBG in gcc cmd */
 
 #include "../include/std_hdrs.h"
 
@@ -35,8 +35,6 @@ enum card_rank_ek {spot=-1, Two_rk=0, Three_rk, Four_rk, Five_rk, Six_rk, Seven_
 int ddres[4][5] = {0} ; /* results per seat/strain -- dealer numbering North=0, West=3;  Clubs=0, NT=4*/
 union zsep_ut null_sep;
 struct rpdd_st rp_rec;
-         /* --- Protos  ---*/
-void sr_deal_show( char *dl  ) ;
 
          /* --- Subroutines  ---*/
 void hex_show_rprec(int recnum, struct rpdd_st *rprec ) {
@@ -167,7 +165,7 @@ int get_rprec (FILE *rpfile, struct rpdd_st *rp_rec, struct options_st *opts ) {
 					__FILE__,__LINE__,rp_pass_num,rp_cnt,rplib_recnum,ngen);
 				fseek(rpfile, 0, SEEK_SET ) ;           /* rewind to beginning */
 				rplib_recnum = 0 ;        				/* recnum tracks errors; want to know actual one in the file */
-				rp_pass_num++;							/* main loop will check this and abort once gets >= 2 */
+				rp_pass_num++;							/* main loop will check this and goto EOJ once gets >= 2 */
       
 				/* Now try reading first record in file */
 				byte_cnt = fread(rp_rec, 1, sizeof(struct rpdd_st), rpfile) ;
@@ -229,7 +227,7 @@ int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the gl
       }
    } /* end while -- either a valid record or an exceeded wrap count */
      if(rp_pass_num >= 2 ) {  /* get_rprec has not given us a valid record. */
-		  return -1 ;
+		  return DL_ERR_RPLIB ;
 	 }
 	 rp_cnt++;   /* the number of valid actual deal records read. (not separators) akin to ngen */
      /* Got a valid Library record. Decode it into deal52 format, and tricks. */ 
@@ -256,7 +254,7 @@ int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the gl
                default : printf("Cant happen in switch pnum = %d \n", pnum ) ;
             }
            JGMDPRT(8, " Card %c%c at pos %d:%d assigned to %c; seatcounts: N=%d,E=%d,S=%d,W=%d \n",
-                     "CDHS"[suit],rank_ids[rank],crdpos,j, "WNES"[pnum],npos,(epos-13),(spos-26),(wpos-39) ) ;
+                     "CDHS"[suit],rank_id[rank],crdpos,j, "WNES"[pnum],npos,(epos-13),(spos-26),(wpos-39) ) ;
             if (--rank < 0 ) { /* have we done all of current suit?  */
                rank = Ace_rk;    /* then start new suit */
                suit-- ;
@@ -292,7 +290,7 @@ int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the gl
       dds_res_bin.parScore_NS = 0 ; /* par score will be calculated if input file calls for it. */
       dds_res_bin.CacheStatus = CACHE_OK ;
       dds_dealnum = ngen ;
-      return 1 ;
+      return DL_OK ;
 } /* end get_rp_deal */
 
 

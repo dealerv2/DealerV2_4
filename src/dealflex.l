@@ -13,6 +13,7 @@
 /* JGM 2022-09-14   Removed defcount. Added bktfreq. */
 /* JGM 2022-11-07   Mods for UserEval; new token ; new keyword .. */
 /* JGM 2022-12-20   Touch up for UserEval; uevtag, var name change */
+/* JGM 2023-12-10   Added VULNERABILITY so as to be able to set it in par() clause */
  #ifndef _GNU_SOURCE
    #define _GNU_SOURCE
  #endif
@@ -113,7 +114,7 @@
     cptr = fgets(fd_res->fd_shape_str, FD_SHAPE_LEN, fp ) ;  // read the output of the pipe; includes one NULL
     if ( cptr == NULL ) {
         perror( ":: fgets returned NULL" ) ;
-        fprintf(stderr, "parse_fd_shapes:: fgets dpp cmd failed ! \n");
+        fprintf(stderr, "parse_fd_shapes:: fgets fdp cmd failed ! \n");
         return -1 ;
     }
     fd_res->shape_len = strlen(fd_res->fd_shape_str);
@@ -164,7 +165,7 @@
  }
 
 %}
-        /* Flex Declarations section: States, aliases etc. */
+    /* Flex Declarations section: States, aliases etc. */
     /* Ask Flex to keep track of the input line number -- the user action macro (line 15) will also pass yylineno to bison*/
 %option yylineno
 
@@ -342,6 +343,12 @@ opener({ws}|{nl})  { BEGIN(OPENER); }
 evalcontract    { return(EVALCONTRACT); }
 nv              { yylval.y_int = NON_VUL; return VULN; }
 vul             { yylval.y_int = VUL; return VULN; }
+
+ns              {yylval.y_int = VULNERABLE_NS   ; return VULNERABILITY ; }
+ew              {yylval.y_int = VULNERABLE_EW   ; return VULNERABILITY ; }
+none            {yylval.y_int = VULNERABLE_NONE ; return VULNERABILITY ; }
+both|all        {yylval.y_int = VULNERABLE_ALL  ; return VULNERABILITY ; }
+
 
 north           { yylval.y_int = COMPASS_NORTH; return COMPASS; }
 east            { yylval.y_int = COMPASS_EAST; return COMPASS; }

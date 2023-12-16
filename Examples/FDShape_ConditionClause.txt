@@ -1,0 +1,36 @@
+*--------------------- This file is NOT a dealer Input file (.txt not .dli) -----------------------*
+The file shows the results of running the fdpi utility with various FDShapes using condition clauses.
+It shows that you can have several AND clauses chained together to fine tune your shape requirements.
+It also shows that you can have the letters M and m (with certain restrictions) in the condition clause. See the last example.
+*-------------------------------------------------------------------------------------------------*
+fdpi
+?>shape{west,(5xxx):h>s,h>d,d>c } // will ensure that hearts is the longest suit.
+Parsing:: shape{west,(5xxx):h>s,h>d,d>c }
+[Length:108, patterns: 14] shape(west,0652 + 0751 + 0850 + 1543 + 1651 + 1750 + 2542 + 2650 + 3532 + 3541 + 4531 + 4540 + 5620 + 5710)
+
+?>shape{west,(52xx):h>s,h>d,h>c}
+Parsing:: shape{west,(52xx):h>s,h>d,h>c}  // hearts longest; clubs might be longer than diam.
+[Length:94, patterns: 12] shape(west,0625 + 0652 + 2524 + 2533 + 2542 + 2605 + 2650 + 3523 + 3532 + 4522 + 5602 + 5620)
+
+shape{west,(5xxx):h>s }         // diamonds or clubs might be longer than hearts
+[Length:332, patterns: 46] shape(west,0157 + 0175 + 0256 + 0265 + 0355 + 0445 + 0454 + 0535 + 0553 + 05xx + 0625 + 0652 + 0715 + 0751 + 0805 + 0850 + 1255 + 1345 + 1354 + 1435 + 1453 + 1525 + 1552 + 15xx + 1615 + 1651 + 1705 + 1750 + 2335 + 2353 + 2425 + 2452 + 2515 + 2551 + 25xx + 2605 + 2650 + 3415 + 3451 + 3505 + 3550 + 35xx + 45xx + 56xx + 57xx + 5800)
+
+?>shape{west,(52xx):h>s}
+Parsing:: shape{west,(52xx):h>s}
+[Length:185, patterns: 25] shape(west,0256 + 0265 + 0526 + 0562 + 0625 + 0652 + 1255 + 1525 + 1552 + 2335 + 2353 + 2425 + 2452 + 2515 + 2524 + 2542 + 2551 + 25xx + 2605 + 2650 + 3523 + 3532 + 4522 + 5602 + 5620)
+
+?>shape{west,(xxxx):h>s,h>d,h>c,h<8 }   // hearts is longest suit; and heart length 7 or less.
+Parsing:: shape{west,(xxxx):h>s,h>d,h>c,h<8 }
+[Length:507, patterns: 71] shape(west,0544 + 0625 + 0634 + 0643 + 0652 + 0706 + 0715 + 0724 + 0733 + 0742 + 0751 + 0760 + 1534 + 1543 + 1615 + 1624 + 1633 + 1642 + 1651 + 1705 + 1714 + 1723 + 1732 + 1741 + 1750 + 2524 + 2533 + 2542 + 2605 + 2614 + 2623 + 2632 + 2641 + 2650 + 2704 + 2713 + 2722 + 2731 + 2740 + 3433 + 3514 + 3523 + 3532 + 3541 + 3604 + 3613 + 3622 + 3631 + 3640 + 3703 + 3712 + 3721 + 3730 + 4504 + 4513 + 4522 + 4531 + 4540 + 4603 + 4612 + 4621 + 4630 + 4702 + 4711 + 4720 + 5602 + 5611 + 5620 + 5701 + 5710 + 6700)
+
+/* This next example shows the pitfalls of trying to use the M and m letters in a condition clause without testing.
+ * You might thing that M>m would mean that a Major must be the longest suit 
+ * but it means that at least one Major must be longer than at least one minor. So a pattern like 2560 is valid since S (&H) are longer than clubs.
+ * There is also the inconsistency that 0562 is not given as valid. 
+ * In general steer clear of using M and m in condition clauses.
+ */
+?>shape{west, (5xxx):M>m }   // at least one 5 card suit and one Major must be longer than one minor. note that 2560 (D longest but Maj> Cl) is OK
+Parsing:: shape{west, (5xxx):M>m }
+[Length:892, patterns: 126] shape(west,0535 + 0553 + 0625 + 0652 + 0715 + 0751 + 0805 + 0850 + 1435 + 1453 + 1507 + 1525 + 1552 + 1570 + 1615 + 1651 + 1705 + 1750 + 2425 + 2452 + 2506 + 2515 + 2551 + 2560 + 2605 + 2650 + 3325 + 3352 + 3415 + 3451 + 3505 + 3514 + 3523 + 3532 + 3541 + 3550 + 4135 + 4153 + 4225 + 4252 + 4315 + 4351 + 4405 + 4450 + 4504 + 4513 + 4522 + 4531 + 4540 + 5035 + 5053 + 5107 + 5125 + 5152 + 5170 + 5206 + 5215 + 5251 + 5260 + 5305 + 5314 + 5323 + 5332 + 5341 + 5350 + 5404 + 5413 + 5422 + 5431 + 5440 + 5503 + 5512 + 5521 + 5530 + 5602 + 5611 + 5620 + 5701 + 5710 + 5800 + 5x0x + 5x1x + 5x2x + 5x3x + 5x4x + 5xx0 + 5xx1 + 5xx2 + 5xx3 + 5xx4 + 6025 + 6052 + 6115 + 6151 + 6205 + 6250 + 6502 + 6511 + 6520 + 6x5x + 6xx5 + 7015 + 7051 + 7105 + 7150 + 7501 + 7510 + 7x5x + 7xx5 + 8005 + 8050 + 8500 + x50x + x51x + x52x + x53x + x54x + x5x0 + x5x1 + x5x2 + x5x3 + x5x4 + x65x + x6x5 + x75x + x7x5)
+
+

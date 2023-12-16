@@ -5,8 +5,8 @@
   #include "../include/dealtypes.h"  /* we need the various action struct definitions here. */
 #endif
 // Globals
-extern int *freq2D ;              // ptr to area assigned by calloc for the Freq Counters
-extern int *freq1D ;              //   Ditto -- we maybe don't need these as the stuct has the ptr and use these only as temps
+//extern int *freq2D ;              // ptr to area assigned by calloc for the Freq Counters
+//extern int *freq1D ;              //   Ditto -- we maybe don't need these as the stuct has the ptr and use these only as temps
 
 // Protos
 extern int *alloc_bkts1D(struct bucket_st *bkt1D) ;

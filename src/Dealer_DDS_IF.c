@@ -8,7 +8,8 @@
 #include "../include/dealdefs.h"
 #include "../include/dealtypes.h"
 #include "../include/dds_dll.h"         /* minimal api for DDS library */
-#include "../include/deal_dds.h"        /* the link between DDS and Dealer */
+#include "../include/dealdds_subs.h"    /* the link between DDS and Dealer */
+#include "../include/dealutil_subs.h"   /* for sortDeal and sortHand */
 
 // File Globals used in our code go here
 extern int jgmDebug ;
@@ -22,16 +23,16 @@ unsigned int    DDS_BITMASK[13] = {         0x0004, 0x0008, 0x0010, 0x0020, 0x00
 /* what follows should be strictly intenal to us */
 // Code Prototypes used here
 int validPBNline(char *pbn_ptr );
-struct ddTableDeal Deal52_to_DDSBIN(deal d);      // ddTableDeal uses [hands][suits] index order
-struct ddTableDealPBN Deal52_to_DDSPBN (deal d );
-int Deal52_to_Holding(deal d , unsigned int kards[DDS_HANDS][DDS_SUITS] ) ;
+struct ddTableDeal Deal52_to_DDSBIN( DEAL52_k  d);      // ddTableDeal uses [hands][suits] index order
+struct ddTableDealPBN Deal52_to_DDSPBN ( DEAL52_k  d );
+int Deal52_to_Holding( DEAL52_k  d , unsigned int kards[DDS_HANDS][DDS_SUITS] ) ;
 
     /* a couple of debugging routines */
     void showRawResults (  struct ddTableResults *dd );  // ddTableResults uses [strains][hands] index order
     void showReturns(  DDSRES_k *dd ) ;
 
 /* Begin the code. Supporting routines for Dealer to DDS interface. Convert Deal52 to DDSBIN and DDSPBN */
-int Deal52_to_Holding(deal d , unsigned int kards[DDS_HANDS][DDS_SUITS] ) {
+int Deal52_to_Holding( DEAL52_k  d , unsigned int kards[DDS_HANDS][DDS_SUITS] ) {
   int s, r, h, dds_s;
   int di ;
   for (h = 0 ; h < DDS_HANDS; h++ ) {
@@ -52,7 +53,7 @@ int Deal52_to_Holding(deal d , unsigned int kards[DDS_HANDS][DDS_SUITS] ) {
   return 1 ;
 } /* end Deal52_to_Holding */
 
-struct ddTableDeal Deal52_to_DDSBIN(deal d) {
+struct ddTableDeal Deal52_to_DDSBIN( DEAL52_k  d) {
   struct ddTableDeal dl;
   int s, r, h, dds_s;
   int di ;
@@ -74,36 +75,6 @@ struct ddTableDeal Deal52_to_DDSBIN(deal d) {
   return dl ;
 } /* end Deal52_to_DDSBIN */
 
-/* simple  Descending Order Ace to Deuce Insertion sort:
- * Test show that for 13 elems Insertion is faster than Shell or Selection
- * for a 52 element array as opposed to 4x13 elements Shell sort is about 10% faster than Insertion */
-void sortHand(card *hnd_ptr, int size) {
-    int key, j, step;
-    /* we can use this to sort the 'hands' in deal. pass it deal[0], deal[13], deal[26] or deal[39] with size of 13 */
-  for (step = 1; step < size; step++) {
-    key = *(hnd_ptr + step);
-    j = step - 1;
-    while (key > *(hnd_ptr + j) && j >= 0) {
-      *(hnd_ptr + j+1) = *(hnd_ptr + j);
-      --j;
-    }
-    *(hnd_ptr + j+1) = key;
-  } /* end for step */
-} /* end sortHand */
-
-void sortDeal(deal dl ) {
-    int p ;
-    card *h_ptr ;
-    for (p = 0 ; p < 4 ; p++ ) { /* p is the player, 0=North, etc. We sort each quarter of the deal separately */
-        h_ptr = &dl[p*13];
-#ifdef JGMDBG
-        if(jgmDebug > 6 ) {
-             fprintf(stderr, "Sorting hand[%d] starting with card [%02x] -> [%02x]\n", p, dl[p*13], *h_ptr );
-        }
-#endif
-        sortHand( h_ptr, 13 ) ;
-    }
-} /* end sortDeal */
 
 int validPBNline(char *pbn_ptr ) { // check that not too long and that first char is seat, 2nd char : or space
     size_t bufflen;
@@ -134,7 +105,7 @@ int validPBNline(char *pbn_ptr ) { // check that not too long and that first cha
     return TRUE ;
 } /* end validPBNline */
 
-struct ddTableDealPBN Deal52_to_DDSPBN (deal d ) {  /* d will be modified by sort. Caused a problem for Predeals pre2023*/
+struct ddTableDealPBN Deal52_to_DDSPBN (DEAL52_k  d ) {  /* d will be modified by sort. Caused a problem for Predeals pre2023*/
     // N:832.T763.J42.K72 AKJ6.A984.Q6.Q43 T4.Q52.T8753.T65 Q975.KJ.AK9.AJ98
     // N:...AKQJT98765432 ..AKQJT98765432. .AKQJT98765432.. AKQJT98765432...  is the pathological case
   char pt[] = "nesw";
@@ -177,7 +148,7 @@ struct ddTableDealPBN Deal52_to_DDSPBN (deal d ) {  /* d will be modified by sor
      return pbn_deal ;
 } /* end Deal52_to_DDSPBN */
 
-int GIB_to_Deal52( deal dl , char *t ) { /* convert a GIB style ( printoneline fmt ) text string to Deal52 */
+int GIB_to_Deal52( DEAL52_k  dl , char *t ) { /* convert a GIB style ( printoneline fmt ) text string to Deal52 */
     size_t slen ;
     int dlcnt ;
     int tc , seat ;
@@ -280,10 +251,10 @@ void showReturns(  DDSRES_k *dd ) {
       }
       fprintf(stderr, "]\n");
     } /* end for h */
-    fprintf(stderr, " NSPar=[%d] Contract=[%s]\n",dd->parScore_NS, dd->ddsmsg );
+    fprintf(stderr, " NS DefPar=[%d] Contract=[%s]\n",dd->parScore_NS, dd->ddsmsg );
 } /* end ShowReturns() */
 
-void dump_Deal(struct deal_st dl) { // deal_st uses [hands][suits] coding
+void dump_Deal(struct deal_st dl) { // Dump a DDS style (64 bytes) deal. deal_st uses [hands][suits] coding
     int  pnum , cardcount;
     char *pname="NESW";
     char *sname="SHDC";          /* In DDS Spades is suit 0, Clubs is suit 4 */

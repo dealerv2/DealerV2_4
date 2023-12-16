@@ -52,4 +52,5 @@ ZTot_W = ZDist_W +ZHCP_W
 
 
 action
+#printrpt ("ZARTot=",ZTot_W, " ZDist_W=",ZDist_W, " ZHCP_W=",ZHCP_W, " SS=",SS , " LS=", LS , " L2=", L2, " MLC=", MLC, " MLD=",MLD," MLH=",MLH," MLS=",MLS),
 printrpt (west, "ZARTot=",ZTot_W, " ZDist_W=",ZDist_W, " ZHCP_W=",ZHCP_W, " SS=",SS , " LS=", LS , " L2=", L2, " MLC=", MLC, " MLD=",MLD," MLH=",MLH," MLS=",MLS ),

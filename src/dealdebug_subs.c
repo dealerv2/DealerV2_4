@@ -13,10 +13,24 @@
 #include "../include/dealdefs.h"
 #include "../include/dealtypes.h"
 #include "../include/dealexterns.h"
-#include "../include/dealprotos.h"
+#include "../include/deal_conversion_subs.h"  // for Hand52_to_PBNbuff */
+#include "../include/dealdebug_subs.h"
+// #include "../include/dealprotos.h"
+
+
 
 #include "../include/dealdebug_subs.h"
-void show_hands_pbn( int mask, deal d ) {
+/* search 13 slots in deal looking  for one specific card -- original version of hascard
+ * Since this is for debuging do NOT rely on deal being sorted, or having handstat filled in.
+ */
+int gotKard (DEAL52_k  d, int player, CARD52_k  thiscard){
+  int i;
+  for (i = player * 13; i < (player + 1) * 13; i++)
+    if (d[i] == thiscard) return 1;
+  return 0;
+} /* end gotKard */
+
+void show_hands_PBN( int mask, DEAL52_k  d ) {
 /* Clone of printhands_pbn in action subs.c except always goes to stderr */
   char pt[] = "nesw";
   int  p;
@@ -25,14 +39,14 @@ void show_hands_pbn( int mask, deal d ) {
   for (p=0 ; p< 4; p++ ) {
      if ( !(mask & 1 << p ) ) continue ; /* skip this player if he was not called for */
     *pbn_ptr++ = pt[p]; *pbn_ptr++ = ' ' ; // player names are followed by a space */
-    pbn_ptr = Hand52_to_pbnbuff (p, (char *)d, pbn_ptr ); // append a hand to end of pbnbuff; returns ptr to null at end.
+    pbn_ptr = Hand52_to_PBNbuff (p, (char *)d, pbn_ptr ); // append a hand to end of pbnbuff; returns ptr to null at end. 
   }
   /* pbnbuff formatted now print it out */
   *pbn_ptr++ = '\n'; *pbn_ptr='\0';
   fprintf(stderr, "%s",pbn_buff ) ; /* no newline at this point. */
 
-} /* end show_hands_pbn */
-void dump_curdeal(deal d) { /* ouput deal in easy to read, verbose fmt */
+} /* end show_hands_PBN */
+void dump_curdeal(DEAL52_k  d) { /* ouput deal in easy to read, verbose fmt */
     int  pnum , cardcount;
     char *pname="NESW";
     char *sname="CDHS";
@@ -61,11 +75,11 @@ void dump_curdeal(deal d) { /* ouput deal in easy to read, verbose fmt */
               assert(TWO <= r && r<= ACE );  /* if r is not signed this will not be true */
               rn = rname[r];
               crd = MAKECARD (s, r);
-              fprintf(stderr, "%02X => %d:%c ", crd, r, rn); // Comment out.
-              if (hascard(d, pnum, crd)) {
-                     fprintf(stderr, "%c%c ",sid, rn );
-                  cardcount++ ;
-              } /* end if hascard */
+              fprintf(stderr, "%02X => %d:%c ", crd, r, rn); // Show which card we are testing.
+              if (gotKard(d, pnum, crd)) {   /* slow version  in debugging routine since handstat maybe not setup yet */
+                  fprintf(stderr, "%c%c ",sid, rn );  /* print the tested card if this player has it. */
+                  cardcount++ ;								/* otherwise print nothing. makes it hard to see at a glance... */
+              } /* end if gotKard */
             } /* end for r = ACE */
             fprintf (stderr, "}\n");
         } /* end for s suit */
@@ -76,7 +90,7 @@ void dump_curdeal(deal d) { /* ouput deal in easy to read, verbose fmt */
   fsync(2) ;
 } /* end dump curr deal */
 
-void hexdeal_show(deal dl, int sz ) { /* one line output of the coded cards in hex */
+void hexdeal_show(DEAL52_k  dl, int sz ) { /* one line output of the coded cards in hex */
     int i ;
     i = 0;
     fprintf (stderr, " dl=[");
@@ -86,7 +100,7 @@ void hexdeal_show(deal dl, int sz ) { /* one line output of the coded cards in h
     fprintf(stderr, "]\n");
 }
 
-void sr_deal_show(deal dl ) { /* two line output of the cards in SuitRank */
+void sr_deal_show(DEAL52_k  dl ) { /* two line output of the cards in SuitRank; easy to read */
     char rns[] = "23456789TJQKA-";
     char sns[] ="CDHS";
     char rn, sn , sp;
@@ -109,7 +123,7 @@ void sr_deal_show(deal dl ) { /* two line output of the cards in SuitRank */
     fsync(2);
 } /* end sr_deal_show */
 
-void sr_hand_show(int p, deal dl ) {  /* two line output of the cards in SuitRank */
+void sr_hand_show(int p, DEAL52_k  dl ) {  
     char rns[] = "23456789TJQKA";
     char sns[] ="CDHS";
     char rn, sn ;
@@ -126,6 +140,28 @@ void sr_hand_show(int p, deal dl ) {  /* two line output of the cards in SuitRan
     fprintf (stderr, "]\n");
     fsync(2);
 } /* end sr_hand_show */
+/* A true Deal52 always has players in order N,E,S,W. */
+void show_Deal52(DEAL52_k d) {  // This code does not sort the hands; but will work either way; output looks better sorted. 
+    int  pnum ;
+    char *pname="NESW";
+    int r, s;  
+    int i ;
+    char kard , *pkard;
+    pnum = 0 ;
+    for (pnum = 0; pnum < 4; pnum++) {
+        printf (" Player[%c ] ", pname[pnum]);
+        pkard = d + pnum*13 ;
+        for (i=0; i<13 ; i++ ) {
+           kard = *(pkard + i) ;
+           s = C_SUIT( kard  ) ;
+           r = C_RANK( kard  ) ;
+           printf("%c%c ","CDHS"[s],"23456789TJQKA"[r] ) ;
+         }
+         printf("\n");
+  } /* end for player */
+  fprintf(stdout, "----------------ShowDeal52  ----------------\n");
+} /* end show_Deal52 */
+
 /* These next routines to display the structures that yyparse builds. Helps understand how Dealer works. */
     int var_lev = 0;  /* file level global for the showvar_tree routines */
 void showtreenode(int tlev, struct tree *tr) {
@@ -286,4 +322,25 @@ void showAltCounts( void ) {
       fprintf(stderr, "\n");
    }
 } /* end ShowAltCounts */
+void show_opcRes(struct opc_Vals_st *resp ) {
+   int i ;
+   fprintf(stderr, "OPC_RESULTS in FLOATS\n");
+   fprintf(stderr, "DOP_long=[%8.2f], ", resp->DOP_long ) ;
+   for (i=0;i<5;i++) { fprintf(stderr, "DOP_strain[%d]=[%8.2f], ",i, resp->DOP[i] ) ; }
+   fprintf(stderr, "QL_SUIT=[%8.2f], QL_NT=[%8.2f] \n", resp->QL_suit, resp->QL_nt );
+   fprintf(stderr, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+   return ;
+}
+
+void show_opcVals(struct sidestat_st *resp ) {
+   int i ;
+   fprintf(stderr, "OPC_RESULTS in SIDESTAT\n");
+   fprintf(stderr, "DOP_long=[%d], ", resp->ss_opc_hldf_l ) ;
+   fprintf(stderr, "DOP_NT=[%d], ",   resp->ss_opc_hlf_nt ) ;
+   for (i=0;i<4;i++) { fprintf(stderr, "DOP_strain[%d]=[%d], ",i, resp->ss_opc_hldf[i] ) ; }
+   fprintf(stderr, "QL_SUIT=[%d], QL_NT=[%d] \n", resp->ss_quick_losers_suit, resp->ss_quick_losers_nt );
+   fprintf(stderr, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+   return ;
+}
+
 

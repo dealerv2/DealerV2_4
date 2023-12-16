@@ -1,0 +1,174 @@
+dealdebug_subs.o:00000000 T bias_handdbg
+dealdebug_subs.o:00000000 T bias_suitdbg
+dealdebug_subs.o:00000000 T dump_curdeal
+dealdebug_subs.o:00000000 T gotKard
+dealdebug_subs.o:00000000 T hexdeal_show
+:dealdebug_subs.o:00000000 T showactionexpr
+:dealdebug_subs.o:00000000 T showactionlist
+:dealdebug_subs.o:00000000 T showAltCounts
+:dealdebug_subs.o:00000000 T showdecisiontree
+:dealdebug_subs.o:00000000 T showdistrbits
+:dealdebug_subs.o:00000000 T show_hands_PBN
+:dealdebug_subs.o:00000000 T showtreenode
+:dealdebug_subs.o:00000000 T showvarlist
+:dealdebug_subs.o:00000000 T showvartree
+:dealdebug_subs.o:00000000 T sr_deal_show
+:dealdebug_subs.o:00000000 T sr_hand_show
+:dealdeck_subs.o:00000000 T Hand52_to_PBNbuff
+:dealdeck_subs.o:00000000 T idx2Player
+:dealdeck_subs.o:00000000 T newdeck
+:dealdeck_subs.o:00000000 T newpack
+:dealdeck_subs.o:00000000 T PBN_to_Deal52
+:dealdeck_subs.o:00000000 T prtPBN_Hands52
+:dealdeck_subs.o:00000000 T Shuffle
+:deal_knr.o:00000000 T cccc
+:deal_knr.o:00000000 T eval_cccc
+:deal_knr.o:00000000 T quality
+:deal_knr.o:00000000 T Rescale
+:deal_knr.o:00000000 T suit_quality
+:deal_scorelib.o:00000000 T calc_score
+:deal_scorelib.o:00000000 T dbled_making
+:deal_scorelib.o:00000000 T Get_dbled
+:deal_scorelib.o:00000000 T GET_level
+:deal_scorelib.o:00000000 T GET_strain
+:deal_scorelib.o:00000000 T imps
+:deal_scorelib.o:00000000 T score
+:deal_scorelib.o:00000000 T trickscore
+:deal_scorelib.o:00000000 T undbled_score
+:deal_scorelib.o:00000000 T undertricks
+:dealutil_subs.o:00000000 T aidxsort4
+:dealutil_subs.o:00000000 T didxsort4
+:dealutil_subs.o:00000000 T dmerge
+:dealutil_subs.o:00000000 T dsort13
+:dealutil_subs.o:00000000 T dsort3
+:dealutil_subs.o:00000000 T dsort4
+:dealutil_subs.o:00000000 T gen_rand_slot
+:dealutil_subs.o:00000000 T init_rand48
+:dealutil_subs.o:00000000 T merge
+:dealutil_subs.o:00000000 T sort13
+:dealutil_subs.o:00000000 T sort3
+:dealutil_subs.o:00000000 T sort4
+:dealutil_subs.o:00000000 T sortDeal
+:dealutil_subs.o:00000000 T sortHand
+:libVersion.o:00000000 T GetLibVers
+:DealConversions.o:00000000 T dcmp_card_Q
+:DealConversions.o:00000000 T dealsort_Q
+:DealConversions.o:00000000 T Hand52_export
+:DealConversions.o:00000000 T handsort_Q
+:DealConversions.o:00000000 T init_export_buff
+:DealConversions.o:00000000 T show_Deal52
+:DealConversions.o:00000000 T Side52_export
+
+/* -- Recap of the various .h files for the Library ... */
+#ifndef DEALDBG_SUBS_H
+#define DEALDBG_SUBS_H
+#include "../include/dealtypes.h"
+#include "../include/dealdeck_subs.h"
+extern int  jgmDebug ; 
+extern int  gotKard (DEAL52_k  d, int player, CARD52_k  thiscard); // check the deal to see if player has card; does not need handstat
+extern void dump_curdeal( DEAL52_k  dl);                            // multiline format
+extern void hexdeal_show( DEAL52_k  dlx, int sz );                  // single line; each card as hex
+extern void sr_deal_show( DEAL52_k  dlx );                          // single line ; each card as suit/rank
+extern void sr_hand_show(int h,  DEAL52_k  dlx) ;                   // single line ; each card as suit/rank
+extern void show_hands_pbn( int mask,  DEAL52_k  d ) ;              // GIB style pbn output for one or more hands
+extern void showtreenode(int tlev, struct tree *tr);                // Show the various trees with indentation
+extern void showvartree(struct tree *t) ;
+extern void showvarlist(struct var *v ) ;
+extern void showdecisiontree(struct tree *t);
+extern void showactionexpr( struct action *acp ) ;
+extern void showactionlist(struct action *a );
+extern void showdistrbits(int ***distrbitmaps[14] ) ;
+extern void showAltCounts( void ) ;
+extern int bias_handdbg(int compass) ;                              // duplicate of bias_hand_len?
+extern int bias_suitdbg(int suit) ;                                 // duplicate of bias_tot_suit?
+void show_hands_PBN( int mask, DEAL52_k  d ) ;                      // dupicate of show_hands_pbn?
+
+#endif
+/* file dealdeck_subs.h */
+#ifndef DEALDECK_SUBS_H
+#define DEALDECK_SUBS_H
+#include "../include/std_hdrs.h"
+#include "../include/dealdefs.h"
+#include "../include/dealtypes.h"
+#include "../include/dealdebug_subs.h"                  /* for hexdeal_show which now needs a size parm */
+#include "../include/dbgprt_macros.h"
+
+void Shuffle(DEAL52_k deck, int sz ) ;                  /* Knuth Shuffle */
+int idx2Player(int dl_idx) ; 		                    /* number 0..51 to compass direction */
+void newdeck (DEAL52_k d, char dir) ;	                /* freshpack in order A (C2 to SA) or D (SA to C2) */
+void newpack (DEAL52_k d) ;				                /* legacy freshpack in order SA to C2 */
+int PBN_to_Deal52( DEAL52_k dl , char *t ) ;                /* Convert a PBN style deal (printoneline format) to Deal52 format */
+char *Hand52_to_PBNbuff (int p, char *dl, char *buff ) ;	/* Does not assume a sorted deal */
+void prtPBN_Hands52( FILE *fp, int mask, DEAL52_k d ) ; 	/* set mask bit for hands wanted */
+
+#endif
+#ifndef CCCC_H
+#define CCCC_H
+
+#define HAS_KARD2(s,r) HAS_CARD(curdeal, seat, (CARD52_k) MAKECARD(s,r))
+// Redefine the original HAS_CARD2 macro to use the Has_card array.
+#define HAS_CARD2(h,s,r) hs[(h)].Has_card[(s)][(r)]  // local use only. It uses global var hs and the array filled in by analyze()
+
+int suit_quality(  int , int  ) ;  
+int quality (int, int);             // Used by cccc to calc KnR value
+int eval_cccc( int ) ;
+int cccc (int);                     // KnR value as fixed by JGM
+#endif /* CCCC_H */
+
+/* File deal_scorelib.h -- interface to deal_scorelib.c routines */
+/*
+ * 2023/11/03	1.0		JGM		Initial. Routines extracted from dealeval_subs.c 
+ */
+#ifndef DEAL_SCORELIB_H
+#define DEAL_SCORELIB_H
+/* the coded contract is an int that encapsulates the strain, level, and Doubled/Redoubled status. Does not include Vulnerability*/
+int Get_dbled( int coded_contract) ; /* 0=not dbled, 1= dbled, 2=re_dbled */
+int GET_strain(int coded_contract) ; /* 0 = Clubs, 4 = NT */
+int GET_level( int coded_contract) ; /* 1 to 7 */
+
+int calc_score(int vul, int dbl_flag, int strain, int level, int tricks_taken ) ; /* tricks_taken 0 .. 13 NOT 1 .. 7 */
+int dbled_making ( int dbl_flag, int vul, int strain, int ctricks) ;                /* dbled flag 1=dbled, 2=ReDbled */
+int imps (int scorediff) ; 
+int score(int vul, int coded_contract, int tricks_taken ) ;
+int trickscore(int strain, int tricks ) ;
+int undertricks( int utricks, int vul, int dbl_flag) ;                      /* returns the score for dbled or redbled undertricks */
+int undbled_score (int vuln, int suit, int level, int tricks) ;
+/* there is also a function decode_contract from parse_subs that returns a structure. Used to build the action tree.
+ * Not needed in this library since we have the GET functions 
+ */
+#endif
+/* File include/dealutil_subs.h */
+/* handcrafted sorts and random number routines */
+#ifndef DEALUTIL_SUBS_H
+#define DEALUTIL_SUBS_H
+#include "../include/dealtypes.h"
+int dsort4( char *a ) ;
+int didxsort4( int v[], int x[] );
+int dmerge( char *a, char *b, char *c, int aN, int bN );
+int aidxsort4( int v[], int x[] );
+int merge( char *a, char *b, char *c, int aN, int bN );
+int sort3( char a[] );
+int sort4(char *a); 
+int sort13 (char a[] ) ;
+int dsort13 (char a[] );
+long int init_rand48( long int seed );
+int gen_rand_slot ( int topval );
+void sortDeal(DEAL52_k dl ) ;  /* Descending order(SA -> C2) for each player uses dsort13 */
+void sortHand(char *hptr, int size) ; /* simple descending insertion sort */
+
+#endif
+/* File DealConversions.h -- to go with DealConversions.c */
+#ifndef DEALCONVERSIONS_H
+#define DEALCONVERSIONS_H
+#include "../include/dealdefs.h"
+#include "../include/dealtypes.h"
+void show_Deal52(DEAL52_k d);				  		        // show the deal in GIB style output for debugging
+void init_export_buff( char *bp , size_t buff_len) ;		// call this before exporting the first hand; side does this itself.
+char *Hand52_export(char *buff, int p, DEAL52_k dl ) ;  	// for exporting preDeal Holdings -- one hand only at a time
+char *Side52_export(char *buff, int side, DEAL52_k dl ) ; 	// for exporting preDeal Holdings -- exports two hands. calls init
+
+void dealsort_Q( char *dl_ptr );			  		// sort each hand in the deal in descending order using qsort
+void handsort_Q( char *hnd_ptr);			  		// sort a hand in descending order using qsort
+int dcmp_card_Q(  const void *x, const void *y ) ; 	// Compare func used to sort hands in descending order
+#endif
+
