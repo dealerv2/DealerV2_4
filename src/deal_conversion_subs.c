@@ -257,7 +257,6 @@ char *fmtHands52_to_PBN( char *buff, int mask, DEAL52_k d ) {  // No newline at 
  * Ex: -E AKQJ/5432/-/T9876 -W -/AKQJT9/KJT/5432 
  */
 char *fmtHand52_to_cmdbuff ( char *buff,  int p, DEAL52_k  dl ) { // returns ptr to null at end of buffer
-/* hand is sorted. dl[p*13+0] = Highest Spade; dl[p*13+12] = lowest club. */
 /* OPC fmt for a hand/deal is :-N AKQJ2/-/T54/Q6542 and so on for -S, -E, -W in any order. Voids are dashes. Suit Sep is slash */
    char suit_sep = '/'; 
    int curr_suit, card_rank, card_suit;
@@ -274,10 +273,13 @@ char *fmtHand52_to_cmdbuff ( char *buff,  int p, DEAL52_k  dl ) { // returns ptr
    curr_suit = 3 ; // spades
    JGMDPRT(7, "Hand52_to_buff:: p=%d, di=%d, dl[di]=%02x\n",p,di,dl[di] ) ;
    JGMDPRT(7,  "buff=%p, bp=%p \n", buff, bp );
-	prev_kard = 0x00 ; 
+   /* hand must be Descending sorted. dl[p*13+0] = Highest Spade; dl[p*13+12] = lowest club. */
+   /* Since opc can be used in condition clause before default sort, we do a hand sort here */
+   dsort13 ( &dl[di] ) ; /* in place sort descending sort of 13 cards */
+	prev_kard = 0xFF ; 
    while (count < 13 ) {
        kard = dl[di] ; card_suit = C_SUIT(kard); card_rank = C_RANK(kard) ;
-       assert(kard > prev_kard ); /* in case the hand was not properly sorted */
+       assert(kard < prev_kard ); /* in case the hand was not properly sorted */
         JGMDPRT(8,"Top Big While::Kard=%02x, card_suit=%d, card_rank=%d, count=%d, curr_suit=%d\n",
                                                 kard, card_suit, card_rank, count, curr_suit ) ; 
        while( curr_suit != card_suit ) { /* write void mark for missing suits */

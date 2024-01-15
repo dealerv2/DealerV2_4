@@ -22,11 +22,11 @@
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
 #endif
-#define BUILD_DATE "2023/12/10"
+#define BUILD_DATE "2024/01/15"
 #ifndef JGMDBG
-  #define VERSION "4.2.1"
+  #define VERSION "4.2.2"
 #else
-  #define VERSION "104.2.1"
+  #define VERSION "104.2.2"
 #endif
 
 #ifndef UNUSED
