@@ -13,11 +13,12 @@
   #define DBGDO(l,...) do { if(jgmDPRT >= (l) ) { (__VA_ARGS__) ; } } while (0)  // call an arbitrary subroutine ...
 
 #else
+  extern int jgmDPRT ; /* only used in this file */
   #define DBGPRINT(...)
   #define DBGLOC(...)
   #define PHEX(...)
   #define DBGBLK(...)
-  #define JGMDPRT(...)
+  #define JGMDPRT(l,...)
   #define DBGDO(l,...)        // Note You still need the arglist here to gobble up what is in the code
 #endif
 /* Note that in the PHEX, the value is in a fixed width field so things line up on the left. The descr is on the right.

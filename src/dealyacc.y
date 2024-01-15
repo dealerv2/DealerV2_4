@@ -12,6 +12,7 @@
   // :JGM:  2022-11-07  -- Added USEREVAL and newquery.
   // :JGM:  2023-03-31  -- Added NOTRUMP to the USEREVAL keyword
   // :JGM:  2023-10-10  -- Changed Precedence and Associativity for QUERY COLON fixes long standing bug in nesting
+  // :JGM:  2023-12-15  -- Added vulnerability to Par. Added ParContract reporting to csvreport items.
 
 %code top {
     /* Entries here will not be put to the dealyacc.tab.h file, but will go to the dealyacc.tab.c file */
@@ -135,6 +136,7 @@
 %token  PRINTRPT
 %token  BKTFREQ
 %token  USEREVAL
+%token  PARCONTRACT
 
 %token <y_int> NUMBER
 %token <y_str> HOLDING
@@ -162,12 +164,13 @@
 %type <y_distr> shape
 %type <y_action> actionlist action
 %type <y_expr> exprlist
-%type <y_str> optstring
-  /* Next by JGM 2021-09-20 */
+%type <y_str> optstring 
+  /* Next by JGM 2021-09-20 and later 2023-12-15 */
 %type <y_int> side
 %type <y_int> decnum
 %type <y_csv> csvlist
 %type <y_int> numval
+%type <y_int> par_contract
 
 %printer { fprintf(yyo, "[%d]", $$); } <y_int>
 %printer { fprintf(yyo, "[%s]", $$); } <y_str> <y_distr>
@@ -429,14 +432,13 @@ expr
                 { $$ = newtree(TRT_PAR, NIL, NIL, $3,  -1);  /* PAR Forces mode=2. -1 means VULN set by -P switch */ }
        | PAR '(' side ',' VULNERABILITY ')' 
                 { $$ = newtree(TRT_PAR, NIL, NIL, $3,  $5);  /*  PAR Forces mode=2. VULN per call */ }
-
-        | USEREVAL '(' number ',' side ',' number ')'
+       | USEREVAL '(' number ',' side ',' number ')'
                { $$ = newquery( $3 , $5 , -1 , -1 , $7 ) ; }
-        | USEREVAL '(' number ',' side ',' SUIT ',' number ')'
+       | USEREVAL '(' number ',' side ',' SUIT ',' number ')'
                { $$ = newquery( $3 , $5 , -1 , $7 , $9 ) ; }
-        | USEREVAL '(' number ',' compass ',' number ')'
+       | USEREVAL '(' number ',' compass ',' number ')'
                { $$ = newquery( $3 , -1 , $5 , -1 , $7 ) ; }
-        | USEREVAL '(' number ',' compass ',' SUIT ',' number ')'
+       | USEREVAL '(' number ',' compass ',' SUIT ',' number ')'
                { $$ = newquery( $3 , -1 , $5 , $7 , $9 ) ; }
         ;
       // The exprlist is only used for the printes action, not for the condition decision tree.
@@ -451,35 +453,45 @@ exprlist
                 { $$ = newexpr(0, $3, $1); }  /* add a struct containing ptr to string($3) to end of expr list $1 */
         ;
   // The csvlist is for the csvrpt and printrpt actions. Like printes but allows hands and trix as well as expr and strings
+par_contract : 
+			 PARCONTRACT '(' VULNERABILITY ')' 
+					 { $$ =  $3  ; } /* should be 0,1,2,3 */
+		  | PARCONTRACT 
+					 { $$ =  4   ; } /* code will check the global par_vuln which could be set from cmd line at runtime */ 
+		
 csvlist
-        : COMPASS
-               { $$ = new_csvterm(0,  0,  1<<$1,   0,    0) ; } /* set bit in bit mask */
+        : COMPASS           /* *tree *str hmask  tmask  par list_ptr */
+               { $$ = new_csvterm(0,  0,  1<<$1,   0,    0,  0) ;  } /* set bit in bit mask */
         | SIDE
-               { $$ = new_csvterm(0,  0,  5<<$1,   0,    0) ; } /* side NS=0 sets compass 0 and 2; EW=1 sets 1 & 3 */
+               { $$ = new_csvterm(0,  0,  5<<$1,   0,    0,  0) ;  } /* side NS=0 sets compass 0 and 2; EW=1 sets 1 & 3 */
         | DEAL
-               { $$ = new_csvterm(0,  0,    15,    0,    0) ; }    /* set all bits */
+               { $$ = new_csvterm(0,  0,    15,    0,    0,  0) ;  }    /* set all bits */
         | expr
-               { $$ = new_csvterm($1, 0,    0,     0,    0) ; }
+               { $$ = new_csvterm($1, 0,    0,     0,    0,  0) ;  }	/* pointer to an expression tree */
         | STRING
-               { $$ = new_csvterm(0, $1,    0,     0,    0) ; }
+               { $$ = new_csvterm(0, $1,    0,     0,    0,  0) ;  }  /* pointer to a string */
         | TRIX '(' COMPASS ')'
-               { $$ = new_csvterm(0,  0,    0, 1<<$3,    0) ; }
+               { $$ = new_csvterm(0,  0,    0, 1<<$3,    0,  0) ;  }  /* bit 0 for north, bit 3 for west */
         | TRIX '(' DEAL ')'
-               { $$ = new_csvterm(0,  0,    0,    15,    0) ; }
+               { $$ = new_csvterm(0,  0,    0,    15,    0,  0) ;  }  /* all bits */
         | csvlist ',' COMPASS
-               { $$ = new_csvterm(0,  0,  1<<$3,   0,   $1) ; }/* add struct with bit mask to end of list */
+               { $$ = new_csvterm(0,  0,  1<<$3,   0,    0, $1) ;  } /* add struct with bit mask to end of list */
         | csvlist ',' SIDE
-               { $$ = new_csvterm(0,  0,  5<<$3,   0,   $1) ; }
+               { $$ = new_csvterm(0,  0,  5<<$3,   0,    0, $1) ;  }
         | csvlist ',' DEAL
-               { $$ = new_csvterm(0,  0,    15,    0,   $1) ; }
+               { $$ = new_csvterm(0,  0,    15,    0,    0, $1) ;   }
         | csvlist ',' expr
-               { $$ = new_csvterm($3, 0,    0,     0,   $1) ; }  /* add a struct containing ptr to expr($3) to end of csvlist $1 */
+               { $$ = new_csvterm($3, 0,    0,     0,    0, $1) ;   }  /* add a struct containing ptr to expr($3) to end of csvlist $1 */
         | csvlist ',' STRING
-                { $$ = new_csvterm(0, $3,   0,     0,   $1) ; }  /* add a struct containing ptr to string($3) to end of csvlist $1 */
+                { $$ = new_csvterm(0, $3,   0,     0,    0, $1) ;   }  /* add a struct containing ptr to string($3) to end of csvlist $1 */
         | csvlist ',' TRIX '(' COMPASS ')'
-               { $$ = new_csvterm(0,  0,    0, 1<<$5,   $1) ; }
+               { $$ = new_csvterm(0,  0,    0, 1<<$5,    0, $1) ;   }
         | csvlist ',' TRIX '(' DEAL ')'
-               { $$ = new_csvterm(0,  0,    0,    15,   $1) ; }
+               { $$ = new_csvterm(0,  0,    0,    15,    0, $1) ;   }
+        | par_contract 
+					{ $$ = new_csvterm(0,  0,    0,     0, 1<<$1, 0) ;   }  /* specify the Vulnerability for par contract string */
+        | csvlist ',' par_contract 
+					{ $$ = new_csvterm(0,  0,    0,     0, 1<<$3,$1) ;   }  /* values will be 1,2,4,8,16 */
         ;
 
 
@@ -842,16 +854,20 @@ void bias_deal(int suit, int compass, int length){
 }  /* end bias_deal() */
 
 /* JGM added Code for the CSV Report action */
-struct csvterm_st *new_csvterm (struct tree *tr1, char *str1, int hand_mask,  int trix_mask, struct csvterm_st *csv1) {
-//                                  expr tree        string    hands-to-print trick-set ask  ptr->previous csvlist item
+struct csvterm_st *new_csvterm (struct tree *tr1, char *str1, int hand_mask,  int trix_mask, int par_mask, struct csvterm_st *csv1) {
+//                                  expr tree        string    hands-to-print trick-set mask               ptr->next csvlist item
 
     struct csvterm_st *csv;
-    csv=(struct csvterm_st*) mycalloc(1, sizeof(*csv));
-    csv->csv_tr = tr1;
-    csv->csv_str = str1;
-    csv->csv_hands = hand_mask ;
-    csv->csv_trix  = trix_mask ;
+    csv=(struct csvterm_st*) mycalloc(1, sizeof(*csv)); /* MALLOC a new csvterm Structure Set all fields to zero */
+    csv->csv_type = 0 ;    /* not used currently but set it anyway for future */
+    if(tr1)       {csv->csv_tr  = tr1; 				csv->csv_type |= CSV_EXPR ; } /* set bit 0 in csv_type */
+    if(str1)      {csv->csv_str = str1;				csv->csv_type |= CSV_STR  ; } /* set bit 1 in csv_type */
+    if(hand_mask) {csv->csv_hands = hand_mask ;	   csv->csv_type |= CSV_HMASK; } /* set bit 2 in csv_type */
+    if(trix_mask) {csv->csv_trix  = trix_mask ;		csv->csv_type |= CSV_TMASK; } /* set bit 3 in csv_type */
+    if(par_mask)  {csv->csv_parvul = par_mask ;    csv->csv_type |= CSV_PARCONTRACT ; } /* set bit 4 in csv_type */
+				/* par_mask: none=1, ns=2, ew=4, both=8 runtime_value from -P switch=16 */
     csv->next  = 0;   /* new terms go at the end of the list */
+     
   #ifdef JGMDBG
     if (jgmDebug >=3 ) {
        fprintf(stderr, "In New CSVTERM. expr_ptr=[%p], str_ptr=[%p], h_mask=[%d], t_mask=[%d], csvlist_HEAD_ptr=[%p], new_term_ptr=[%p] \n",
@@ -859,11 +875,11 @@ struct csvterm_st *new_csvterm (struct tree *tr1, char *str1, int hand_mask,  in
     }
   #endif
 
-      if(csv1) { /* if the list exists already */
+    if(csv1) { /* if the list exists already -- start at the head and scan till next is NULL */
         struct csvterm_st *csv2 = csv1;
-            while(csv2->next) csv2 = csv2->next; /* loop until end of list */
-            csv2->next = csv;                    /* update end of list with new csvterm */
-            return csv1; /* prob don't need to return this, but we do need the while loop. */
+        while(csv2->next) csv2 = csv2->next; /* loop until end of list */
+        csv2->next = csv;                /* update end of list with ptr to new csvterm */
+        return csv1; /* prob don't need to return the head, but we do need the while loop. */
     }
     else   {   return csv;   } /* handles the case of the very first term */
 

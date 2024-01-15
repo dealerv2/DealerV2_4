@@ -44,8 +44,12 @@ extern void              clearpointcount ();                 /* yyparse action c
 extern void              clearpointcount_alt (int cin);      /* yyparse action clause affects alternate counts */
 extern void              pointcount (int index, int value);  /* yyparse action clause affects HCPs*/
 extern void              zerocount (int points[13]);         /* called by clearpointcount etc. */
-extern struct csvterm_st *new_csvterm (struct tree *tr1, char *str1, int hand_mask, int trix_mask, struct csvterm_st *csv1); /* yyparse action clause */
 extern struct tree       *newquery(int tag, int side, int compass, int suit, int idx); /* yyparse action clause */
+extern char              *newpar_cstr(int vuln) ;           /* yyparse action clause. see dealparse_subs */
+extern struct csvterm_st *new_csvterm (struct tree *tr1, char *str1, int hand_mask,  int trix_mask, int par_mask, struct csvterm_st *csv1);
+//                                  expr tree        string    hands-to-print trick-set mask               ptr->next csvlist item
+
+
 /* Evaluation and condition stuff called by main, after the parsing during the evaluation phase */
 #define interesting() ((int)evaltree(decisiontree))
 extern void          analyze (DEAL52_k d, struct handstat *hsbase);
@@ -62,30 +66,32 @@ extern int           gib_tricks (char);  /* Convert GIB trix char [0-9A-D] to an
 
 /* from dealdds_subs.c */
 extern int dds_tricks   (int compass, int strain ) ; /* reads the DDSRES_k struct and returns the number of tricks asked for */
-extern int dds_parscore (int compass, int vuln ) ;   /* reads the DDSRES_k struct and returns the par score asked for */
+extern int dds_parscore (int compass, int vuln   ) ; /* reads the DDSRES_k struct and returns the par score asked for */
 extern int csv_trix     ( char *buff, int h_mask ) ; /* fmts buff with a list of trick counts for the hands asked for */
 
 /* from UserServer_subs.c */
-extern int ask_query(int qtag, int side, int qcoded ) ;
+extern int ask_query( int qtag, int side, int qcoded ) ;
 
-/* RP Library related subs. dealrpdd.c */
-extern long int seek_rpdd_pos(FILE *rpdd_file, long int seed ) ;
-extern int get_rpdeal(struct options_st *opts, char *dl ) ;
+/* RP Library related subs. dealzrd_subs.c */
+extern long int zrd_seekfpos( FILE *zrdlib_file, long int seed ) ;
+extern int zrd_getdeal( FILE *zrdlib_file, struct options_st *opts, DEAL52_k dl ) ;
 
-/* print and other action stuff Called by main if the deal is 'interesting' ie meets the condition */
-extern void action ();
-extern void cleanup_action () ;  /* do tasks that can only be done at end of run such as average, evalcontract, print(compass) etc. */
-extern void evalcontract (struct action *acp) ;
-extern void showevalcontract ( struct action *acp, int nh);
-extern void printdeal (DEAL52_k d);
-extern void printside (DEAL52_k d, int side); /*JGM replaced printew with this one. */
-extern void printhands (int boardno, DEAL52_k *dealp, int player, int nhands);
-extern int  printpbn (int, DEAL52_k);
-extern char *Hand52_to_pbnbuff (int p, char *dl, char *buff ) ;
-extern void printhands_pbn(FILE *fp, int mask, DEAL52_k curdeal ) ;
-extern void fprintcompact (FILE * f, DEAL52_k d, int oneline); /* used for both GIB input and oneline printout */
+/* print and other action stuff Called by main action subs if the deal is 'interesting' ie meets the condition */
+extern void action();
+extern void cleanup_action() ;  /* do tasks that can only be done at end of run such as average, evalcontract, print(compass) etc. */
+extern void evalcontract( struct action *acp) ;
+extern void showevalcontract( struct action *acp, int nh);
+extern void printdeal( DEAL52_k d);
+extern void printside( DEAL52_k d, int side); /*JGM replaced printew with this one. */
+extern void printhands( int boardno, DEAL52_k *dealp, int player, int nhands);
+extern int  printpbn( int, DEAL52_k);
+extern char *Hand52_to_pbnbuff( int p, char *dl, char *buff ) ;
+extern void printhands_pbn( FILE *fp, int mask, DEAL52_k curdeal ) ;
+extern void fprintcompact(  FILE * f, DEAL52_k d, int oneline); /* used for both GIB input and oneline printout */
 #define printoneline(d) (fprintcompact(stdout, d, 1))
 #define printcompact(d) (fprintcompact(stdout, d, 0))  /* this one used to format the input to the GIB dd solver */
+void do_csvrpt( FILE *fcsv, struct csvterm_st *csvptr ) ; /* used by CSVRPT and PRTRPT */
+
 
         /* Miscellaneous Dealer Specific stuff */
         /*     Initializations */
@@ -95,7 +101,7 @@ extern void          setup_action ();
 extern void          initprogram( struct options_st *opt_ptr) ;
 
        /* dealcard_subs stuff -- see also lib module dealdeck_subs.h*/
-extern void          setup_deal ();
+extern void         setup_deal ();
 extern int          deal_cards (int mode, DEAL52_k d) ;
 
 		/* Start usereval server stuff */

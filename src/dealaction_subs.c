@@ -15,12 +15,14 @@
 #include "../include/deal_bktfreq_subs.h"
 #include "../include/dbgprt_macros.h"
 #include "../include/deal_conversion_subs.h"
+#include "../include/libdealerV2.h"
 
 /* Code for New Actions by JGM */
 void printside (DEAL52_k d, int side ) ;
 void printhands_pbn(FILE *fp, int mask, DEAL52_k curdeal ) ;
+int unmask(int m) ;		/* m is a bit mask, one bit set - return the int corresponding to that bit; in effect lg(m) */
 
-char sep ;
+void do_csvrpt(FILE *fcsv, struct csvterm_st *csvptr ) ;
 
 /* Action Oriented Procedures */
 void setup_action () { /* run once right after the parsing done */
@@ -53,8 +55,8 @@ void setup_action () { /* run once right after the parsing done */
         acp->ac_u.acuavg.count = 0; // same as nprod
         acp->ac_u.acuavg.sum = 0 ; // same as ac_int1
         acp->ac_u.acuavg.sqsum = 0 ; //
-        acp->ac_u.acuavg.avg = 0.0; // double float pt. qty should be approx 0.5
-        acp->ac_u.acuavg.vary= 0.0; // double float pt. qty variance. should be approx 1/sqrt(12) = 0.28867
+        acp->ac_u.acuavg.avg = 0.0; // double float pt. qty should be approx 0.5 for rnd()
+        acp->ac_u.acuavg.vary= 0.0; // double float pt. qty variance. should be approx 1/sqrt(12) = 0.28867 for rnd()
         JGMDPRT(3, "Average Init Done. ac_u.acuavg.sqsum=%ld In setup_action\n",((long int) acp->ac_u.acuavg.sqsum));
         break;
       case ACT_FREQUENCY:
@@ -92,7 +94,7 @@ void setup_action () { /* run once right after the parsing done */
 
 void action () {            /* For each 'Interesting' deal, Walk the action_list and do the actions requested */
   struct action *acp;
-  int expr, expr1, expr2, val1, val2, high1 = 0, high2 = 0, low1 = 0, low2 = 0;
+  int expr0, expr1, expr2, val1, val2, high1 = 0, high2 = 0, low1 = 0, low2 = 0;
   // char *expbp = export_buff ;
   double  dcount, dsum, dsqsum ;
   int actionitem = 0;  /* Debugging tracer var */
@@ -108,15 +110,15 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
       case ACT_PRINTCOMPACT:
         printcompact (curdeal);   // could be sped up now that hands are sorted
         if (acp->ac_expr1) {
-          expr = evaltree (acp->ac_expr1);
-          printf ("%d\n", expr);
+          expr0 = evaltree (acp->ac_expr1);
+          printf ("%d\n", expr0);
         }
         break;
       case ACT_PRINTONELINE:
         printoneline (curdeal);   // could be sped up now that hands are sorted
         if (acp->ac_expr1) {
-          expr = evaltree (acp->ac_expr1);
-          printf ("%d", expr);
+          expr0 = evaltree (acp->ac_expr1);
+          printf ("%d", expr0);
         }
         printf ("\n");
         break;
@@ -124,8 +126,8 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
         { struct expr *pex = (struct expr *) acp->ac_expr1;
           while (pex) {
             if (pex->ex_tr) {
-              expr = evaltree (pex->ex_tr);
-              printf ("%d", expr);
+              expr0 = evaltree (pex->ex_tr);
+              printf ("%d", expr0);
             }
             if (pex->ex_ch) {
               printf ("%s", pex->ex_ch);
@@ -155,11 +157,11 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
         JGMDPRT(6,"nprod=%d,dealsize=%ld,@deallist[0]=%p,@deal_dest=%p\n",nprod,sizeof(DEAL52_k),(void *)deallist, (void *)(deallist+nprod) );
         break;
       case ACT_AVERAGE:  /* mods by JGM to a) have a running avg, and b) include Variance as well as avg in final rpt */
-        expr = evaltree (acp->ac_expr1);   /* calculate the expr we are averaging */
-        acp->ac_int1 += expr ;                 // old average running sum
+        expr0 = evaltree (acp->ac_expr1);   /* calculate the expr we are averaging */
+        acp->ac_int1 += expr0 ;                 // old average running sum
         acp->ac_u.acuavg.count++;              // should be same as nprod, or perhaps nprod+1;
-        acp->ac_u.acuavg.sum   += expr ;       // should be same as ac_int1
-        acp->ac_u.acuavg.sqsum += expr*expr ;
+        acp->ac_u.acuavg.sum   += expr0 ;       // should be same as ac_int1
+        acp->ac_u.acuavg.sqsum += expr0*expr0 ;
         dcount = (double) acp->ac_u.acuavg.count;
         dsum   = (double) acp->ac_u.acuavg.sum;
         dsqsum = (double) acp->ac_u.acuavg.sqsum;
@@ -173,29 +175,29 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
            acp->ac_u.acuavg.vary = dsqsum - dsum*dsum ;
         }
         JGMDPRT(7, "Action_ptr=%p, Count=[%ld], Average Expr=[%d], Sum=[%ld], Sumsq=[%ld], RunningAvg=[%g]\n",
-           (void *)acp, acp->ac_u.acuavg.count, expr, ((long int) acp->ac_u.acuavg.sum), ((long int) acp->ac_u.acuavg.sqsum), dsum/dcount );
+           (void *)acp, acp->ac_u.acuavg.count, expr0, ((long int) acp->ac_u.acuavg.sum), ((long int) acp->ac_u.acuavg.sqsum), dsum/dcount );
         break;
       case ACT_FREQUENCY:
-        expr = evaltree (acp->ac_expr1);
-        if (expr < acp->ac_u.acu_f.acuf_lowbnd)
+        expr0 = evaltree (acp->ac_expr1);
+        if (expr0 < acp->ac_u.acu_f.acuf_lowbnd)
           acp->ac_u.acu_f.acuf_uflow++;
-        else if (expr > acp->ac_u.acu_f.acuf_highbnd)
+        else if (expr0 > acp->ac_u.acu_f.acuf_highbnd)
           acp->ac_u.acu_f.acuf_oflow++;
         else
-          acp->ac_u.acu_f.acuf_freqs[expr - acp->ac_u.acu_f.acuf_lowbnd]++;
+          acp->ac_u.acu_f.acuf_freqs[expr0 - acp->ac_u.acu_f.acuf_lowbnd]++;
         break;
       case ACT_FREQUENCY2D:
-        expr = evaltree (acp->ac_expr1);
+        expr0 = evaltree (acp->ac_expr1);
         expr2 = evaltree (acp->ac_expr2);
 
         high1 = acp->ac_u.acu_f2d.acuf_highbnd_expr1;
         high2 = acp->ac_u.acu_f2d.acuf_highbnd_expr2;
         low1 = acp->ac_u.acu_f2d.acuf_lowbnd_expr1;
         low2 = acp->ac_u.acu_f2d.acuf_lowbnd_expr2;
-        if (expr > high1)
+        if (expr0 > high1)
           val1 = high1 - low1 + 2;
         else {
-          val1 = expr - low1 + 1;
+          val1 = expr0 - low1 + 1;
           if (val1 < 0) val1 = 0;
         }
         if (expr2 > high2)
@@ -221,74 +223,14 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
          break ;
      case ACT_CSVRPT:         /* print a new line, of many terms, to the csvrpt file */
         { struct csvterm_st *csvptr = (struct csvterm_st *) acp->ac_expr1; // ptr to list of csvterms
-          sep = ' ' ; /* precede first item with a space; all susequent ones with commas */
-          while (csvptr) {  /* walk the list of csvterms until we reach end */
-             /* take appropriate action for this kind of csvterm. Only one should be set per term in the list */
-            if (csvptr->csv_tr) {  /* term is some kind of expression */
-              expr = evaltree (csvptr->csv_tr); /* returns int only */
-              fprintf (fcsv, "%c%d", sep, expr);          /* dont need quotes around numbers */
-              sep = ',';
-              JGMDPRT(4, "CSVRPT expr= %d\n", expr );
-            } // end if csvptr->csv_tr
-            if (csvptr->csv_str) {  /* term is some kind of string. we put single quotes around it in case it has commas */
-               fprintf (fcsv, "%c'%s'", sep, csvptr->csv_str); /*put quotes around a string in case it contains commas */
-               sep = ',';
-               JGMDPRT(4,  "CSVRPT Str== %s\n",csvptr->csv_str );
-            } // end if string csvptr->csv_str
-            if (csvptr->csv_hands) { /* print the requested hands, in gibpbn format ; order is N,E,S,W */
-               fprintf(fcsv, "%c",sep) ; /* leave printhands_pbn as a generic routine; no leading comma or trailing \n*/
-               printhands_pbn(fcsv, csvptr->csv_hands, curdeal ) ; /* csv_hands is a bit mask of compasses to print */
-               sep = ',' ;
-               JGMDPRT(4,  "CSVRPT Hands_mask= %d\n",csvptr->csv_hands );
-            }  // end if hands
-            if (csvptr->csv_trix) {  /* user wants tricks in all 5 strains for some set of hands */
-               csv_trixbuff_len = csv_trix(csv_trixbuff, csvptr->csv_trix) ; //fmt a buff with comma sep trick counts
-               fprintf(fcsv,"%c%s",sep, csv_trixbuff) ;
-               sep = ',';
-            }
-            sep = ',';  // this one should replace all the others above
-            csvptr = csvptr->next;
-          } /* end while csvptr -- reached end of csvlist */
-         JGMDPRT(4, "CSVRPT end of list printing NewLine\n" );
-         fprintf(fcsv, "\n") ;  /* print a newline after the last item is done */
-         sep = ' '; /*re-init for next line in csv report */
+			 do_csvrpt(fcsv, csvptr ) ;
       } /* end case ACT_CSVRPT */
         break;
         /* Next is duplicate of csvrpt but to stdout; allows for both output to file and to screen. */
      case ACT_PRINTRPT:         /* Re-use csvcode identical except for output file destination  */
         { struct csvterm_st *csvptr = (struct csvterm_st *) acp->ac_expr1; // ptr to list of csvterms
-          sep = ' ' ; /* precede first item with a space; all susequent ones with commas */
-          while (csvptr) {  /* walk the list of csvterms until we reach end */
-             /* take appropriate action for this kind of csvterm. Only one should be set per term in the list */
-            if (csvptr->csv_tr) {  /* term is some kind of expression */
-              expr = evaltree (csvptr->csv_tr); /* returns int only */
-              fprintf (stdout, "%c%d", sep, expr);          /* dont need quotes around numbers */
-              sep = ',';
-               JGMDPRT(4, "PRINTRPT expr= %d\n", expr );
-            } // end if expr
-            if (csvptr->csv_str) {  /* term is some kind of string. we put single quotes around it in case it has commas */
-               fprintf (stdout, "%c'%s'", sep, csvptr->csv_str); /*put quotes around a string in case it contains commas */
-               sep = ',';
-               JGMDPRT(4, "PRINTRPT Str== %s\n",csvptr->csv_str );
-            } // end if string
-            if (csvptr->csv_hands) { /* print the requested hands, in gibpbn format ; order is N,E,S,W */
-               fprintf(stdout, "%c",sep) ; /* leave printhands_pbn as a generic routine; no leading comma or trailing \n*/
-               printhands_pbn(stdout, csvptr->csv_hands, curdeal ) ; /* csv_hands is a bit mask of compasses to print */
-               sep = ',' ;
-               JGMDPRT(4, "PRINTRPT Hands_mask= %d\n",csvptr->csv_hands );
-            }  // end if hands
-            if (csvptr->csv_trix) {  /* user wants tricks in all 5 strains for some set of hands */
-               csv_trixbuff_len = csv_trix(csv_trixbuff, csvptr->csv_trix) ; //fmt a buff with comma sep trick counts
-               fprintf(stdout,"%c%s",sep, csv_trixbuff) ;
-               sep = ',';
-            }
-            sep = ',';  // this one should replace all the others above
-            csvptr = csvptr->next;
-          } /* end while csvptr -- reached end of prtrpt list of terms */
-          JGMDPRT(4, "PRINTRPT end of list printing NewLine\n" );
-          fprintf(stdout, "\n") ;  /* print a newline after the last item is done */
-          sep = ' '; /*re-init for next line in csv report */
-      } /* end case ACT_PRINTRPT */
+			  do_csvrpt(stdout, csvptr) ; 
+        } /* end case ACT_PRINTRPT */
         break;
      case ACT_BKTFREQ:
         expr1 = evaltree (acp->ac_expr1);
@@ -774,5 +716,52 @@ void printhands_pbn( FILE *fp, int mask, DEAL52_k d ) {   // No newline at end o
   fprintf(fp, "%s",pbn_buff ) ; /* no newline at this point. */
 
 } /* end printhands_pbn */
+
+void do_csvrpt(FILE *fcsv, struct csvterm_st *csvptr ) { 
+			char sep = ' ';
+			int  vuln  ;
+			int  expr0 ; 
+			
+			sep = ' ' ; 				/* precede first item with a space; all susequent ones with commas */
+          while (csvptr) {  		/* walk the list of csvterms until we reach end */
+             /* take appropriate action for this kind of csvterm. Only one should be set per term in the list */
+            if (csvptr->csv_tr) {  /* term is some kind of expression */
+              expr0 = evaltree (csvptr->csv_tr); /* returns int only */
+              fprintf (fcsv, "%c%d", sep, expr0);          /* dont need quotes around numbers */
+              sep = ',';
+              JGMDPRT(4, "doCSVRPT expr= %d\n", expr0 );
+            } // end if csvptr->csv_tr
+            if (csvptr->csv_str) {  /* term is some kind of string. we put single quotes around it in case it has commas */
+               fprintf (fcsv, "%c'%s'", sep, csvptr->csv_str); /*put quotes around a string in case it contains commas */
+               sep = ',';
+               JGMDPRT(4,  "CSVRPT Str== %s\n",csvptr->csv_str );
+            } // end if string csvptr->csv_str
+            if (csvptr->csv_hands) { /* print the requested hands, in gibpbn format ; order is N,E,S,W */
+               fprintf(fcsv, "%c",sep) ; /* leave printhands_pbn as a generic routine; no leading comma or trailing \n*/
+               printhands_pbn(fcsv, csvptr->csv_hands, curdeal ) ; /* csv_hands is a bit mask of compasses to print */
+               sep = ',' ;
+               JGMDPRT(4,  "CSVRPT Hands_mask= %d\n",csvptr->csv_hands );
+            }  // end if hands
+            if (csvptr->csv_trix) {  /* user wants tricks in all 5 strains for some set of hands */
+               csv_trixbuff_len = csv_trix(csv_trixbuff, csvptr->csv_trix) ; //fmt a buff with comma sep trick counts
+               fprintf(fcsv,"%c%s",sep, csv_trixbuff) ;
+               sep = ',';
+            }
+            if (csvptr->csv_parvul) {
+					vuln = unmask(csvptr->csv_parvul) ;
+					vuln = (0 <= vuln && vuln <= 3 ) ? vuln : options.par_vuln ; /* use default value if vuln out of range */
+					dds_parscore(0, vuln) ;  /* dummy call to ensure that the parcontracts have been calculated for this deal */ 
+					fprintf(fcsv, "%c'%s'",sep,dds_res_bin.ParContracts[vuln] ) ;
+					sep = ',' ;
+				}
+            sep = ',';  // this one should replace all the others above
+            csvptr = csvptr->next;
+          } /* end while csvptr -- reached end of csvlist */
+         JGMDPRT(4, "doCSVRPT end of list printing NewLine\n" );
+         fprintf(fcsv, "\n") ;  /* print a newline after the last item is done */
+         sep = ' '; /*re-init for next line in csv report */
+         return ; 
+} /* end do_csvrpt */
+
 
 

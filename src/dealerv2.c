@@ -19,7 +19,10 @@
 // 2023/08/04  3.0.0  New version number for new GCC compiler version incompatible with old. Minor title fix
 // 2023/08/20  3.0.2  Redo rplib_fix. Create rp_err_check etc. 
 // 2023/11/03  4.0.1  Implement Library Modules for common functions 
-// 2023/12/10  4.2.0  Implement the bias deal functionality
+// 2023/12/10  4.2.0  Implement the bias deal functionality and Par Contract functionality
+// 2023/12/24  4.3.0  Implement save to ZRD file functionality. 
+// 2024/01/13  4.1.1  Renamed the Library funcs and vars from rp* to zrd*. 
+
 //
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
@@ -31,10 +34,12 @@
 #include "../include/dealprotos.h"
 #include "../include/dealexterns.h"   /* was dealglobals but testing if I can compile globals separately and link it. */
 #include "../include/pointcount.h"
+#include "../include/zrd_defs.h"
 #include "../src/UsageMsg.h"
 #include "../include/dealdebug_subs.h"
 #include "../include/dbgprt_macros.h"
 #include "../include/libVersion.h"
+
 
 #define FATAL_OPTS_ERR -10
 /* next file for some subs that main uses to setup runtime and debug statements */
@@ -66,9 +71,10 @@ int main (int argc, char **argv) {
     /* opts collects all cmd line parms in one place. Vars from previous versions of Dealer kept also so some duplication */
     struct options_st *opts ;
     struct param_st   *scr_varp ; /* pointer to script variables struct */
-
+	 
+	 int rc      = 0;  /* generic return code as needed */
 	 int deal_rc = 0 ; 
-    int keephand ;
+    int keephand ;		/* result of evaltree() which evaluates the condition clause */
 
     struct timeval tvstart, tvstop;
     gettimeofday (&tvstart, (void *) 0); /* Start clock before setup done. Is this fair? */
@@ -111,7 +117,7 @@ int main (int argc, char **argv) {
      exit (-1) ;
    }
 
-  if (argc - optind > 2 || errflg) {
+  if (argc - optind > 2 ) {
     fprintf (stderr, "Usage: %s %s\n", argv[0], UsageMessage );
     exit (-1);
   }
@@ -119,13 +125,13 @@ int main (int argc, char **argv) {
     perror (argv[optind]);
     exit (-1);
   }
-
+	if (errflg > 5 ) { fprintf(stderr, "***** Non Fatal error in get_options. Continuing with assumptions .... *******\n"); }
   /* init the stuff that yyparse or flex code might need */
   initdistr ();    /* create the 4D distribution array for use by the shape statement */
   init_cards();    /* setup full pack and NO_CARD in the stacked_pack and small_pack */
 
   /*
-   * build the list of conditions to evaluate and the list of actions to do
+   * build the list of conditions to evaluate, and the list of actions to do
    * ===============> YYPARSE HERE <===============
    */
   JGMDPRT(3, "Calling yyparse \n");
@@ -144,7 +150,7 @@ int main (int argc, char **argv) {
     if (jgmDebug >= 4) {
         //showdistrbits(distrbitmaps) ;
         //fprintf(stderr, "\nDistr Bit Maps DONE \n");
-        DBGDO(4, showAltCounts() );
+        DBGDO(  4, showAltCounts() );
         JGMDPRT(4, "Show ALT Counts Done \n");
         JGMDPRT(4, "Post Parsing:: stacked_size=%d, small_size=%d \n", stacked_size, small_size) ;
         if(stacked_size > 0 ) {
@@ -161,21 +167,28 @@ int main (int argc, char **argv) {
     finalize_options ( opts ) ;   /* resolve diffs between yyparse and cmd line.Choose DealMode for the run */ 
     init_runtime     ( opts ) ;   /* set RNG and DDS RAM/Threads. Start usereval, setup bias deal setup_action() */
 	JGMDPRT(4,"Assertions Check:Maxproduce[%d] <= Maxgenerate[%d]\n", maxproduce, maxgenerate);
-	JGMDPRT(4," Assert: rp_cnt[%d]<Maxgen, rp_pass_num[%d]<=1, rplib_recnum[%d]<rplib_recs[%d]\n", rp_cnt, rp_pass_num, (rplib_recnum+1), rplib_recs);
+	JGMDPRT(4," Assert: zrd_cnt[%d]<Maxgen, zrdlib_pass_num[%d]<=1, zrdlib_recnum[%d]<zrdlib_recs[%d]\n", zrd_cnt, zrdlib_pass_num, (zrdlib_recnum+1), zrdlib_recs);
  
  /* ----------- Begin the Main Loop ------------*/
-  JGMDPRT(2,"^^^^^^ Begin Main Loop ^^^^^^ libMode=%d rp_pass_num=%d\n",opts->rplib_mode, rp_pass_num) ;
+  JGMDPRT(2,"^^^^^^ Begin Main Loop ^^^^^^ libMode=%d ardlib_pass_num=%d\n",opts->zrdlib_mode, zrdlib_pass_num) ;
 
    if (progressmeter) { fprintf (stderr, "Calculating...  0%% complete\r"); }// \r CR not \n since want same line ..
-
+	if (1 == options.zrd_wanted && options.title_len > 0 ) { /* to suppress zrdhdr, use -T "" on cmd line */
+		rc = zrd_write(fzrd, ZRD_HDR, curdeal ) ;  // curdeal a dummy arg here; will use the global options.title
+		if (rc < 0 ) {
+			fprintf(stderr, "ERR** Writing ZRDHDR from title failed! Aborting run.... \n");
+			return (-1) ; 
+		}
+		JGMDPRT(3,"ZRDOK: zrd header written from title \n");
+	}
    for (ngen = 1, nprod = 0; ngen <= maxgenerate && nprod < maxproduce; ngen++) { /* start ngen at 1; simplifies counting */
       
       deal_rc = deal_cards( DealMode , curdeal) ; /* Default, Library, Bias, Stacked, Swap; deal_cards Uses lots of global Vars */
-      if (DL_ERR_RPLIB == deal_rc  ) {
-			fprintf(stderr, "%d : Too Many Passes through RP-Library. Ending Run Now \n", rp_pass_num ) ; 
+      if (DL_ERR_ZRDLIB == deal_rc  ) {
+			fprintf(stderr, "%d : Too Many Passes through Library. Ending Run Now \n", zrdlib_pass_num ) ; 
 			break ;  /* break out of for ngen loop goto EOJ */
 		} 
-		if (DL_ERR_BIAS == deal_err ) { continue; } /* discard deal and try again */
+		if (DL_ERR_BIAS == deal_err ) { continue; } /* could not fulfill bias conditions. discard deal and try again */
 		
 		assert( DL_OK == deal_err ) ; 
  
@@ -193,13 +206,22 @@ int main (int argc, char **argv) {
 
       JGMDPRT(7, " Calling Interesting for ngen=%d ", ngen);
 
-      keephand = interesting() ;  /* interesting() aka evaltree() needs deal sorted if doing opc evals; maybe others. */
+      keephand = interesting() ;  /* interesting() aka evaltree() if opc needed, opc will sort its own deal. */
       JGMDPRT(7, " Interesting aka evaltree Returns %d\n", keephand);
 
       if (keephand) {             /* evaltree returns TRUE for the condition user specified */
+			 nprod++;
           JGMDPRT(9,"Interesting returns true Calling Action() now.");
           action();               /* Do action list; action sorts deal as its first step */
-          nprod++;
+          if(1 == options.zrd_wanted ) {
+				rc = zrd_write(fzrd, ZRD_DEAL, curdeal ) ;
+				if (rc < 0 ) {
+					fprintf(stderr, "ERR** Writing ZRD_DEAL Failed for nprod=%d ... Aborting Run\n", nprod);
+					return (-1) ; 
+				}
+				JGMDPRT(8,"ZRDOK: zrd rec written from deal # %d \n",nprod);
+			 } /* end zrd_wanted */
+          
           if (progressmeter) {
             if ((100 * nprod / maxproduce) > 100 * (nprod - 1) / maxproduce)
               fprintf (stderr, "Calculating... %2d%% complete\r",
@@ -224,12 +246,12 @@ int main (int argc, char **argv) {
     if (strlen(title) > 0 ) { printf("\n%s\n",title); }
     printf ("Generated %d hands\n", ngen);
     printf ("Produced  %d hands\n", nprod);
-    if (0 == opts->rplib_mode )  {                    /* normal run. Not reading from Library file */
+    if (0 == opts->zrdlib_mode )  {                    /* normal run. Not reading from Library file */
        printf ("Initial random seed %lu\n", seed);
     }
     else {
-       printf ("Library file records read %d, Wrap Arounds=%d\n", rp_cnt, rp_pass_num);
-       printf ("Library file starting seed %lu\n",  (opts->rp_seed < rp_max_seed) ? opts->rp_seed : rp_max_seed );
+       printf ("Library file records read %d, Wrap Arounds=%d\n", zrd_cnt, zrdlib_pass_num);
+       printf ("Library file starting seed %lu\n",  (opts->zrd_seed < zrd_max_seed) ? opts->zrd_seed : zrd_max_seed );
     }
     printf ("Time needed %8.3f sec%s",
              (tvstop.tv_sec + tvstop.tv_usec / 1000000.0 -
@@ -254,7 +276,7 @@ int main (int argc, char **argv) {
       cleanup_userserver( userserver_pid ) ;
       JGMDPRT(4,"Cleanup All Done. Normal EOJ for Server and Dealer \n");
   }
-
+		/* ?? close fzrd, fcsv, fexp, frplib, finput_file ?*/
   return 0;
 } /* end main */
 

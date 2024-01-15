@@ -5,7 +5,8 @@
 * 2022/02/09 2.1.5    JGM     FD shapes, and printrpt ported from deal_v3
 * 2022/09/25 2.2.0    JGM     Added constants for Bucket Frequency functionality
 * 2022/10/18 2.5.0    JGM     Changed typedef for card; added Has_cards array; other changes for user_eval functionality.
-* 2023/11/03 4.0.0    JGM     COnverting code to use DEAL52_k and CARD52_k
+* 2023/11/03 4.0.0    JGM     Converting code to use DEAL52_k and CARD52_k
+* 2023/12/16 4.1.0    JGM     Adding yet another term or two to the csv_term struct for ParContract string 
 */
 #ifndef DEALTYPES_H
 #define DEALTYPES_H 1
@@ -31,6 +32,11 @@ typedef CARD52_k  DEAL52_k[52] ;   /* Dealerv2 deal; 52 chars of type CARD52_k p
 typedef int       DEAL64_k[4][4] ; /* deal where card ranks are stored as a bit mask; [hand][suit] 64 bytes reqd*/
 typedef short int DEAL32_k[4][4] ; /* same as DEAL64_k but using short ints which are more than adequate */ 
 
+struct rpdd_st {
+     BYTE_k card[13] ;
+     BYTE_k trick[10];
+} ;
+typedef struct rpdd_st RPDD_REC_k ; 
 /*
  * decision tree and other expression stuff. JGM added a float to struct tree for future use. Not used at present
  */
@@ -69,20 +75,28 @@ typedef struct contract_st CONTRACT_k ;  // use _k suffix for 'kind' since _t fo
 
 /* struct to describe a csvterm to be put in csv report. Only one of csv_tr, csv_str, csv_hands is set at any one time */
 struct csvterm_st {
+	   struct csvterm_st     *next;      /* Pointer to next csv_term */
       struct tree           *csv_tr;    /* traverse this tree to evaluate the expression */
       char                  *csv_str;   /* a label, col heading, or possibly a script var contents */
+      
+      int						  csv_type;  /* Future will be a bit mask asking for one or more csvterms */
       int                    csv_hands; /* a bit mask showing which hands to print at this point */
       int                    csv_trix ; /* Mask for hands. Either 1 bit set 1,2,4,8 or all bits set 15 */
-      struct csvterm_st     *next;      /* Pointer to next csv_term */
+      int                    csv_parvul;/* Vulnerability for par contract none,ns,ew,both */
+      
+#if 0   /* FUTURE */
+    /* cdecl: declare p_csvfunc as pointer to function(char *b,int i,int j) returning pointer to char */
+	// char *(*p_csvfunc)(char *buff, int i, int j) ; /*generic func; use i and j to generate str to put in buff*/
+#endif
+
 }; /* end csv_term_st */
 
-#define FD_SHAPE_LEN 3070  /* FD shapes can expand to over 1300 chars frequently. An example file gives 2378 */
+#define FD_SHAPE_LEN 3070  /*  FD shapes can expand to over 1300 chars frequently. An example file gives 2378 */
 struct fd_shape_st {
    size_t shape_len ;
-   char fd_shape_str[3072];  // two more than FD_SHAPE_LEN because Flex needs TWO nulls at end of string buffer.
+   char fd_shape_str[3072];  // 3*1024 two more than FD_SHAPE_LEN because Flex needs TWO nulls at end of string buffer.
                              // testing: shape{north, 5+Mxxx:h>=c,h>=d } gives an output of 1173 chars 167 distributions
                              //  shape{west, (xxxx):d>c or h>s} gives 2378 chars and 338 distributions
-
 } ;
 
 	/* structs for usereval queries */
@@ -233,22 +247,22 @@ struct options_st {
   int       quiet;                  // -q for PBN printout. Seldom used.
   int       upper_case;             //     was toggled by -u switch. Never used. always set to 1 now. 
   int       verbose;                // -v  toggle print stats re seed and time taken at end of run. -v turns them off.
-  int       show_version;           // -V
+  int       show_version;           // -V  print then exit
   /* These next options all need  a value */
   int       max_generate;           // -g:
   int       max_produce;            // -p:
   long int  seed;                   // -s:
   long int  seed_provided;
   /* these next ones are by JGM.  */
-  char      title[MAXTITLESIZE];    // -T:   descriptive title for the set of hands.(MAXTITLE=100 in docs, 256 in defs)
-  size_t    title_len ;
+  char      title[MAXTITLE+1];  // -T: descriptive title for the set of hands.(MAXTITLE=100 in docs, 255 in defs)
+  int       title_len ;					// No longer size_t because we need -1 here as a flag.		
   char      preDeal[4][32] ;        // Predeal Holdings in Dealer fmt Sxxxx,Hxxxxx, etc. -N, -E, -S, -W options (each hand could take 13 cards + 4 suit Chars + 3 commas = 20 chars)
   int       preDeal_len[4] ;        // length of preDeal strings on cmd line.
-  int       dbg_lvl;                // -D:  run program with this value of debug verbosity.
-  int       srv_dbg_lvl;            //      If usereval forks a server, run server with this value of debug verbosity
-  char      rplib_fname[128];       // -L  path to rpdd.zrd db file. ../rpdd.zrd will work.
-  int       rplib_mode;             //      zero if not in lib mode; 1 if -L switch
-  long int  rp_seed;                // -s   offset in 1000 record incr into the DB. re-use of -s switch.
+  int       dbg_lvl;                // -D: run program with this value of debug verbosity.
+  int       srv_dbg_lvl;            //     If usereval forks a server, run server with this value of debug verbosity
+  char      zrdlib_fname[128];      // -L  path to rpdd.zrd db file. ../rpdd.zrd will work.
+  int       zrdlib_mode;            //     zero if not in lib mode; 1 if -L switch
+  long int  zrd_seed;               // -s  offset in 1000 record incr into the DB. re-use of -s switch.
 
   int       dds_mode ;              // -M  1 Single result mode; 2 all 20 strain-compass combinations; used for par etc.
   char      opc_opener ;            // -O  mostly for OPC; N/E  or W/S; assume W if not set.
@@ -260,6 +274,11 @@ struct options_st {
   char      csv_fname[128];         // -C  Filename used for CSV report; if w:<fname> opens for write. else for append
   char      csv_fmode[8];
   char      userpgm[256]  ;         // -U   Path of the User provided external server executable. Default=UserServer ROOT Dir.
+  char 		zrd_fname[128];			// -Z   Filename for saving deals in zrd fmt. -Z[wN:]<fname>; N suppresses calculating dd solutions */
+  char 		zrd_fmode[8];				
+  int  		zrd_dds ;
+  int	      zrd_wanted ;           // main loop will write zrd file if set; unless fzrd is NULL
+
 } ;   /* end options_st */
 #define PARAM_SIZE 126					// Script var from cmd line. Allocate 128 since Flex needs two terminating Nulls to work properly.
 struct param_st {

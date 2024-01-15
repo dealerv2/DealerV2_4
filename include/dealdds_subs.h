@@ -1,17 +1,21 @@
 /* File deal_dds.h -- to export dealdds_subs IF to Dealer code */
 #ifndef DEAL_DDS_H
 #define DEAL_DDS_H
+#ifndef RET_NO_FAULT
+  #define RET_NO_FAULT 1
+#endif
 
 /* define these next ones individually to avoid importing a bunch of dealer defs we don't need that might conflict with dds defs*/
 typedef char CARD52_k ; 
 typedef CARD52_k DEAL52_k[52] ;
 
-struct Dealer_Results_st {      // Struct passed back from IF to Dealer
-    int CacheStatus ;  // 0 = stale, 1=update mode 1 2= update mode 2
-    int parScore_NS ;				// backwards compat
-    int parScores_NS[4] ;       // One for each Vulnerability in case user asks.
-    int tricks[4][5] ;          // [hands=n,e,s,w][strains = c,d,h,s,n]
-    int errcode ; // 1 = ok, -1 = failure
+struct Dealer_Results_st {      	// Struct passed back from IF to Dealer
+    int CacheStatus ;  				// 0 = stale, 1=update mode1 2=update mode2
+    int parScore_NS ;				// backwards compat. Score for the Default ParVuln set by -P on cmd line.
+    int parScores_NS[4] ;       	// One for each Vulnerability in case user asks. Dealer Coding.
+    int tricks[4][5] ;          	// [hands=n,e,s,w][strains = c,d,h,s,n]
+    int errcode ; 					// 1 = ok, -1 = failure
+    char ParContracts[4][20] ;  	// Typical string= 4H* by NS both or 15 chars plus the Null at end. 
     char ddsmsg[40];  // in case DDS fails get some of the errmsg. Also used for Par contract strings
 } ;
 typedef struct Dealer_Results_st DDSRES_k ;

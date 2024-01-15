@@ -12,6 +12,6 @@
 "P={vulnerability for Par computation: 0=NoneVul, 1=NS, 2=EW, 3=Both}\n"  \
 "T={Title in quotes}    \nU={DealerServer pathname}\n" \
 "X={Filename to open for eXporting predeal holdings}\n" \
-"Z={Filename to open for saving generated deals and 20 DD solutions in RP zrd fmt.}\n" \
+"Z={-Z [Nw:]<Fname> Append deals and 20 DD solutions in RP zrd fmt. N:no DDS, w:truncate }\n" \
 "D={Debug verbosity level 0-9[.0-9]; (minimal effect in production version)}\n" \
 "-0 to -9={set $0 thru $9 script parms in Inputfile one word or many in quotes}\n"

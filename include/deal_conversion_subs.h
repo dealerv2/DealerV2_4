@@ -30,7 +30,7 @@ char *Hand52_to_PBNbuff (int p, char *dl52, char *buff ) ; // Fmts hand only; no
 /* These next two are used to output the hand/side in  format DOP/OPC understands. 
  * Puts minus signs for voids, puts / for suit separators, uses -N, -S, -E, -W to specify the hands.
  */		
-char *fmtHand52_to_cmdbuff ( char *buff,  int p, DEAL52_k  dl ) ; // returns ptr to null at end of buffer
+char *fmtHand52_to_cmdbuff ( char *buff,  int p, DEAL52_k  dl ) ; // returns ptr to null at end of buffer DOP/OPC fmt
 char *fmtSide_to_cmdbuff(char *buff , int side, DEAL52_k  dl )  ; // returns ptr to null at end of buffer
 #endif
 

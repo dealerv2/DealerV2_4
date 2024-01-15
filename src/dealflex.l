@@ -14,6 +14,7 @@
 /* JGM 2022-11-07   Mods for UserEval; new token ; new keyword .. */
 /* JGM 2022-12-20   Touch up for UserEval; uevtag, var name change */
 /* JGM 2023-12-10   Added VULNERABILITY so as to be able to set it in par() clause */
+/* JGM 2023-12-15   Added PARCONTRACT to be able to print same in csv_rpt and print_rpt */
  #ifndef _GNU_SOURCE
    #define _GNU_SOURCE
  #endif
@@ -270,6 +271,7 @@ csvrpt          return(CSVRPT);
 printrpt        return(PRINTRPT);
 bktfreq         return(BKTFREQ) ;
 usereval        { userserver_reqd++ ; return(USEREVAL); } /* set a flag to start the server */
+parcontract     { return PARCONTRACT ; } /* fprintf(stderr,"Flex Returning PARCONTRACT\n") */
 
    /* now do some direct handling of the cases where yyparse not needed. It simplifies the yyparse() and the grammar */
    /* We do have to allow for the fact that the user might enter the keyword

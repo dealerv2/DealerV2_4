@@ -9,6 +9,7 @@
 # 2023/03/14 -- Added dealrpdd_subs and dealinit_subs to requirements
 # 2023/11/03 -- Major re-Org to allow some pieces of DealerV2 to be library modules.
 # 2023/11/30 -- Changed name of library to libdealdbg.a to be able to debug library code with GDB
+# 2024/01/14 -- Added dealzrd_subs.c dealzrd_defs.h removed dealrpdd_subs.c 
 
 JGMDBG := 1
 CC      = gcc
@@ -43,8 +44,8 @@ YACC    = bison -d
 
 SRCS  = ../src/dealaction_subs.c ../src/deal_bias_subs.c ../src/deal_bktfreq_subs.c  ../src/dealcard_subs.c 
 SRCS += ../src/dealdds_subs.c    ../src/Dealer_DDS_IF.c  ../src/dealeval_subs.c   
-SRCS += ../src/dealinit_subs.c ../src/dealparse_subs.c   ../src/dealrpdd_subs.c ../src/dealServer_subs.c
-SRCS += ../src/dealerv2.c 
+SRCS += ../src/dealinit_subs.c ../src/dealparse_subs.c   ../src/dealServer_subs.c
+SRCS += ../src/dealzrd_subs.c ../src/dealerv2.c 
 OBJS = $(patsubst ../src/%.c,%.o,$(SRCS) ) dealglobals.o dealflex.o dealyacc.tab.o              
 
 HDR  = ../include/allheaders.h ../include/dbgprt_macros.h ../include/libdealerV2.h 
@@ -105,7 +106,6 @@ dealerv2.o : ../src/dealerv2.c ../src/mainsubs.c ../src/UsageMsg.h $(HDR)
 dealflex.o : dealflex.c $(HDR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 dealyacc.tab.o : dealyacc.tab.c $(HDR)
-	$(CC) $(CFLAGS) -o $@ -c $<
 deal%.o : ../src/deal%.c $(HDR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 Dealer_DDS_IF.o : ../src/Dealer_DDS_IF.c $(HDR)

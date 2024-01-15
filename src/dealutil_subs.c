@@ -29,6 +29,16 @@
 void dealerr( char *msg ) {
 	fprintf(stderr, "ERR**: %s\n",msg) ; 
 }
+
+int unmask(int m) {		/* m is a bit mask, one bit set - return the int corresponding to that bit; in effect lg(m) */
+	int v = 0 ; 
+	while (m > 1 ) {
+		v++ ; 
+		m = m >> 1 ; 
+	}
+  return v ; 
+}
+
 /* ---- Hand Crafted Sort Routines --------*/
 /* These routines take advantage of the fact that in bridge we only ever have to sort arrays of 13 or 4
  * using optimized swapping code, and known types of elements, these routines are 2.5 to 3.5 times faster
@@ -42,7 +52,7 @@ int dmerge( char *a, char *b, char *c, int aN, int bN ) { /* no error checking; 
    int i = 0 ; int j = 0 ; int k = 0 ;
    int kmax =aN + bN ;
    while (k < kmax) {
-      if( i == aN)            { *(c + k++) = *(b + j++);  }
+      if      ( i == aN )     { *(c + k++) = *(b + j++);  }
       else if ( j == bN )     { *(c + k++) = *(a + i++);  }
       else if (a[i] > b[j] )  { *(c + k++) = *(a + i++);  }
       else                    { *(c + k++) = *(b + j++);  }
@@ -67,8 +77,8 @@ int dsort4( char a[4] ) { /*  optimized version no error checking */
          else if (*(a+2) > *(a+1) ) {t=*(a+2); *(a+2)=*(a+1); *(a+1) = t ; }      // swap 2nd and 3rd elems
 
          if      (*(a+3) >= *(a) ) { t=*(a+3);*(a+3)=*(a+2);*(a+2)=*(a+1);*(a+1)=*(a);*(a)=t; } // shuffle all up one place
-         else if (*(a+3) >= *(a+1) ) { t=*(a+3);*(a+3)=*(a+2);*(a+2)=*(a+1);*(a+1)=t; }           // shuffle 1..3 up one place
-         else if (*(a+3) >  *(a+2) ) { t=*(a+3);*(a+3)=*(a+2);*(a+2)=t;}                      // swap *(a+2) with *(a+3)
+         else if (*(a+3) >= *(a+1) ) { t=*(a+3);*(a+3)=*(a+2);*(a+2)=*(a+1);*(a+1)=t; }         // shuffle 1..3 up one place
+         else if (*(a+3) >  *(a+2) ) { t=*(a+3);*(a+3)=*(a+2);*(a+2)=t;}                        // swap *(a+2) with *(a+3)
 	return 0 ; 
 } /* end dsort4 */
 
@@ -80,28 +90,28 @@ int didxsort4( int v[4], int x[4] ) {
 	 */
 	 // v is the value/property array, x is the index array. x starts out as 0,1,2,3 always.
    char t ; int s ;
-         if (*(v+1) > *(v) ) {      // sort first two elements; *(v) now > *(v+1)
+       if (*(v+1) > *(v) ) {      // sort first two elements; *(v) now > *(v+1)
 			 t=*(v+1) ; *(v+1) = *(v) ; *(v) = t ; 
 			 s=*(x+1) ; *(x+1) = *(x) ; *(x) = s ; 
 		 } 
-         if (*(v+2) > *(v) ) {     // 3rd elem to *(v); shuffle other two up one
+       if (*(v+2) > *(v) ) {     // 3rd elem to *(v); shuffle other two up one
 			 t=*(v+2); *(v+2)=*(v+1);*(v+1)=*(v);*(v)=t;
 			 s=*(x+2); *(x+2)=*(x+1);*(x+1)=*(x);*(x)=s;
 		 } 
-         else if (*(v+2) > *(v+1) ) {     // swap 2nd and 3rd elems
+       else if (*(v+2) > *(v+1) ) {     // swap 2nd and 3rd elems
 			 t=*(v+2); *(v+2)=*(v+1); *(v+1) = t ;
 			 s=*(x+2); *(x+2)=*(x+1); *(x+1) = t ;  
 		 } 
 
-         if      (*(v+3) >= *(v) ) {   	// shuffle all up one place
+       if      (*(v+3) >= *(v) ) {   	// shuffle all up one place
 			 t=*(v+3);*(v+3)=*(v+2);*(v+2)=*(v+1);*(v+1)=*(v);*(v)=t; 
 			 s=*(x+3);*(x+3)=*(x+2);*(x+2)=*(x+1);*(x+1)=*(x);*(x)=s; 
 		 } 
-         else if (*(v+3) >= *(v+1) ) {  // shuffle 1..3 up one place 
+       else if (*(v+3) >= *(v+1) ) {  // shuffle 1..3 up one place 
 			 t=*(v+3);*(v+3)=*(v+2);*(v+2)=*(v+1);*(v+1)=t;
 			 s=*(x+3);*(x+3)=*(x+2);*(x+2)=*(x+1);*(x+1)=s;  
 		 }           
-         else if (*(v+3) >  *(v+2) ) {   // swap *(v+2) with *(v+3)
+       else if (*(v+3) >  *(v+2) ) {   // swap *(v+2) with *(v+3)
 			 t=*(v+3);*(v+3)=*(v+2);*(v+2)=t;
 			 s=*(x+3);*(x+3)=*(x+2);*(x+2)=s;
 		 }                      
@@ -169,28 +179,28 @@ int sort13 (char a[13] ) { /* Ascending sort optimized version does not check fo
 
 int aidxsort4( int v[4], int x[4] ) {
    char t ; int s ;
-         if (*(v+1) < *(v) ) {      // sort first two elements; *(v) now > *(v+1)
+       if (*(v+1) < *(v) ) {      // sort first two elements; *(v) now > *(v+1)
 			 t=*(v+1) ; *(v+1) = *(v) ; *(v) = t ; 
 			 s=*(x+1) ; *(x+1) = *(x) ; *(x) = s ; 
 		 } 
-         if (*(v+2) < *(v) ) {     // 3rd elem to *(v); shuffle other two up one
+       if (*(v+2) < *(v) ) {     // 3rd elem to *(v); shuffle other two up one
 			 t=*(v+2); *(v+2)=*(v+1);*(v+1)=*(v);*(v)=t;
 			 s=*(x+2); *(x+2)=*(x+1);*(x+1)=*(x);*(x)=s;
 		 } 
-         else if (*(v+2) < *(v+1) ) {     // swap 2nd and 3rd elems
+       else if (*(v+2) < *(v+1) ) {     // swap 2nd and 3rd elems
 			 t=*(v+2); *(v+2)=*(v+1); *(v+1) = t ;
 			 s=*(x+2); *(x+2)=*(x+1); *(x+1) = t ;  
 		 } 
 
-         if      (*(v+3) <= *(v) ) {   	// shuffle all up one place
+       if      (*(v+3) <= *(v) ) {   	// shuffle all up one place
 			 t=*(v+3);*(v+3)=*(v+2);*(v+2)=*(v+1);*(v+1)=*(v);*(v)=t; 
 			 s=*(x+3);*(x+3)=*(x+2);*(x+2)=*(x+1);*(x+1)=*(x);*(x)=s; 
 		 } 
-         else if (*(v+3) <= *(v+1) ) {  // shuffle 1..3 up one place 
+       else if (*(v+3) <= *(v+1) ) {  // shuffle 1..3 up one place 
 			 t=*(v+3);*(v+3)=*(v+2);*(v+2)=*(v+1);*(v+1)=t;
 			 s=*(x+3);*(x+3)=*(x+2);*(x+2)=*(x+1);*(x+1)=s;  
 		 }           
-         else if (*(v+3) <  *(v+2) ) {   // swap *(v+2) with *(v+3)
+       else if (*(v+3) <  *(v+2) ) {   // swap *(v+2) with *(v+3)
 			 t=*(v+3);*(v+3)=*(v+2);*(v+2)=t;
 			 s=*(x+3);*(x+3)=*(x+2);*(x+2)=s;
 		 }                      
@@ -266,7 +276,7 @@ void handsort_Q( char *hnd_ptr) { /* Sort 13 cards in Descending Order Spade Ace
    qsort(hnd_ptr, 13, sizeof(char), dcmp_card_Q ) ;
 }
 
-void dealsort_Q( char *dl_ptr ) { /* Sort the 4 hands individually */
+void dealsort_Q( char *dl_ptr ) { /* Sort the 4 hands individually using qsort from the system library*/
    char * h_ptr ;
    for (int p = 0 ; p < 4 ; p++ ) {
       h_ptr = dl_ptr + 13*p ;

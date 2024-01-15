@@ -14,6 +14,7 @@
    * 2023/10/10 4.0.0    JGM     Finalize switch to Mint21 code and libraries because of new GCC/g++ compilers 
    * 							 Also modify Precedence and Associativity for ?: to fix nesting bug. 
    * 2023/11/10 4.0.1    JGM	 Cleaned up HASKARD, HAS_KARD, HASCARD, HAS_CARD usage and defintions. eliminated unused ones.
+   * 2024/01/13 4.1.0    JGM   Renamed the Library funcs and vars from rp* to zrd*. Created zrd vars for writing own Library.
    */
 
   /* Make the header file guard .. */
@@ -66,35 +67,36 @@
 #define CACHE_INV 0
 #define CACHE_OK  1
 #define CACHE_UPD 2
-#define BIG_XS    999  
-#define NO_XS      99  
+#define BIG_XS    999    /* for BIAS DEAL heuristic */
+#define NO_XS      99    /* for BIAS DEAL heuristic */
 
 
 /* ENUMS need spot, no suit = -1 to force enum type to signed int instead of unsigned int */
-enum rank_ek {TWO=0, DEUCE=0, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE, SPOT=-1 } ;
-enum suit_ek {CLUBS=0, DIAMONDS, HEARTS, SPADES, NOTRUMP, nosuit=-1 } ;
-enum dealmode_k {INV_MODE= -1, DEF_MODE = 0, LIB_MODE, BIAS_MODE, PREDEAL_MODE, SWAP_MODE   };
-enum deal_err_k {DL_ERR_FATAL=-9, DL_ERR_BIAS= -2, DL_ERR_RPLIB= -1, DL_OK = 0 };
+enum rank_ek     {TWO=0, DEUCE=0, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE, SPOT=-1 } ;
+enum suit_ek     {CLUBS=0, DIAMONDS, HEARTS, SPADES, NOTRUMP, nosuit=-1 } ;
+enum dealmode_ek {INV_MODE= -1, DEF_MODE = 0, LIB_MODE, BIAS_MODE, PREDEAL_MODE, SWAP_MODE   };
+enum deal_err_ek {DL_ERR_FATAL=-9, DL_ERR_BIAS= -2, DL_ERR_ZRDLIB= -1, DL_OK = 1 };
+enum csv_type_ek {INV_CSV=-1, CSV_EXPR=1, CSV_STR=2, CSV_HMASK=4, CSV_TMASK=8, CSV_PARCONTRACT=16 } ;
+enum csv_par_ek  {INV_CSVP=-1, CSV_NVUL=1, CSV_NSVUL=2, CSV_EWVUL=4, CSV_BVUL=8, CSV_QVUL=16  } ; /* bit mask for par vulnerabilities */ 
 
  /* these next ones mostly by JGM */
  /* These next three numbers do NOT include room for a terminating NULL char */
  #define DEALSTRSIZE 76
  #define COMPACT_DEAL_SIZE 96
  #define PBNLINE 69
- #define MAXLINE 256
- #define MAXBUFFSZ 256    /* Should not be any buffers in Dealer that are bigger than 255 */
+ #define MAXLINE 255			/* allocate 256 i.e. MAXLINE + 1 */
+ #define MAXBUFFSZ 255    /* Should not be any buffers in Dealer that are bigger than 255 */
 
-/* RP_BLOCKSIZE will be adjusted at run time based on the number of records in the Library file
+/* ZRD_BLOCKSIZE will be adjusted at run time based on the number of records in the Library file
  * The max_seed value will also be adjusted based on the blocksize
  * If there are more than 10000 records in the Library file the blocksize will be 1000
  */
-#define RPDD_REC_SIZE 23
-#define RP_BLOCKSIZE 1000
-#define MAX_RP_SEED 10485                 // because the rpdd has 10,485,760 deals in it.
-#define MAX_RPDD_RECS 10485760
+#define ZRD_REC_SIZE 23
+#define ZRD_BLOCKSIZE 1000
+#define ZRD_MAX_SEED 10485                 // because the Pavlicek Library has 10,485,760 deals in it.
+#define ZRD_MAX_LIBRECS 10485760
 
 #define MAXTITLE        255
-#define MAXTITLESIZE    256
 #define LTC_VOID_WEIGHT 128
 #define SUIT_CLUB       0
 #define SUIT_DIAMOND    1

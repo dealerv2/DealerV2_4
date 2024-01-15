@@ -501,7 +501,7 @@ int evaltree (struct tree *t) {                 /* walk thru the user's request 
       assert (t->tr_int1 >= COMPASS_NORTH && t->tr_int1 <= COMPASS_WEST);
       assert (t->tr_int2 >= SUIT_CLUB && t->tr_int2 <= 1 + SUIT_SPADE);  // could make this SUIT_NT here.
 
-      JGMDPRT(7,"evaltree.761 calling DDS dds_tricks; dds_mode=%d \n", dds_mode);
+      JGMDPRT(7,"evaltree calling DDS dds_tricks; dds_mode=%d \n", dds_mode);
 
       return dds_tricks (t->tr_int1, t->tr_int2);
     case TRT_PAR:     /* side or side,VULNERABILITY  */
@@ -514,7 +514,7 @@ int evaltree (struct tree *t) {                 /* walk thru the user's request 
          return ask_query(t->tr_int1, t->tr_int2 , t->tr_int3 ); //qtag, side, qcoded
   } /* end switch t->tr_type starts at line 371 */
 
-} /* end evaltree() Starts around line 368 */
+} /* end evaltree() Starts around line 330 */
 
 /* GIB returns only one value per call. Just in case the user uses the same value in more than one place
  * we cache it here, to save having to call GIB again to get the same info.

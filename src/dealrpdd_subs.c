@@ -1,7 +1,8 @@
-/* File dealrpdd_subs.c -- Code for LIB mode using rpdd.zrd files *
- * Date        Version     Author      Comment
- * 2023/03/11  1.0.0       JGM         Adapted from show_rpdd.c
+/* File dealrpdd_subs.c -- Code for LIB mode using rpdd.zrd files  -- OBSOLETE ---
+ * Date        Version  Author      Comment
+ * 2023/03/11  1.0.0    JGM         Adapted from show_rpdd.c
  * 2023/08/12  1.1.0	   JGM			Wrap-around Bug?
+ * 2024/01/13  x.x.x  	JGM			File Replaced by dealzrd_subs.c which does both reading and creating zrd Library files.
  */
 #define GNU_SOURCE
 // #define JGMDBG 1              /* so the dbgprt_macros.h works ok use -DJGMDBG in gcc cmd */
@@ -17,10 +18,8 @@
          /* --- types ---*/
 typedef unsigned char BYTE_k;
 typedef char DEAL_k[52];         /* char instead of unsigned char; easier compatibility and cards never use hi-bit anyway*/
-struct rpdd_st {
-     BYTE_k card[13] ;           /* being inside a struct these names have their own namespace do not conflict with others*/
-     BYTE_k trick[10];
-} ;
+
+#define LO28BITS 0x0FFFFFFF
 union zsep_ut {
    BYTE_k zerobyte[4];
    unsigned int izero;
@@ -194,7 +193,7 @@ int get_rprec (FILE *rpfile, struct rpdd_st *rp_rec, struct options_st *opts ) {
 
 } /* end get_rprec */
 
-int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the global dds_res_bin[4][5] */
+int get_rpdeal(struct options_st *opts, char *dl ) { /* Returns DL_OK outputs to dl and the global dds_res_bin[4][5] */
    struct rpdd_st rp_rec ;
    union zsep_ut null_sep;
    int ddsres[4][5] ;
@@ -207,25 +206,30 @@ int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the gl
    char kard ;
    BYTE_k px4, tx2 ;
    int byte_cnt = -1 ;
-
-   /* If 1st 16 'cards' are zero it means West has them. Impossible.
-    * So RP says it is some sort of separator record.
+	int dl52_seat[4] = {3,0,1,2}; /* convert rplib seat "i" to dl52_seat[i] */
+	int dl52_strain[5]={4,3,2,1,0}; /* convert rplib NT=0,S=1,H=2,D=3,C=4 to dl52 NT=4,S=3,H=2,D=1,C=0 */
+	
+   /* If 1st 14 'cards' are zero it means West has them. Impossible.
+    * So RP says it is some sort of separator record. RPLIB has none of these. JGM ZRD files might have some 
     */
    byte_cnt = -1 ; 
    null_sep.izero = 0 ;
-   while (null_sep.izero == 0 && byte_cnt <= 0 && rp_pass_num < 2) {    /* keep getting records until a normal one found */
-      byte_cnt =  get_rprec(rp_file, &rp_rec, opts);  /* returns 23 for normal data record. 0 at eof */
-      
-      
+   /* ignore header records in this version */
+   while ( (0 == (null_sep.izero & 0x0FFFFFFF) ) || (byte_cnt <= 0 && rp_pass_num < 2)) {    /* keep getting records until a normal one found */
+      byte_cnt =  get_rprec(fzrdlib, &rp_rec, opts);  /* returns 23 for normal data record. 0 at eof */
+
       /* check if a separation record */
+      JGMDPRT(8,"get_rprec returns %d bytes\n",byte_cnt);
       memcpy(&null_sep.zerobyte, &rp_rec.card[0], 4 ) ;
-      if (0 == null_sep.izero  ) {
+      if ( (0 == (null_sep.izero & 0x0FFFFFFF)) ) {
          fprintf (stderr,"Found a null separator at record number %d rp_rec.card=[%0x, %0x, %0x, %0x ]\n",
                                     rplib_recnum, rp_rec.card[0],rp_rec.card[1],rp_rec.card[2],rp_rec.card[3] );
          fprintf (stderr, ".izero=%d, zerobyte=[%0x, %0x, %0x, %0x ]\n",
                      null_sep.izero, null_sep.zerobyte[0],null_sep.zerobyte[1],null_sep.zerobyte[2],null_sep.zerobyte[3] );
       }
    } /* end while -- either a valid record or an exceeded wrap count */
+      DBGDO(9,dump_rprec(&rp_rec)) ; 
+      DBGDO(8,show_rprec(&rp_rec));
      if(rp_pass_num >= 2 ) {  /* get_rprec has not given us a valid record. */
 		  return DL_ERR_RPLIB ;
 	 }
@@ -262,8 +266,8 @@ int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the gl
          } /* end for J 0 .. 3 */
       } /* end for crdpos 0 .. 12 -- all 52 cards done*/
       memcpy(dl, rp_deal, 52) ;
-      DBGDO(8, sr_deal_show( (char *)dl ) );
-      strain = SUIT_NT ;
+      DBGDO(2, sr_deal_show( (char *)dl ) );
+      strain = SUIT_NT ;  /* aka 4 in dealer terms */
       tpos = 0 ;
       memset(ddsres, 0, sizeof(ddsres) );
       while(tpos < 10 ) { /* Do the tricks:: NT for W,N,E,S, then Spades for W,N,E,S downto Clubs for W,N,E,S*/
@@ -272,10 +276,10 @@ int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the gl
             tx2 = rp_rec.trick[tpos++] ;
             for (j = 0 ; j < 2 ; j++ ) {        /* two players per byte */
                tval = tx2 & 0x0F ;
-               dealer_pnum = (pnum+3)&0x00000003 ;  /* convert PAV player to Dealer Player. */
+               dealer_pnum = dl52_seat[pnum] ;  /* convert PAV player to Dealer Player. */
                ddsres[dealer_pnum][strain] = tval ;
-               JGMDPRT(9, "TPOS=%d,      strain=%c,  pnum=%d, dealer_pnum=%d, tval=%d, tx2=%02x \n",
-                        (tpos-1), "CDHSN"[strain],pnum,   dealer_pnum,     tval,     tx2 );
+               JGMDPRT(9, "TPOS=%d, DLstrain=%c,    pnum=%d, dealer_pnum=%d, tval=%d, tx2=%02x \n",
+                        (tpos-1), "CDHSN"[strain], pnum,    dealer_pnum,     tval,     tx2 );
                tx2 = tx2 >> 4 ;
                pnum++ ;
             } /* end for two players */
@@ -292,6 +296,65 @@ int get_rpdeal(struct options_st *opts, char *dl ) { /* outputs to dl and the gl
       dds_dealnum = ngen ;
       return DL_OK ;
 } /* end get_rp_deal */
+
+void dump_rprec(struct rpdd_st *rprec ) { /* dump the bytes in hex */
+   int k ;
+   fprintf(stderr,"RPREC_Cards[ ") ;
+   for (k=0; k<13; k++ ) {
+      fprintf(stderr, "%02x ",rprec->card[k] ) ;
+   }
+   fprintf(stderr, " ]:: Tricks NT:WNES:[ " ) ;
+   for (k=0; k<10; k++ ) {
+      fprintf(stderr, "%02x ",rprec->trick[k] ) ;
+   }
+   fprintf(stderr, "]\n");
+} /* end dump_zrdrec*/
+
+void show_rprec(struct rpdd_st *rprec) { /* decode the bytes in friendly fashion */
+	char zsc[5]="SHDC ";
+	char zrc[13]="AKQJT98765432" ;
+	char zpc[4]="WNES";
+	char sep   =':';
+	 
+	int zs, zr, p ;
+	int k, j, kard4x, trik2x, cnt ;
+	int trikW,trikN,trikE,trikS ; 
+	cnt = 0 ; 
+	zs = 0 ; /* start with spades */
+	zr = 0 ; /* start with the Ace */
+	printf("RPREC S:: ");
+	for (k=0; k<13 ; k++ ) {
+		kard4x = rprec->card[k];
+		for (j=0 ; j < 4 ; j++ ) {
+			p = kard4x & 0x03 ;
+			kard4x = kard4x >>2 ; 
+			printf("%c%c:%c ",zsc[zs],zrc[zr++],zpc[p] ) ; 
+			cnt++ ; 
+			if (cnt >= 13) {
+				if(zs == 1) printf("\n      ");
+				zs++; zr=0 ; cnt = 0 ; 
+				printf("%c:: ",zsc[zs]);
+			}
+		} /* end for j */
+	} /* end for k ; cards all done */
+	k = 0 ;
+	zs = 0 ;
+	printf("\n   Tricks WNES [NT:");
+	while(k < 10) { /* show the tricks NT:WNES, S:WNES,H:WNES,D:WNES,C:WNES */ 
+		trik2x = rprec->trick[k++] ; 
+		trikW= trik2x & 0x0F ; 
+		trikN= (trik2x>>4) & 0x0F;
+		trik2x = rprec->trick[k++] ; 
+		trikE= trik2x & 0x0F ; 
+		trikS= (trik2x>>4) & 0x0F;
+		printf("%2d,%2d,%2d,%2d",trikW,trikN,trikE,trikS);
+		printf("] %c%c[",zsc[zs++],sep) ; 
+		if (zs >= 4 ) sep = ' ';
+	} /* end while k < 10 */
+	printf("\n");
+} /* end show_rprec */
+				 
+
 
 
 

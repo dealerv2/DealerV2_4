@@ -44,14 +44,14 @@ int compress_pack(char *d, int dsz ) {
 }
 
 
-/* Algorithm Per Knuth */
+/* Fisher-Yates perfect shuffle Algorithm Per Knuth */
 void Shuffle ( DEAL52_k deck, int sz ) {  /* used for curdeal or small_pack */
     CARD52_k  card ;
    int i, j, top;
    JGMDPRT(9,"Shuffle deck size=%d\n",sz ) ;
    top = sz - 1; 
    for (i=top; i > 0 ; i-- ) {  // 1 <= i <= n-1
-		j = gen_rand_slot( i+1 ) ; // NOT ( n ) That leads to shuffle that does NOT return all permutations; Not Fisher-Yates
+		j = gen_rand_slot( i+1 ) ; // ( n ) is NOT Fisher-Yates & leads to shuffle that does NOT return all permutations;
 		// j ← random integer such that 0 ≤ j ≤ i   [Note the equal sign.]
 		/* exg via a  temp var turns out  to be faster than doing 3 exclusive OR's */
 		card = deck[i];

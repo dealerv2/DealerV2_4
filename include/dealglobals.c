@@ -57,41 +57,38 @@ int  Opener = COMPASS_WEST;     /* -O: */  /* flex action clause  0=north (or ea
 char opc_opener = 'W' ;                   /* define one so that extern will be happy. Dont want to extern a struct memb*/
 int  maxproduce = 0     ;       /* -p: */  /* flex action clause Init value MUST be zero for Flex to process the input file value*/
 int  quiet = 0 ;                /* -q */   /* option for pbn printout */
-long seed  = 0 ;                /* -s: */ /* seed can now be set in Input File; -s also used to set LIB file beg offset */
+long seed  = 0 ;                /* -s: */ /* seed can now be set in Input File; -s also used to set LIB file start point */
 long seed_provided = -1  ;      
 int verbose = 1;                /* -v */   /* turn off end of run stats. Default is to print them */
 int swapping = 0 ;              /* -x [0|2|3] Zero turns off swapping, 2 swap E/W, 3 swap all combos of (E,S,W) */
-int swapindex = 0;
+int swapindex = 0;				  /*            Used by swapping routine to decide on a new deal */
 int errflg = 0;
 
 /* JGM Added the following cmd line options .. Also the Opener O flag above */
 int jgmDebug = 0;       /* -D 1 .. 9; level of verbosity in fprintf(stderr, ) statements. 0 = No Debug (unless defined JGMDEBUG) */
 int srvDebug = 0;       /* -D has a decimal digit 0..9 e.g. -D 1.6 (dealer=1, server=6), or -D .9 (dealer = 0, server = 9) */
 int dds_mode = 1;       /* -M 1 use Board Mode fastest for 1-5 results; 2 Use Table Mode, fastest for 5-20 results*/
-// int par_vuln = -1;      /* -P -1 use Default(0), 0=noneVul, 1=nsVul, 2=ewVul 3= bothVul */
-//int nThreads = 1;       /* -R 1..9 MaxRam = 160 * nThreads On an 8 core box, more than 9 threads is no benefit*/
-//int MaxRamMB = 160 ;
-int TblModeThreads = 9;
+int TblModeThreads = 8; /*    Number of threads to use when user asks fto indicate if any title is wanted. A zero title is valid toor -M2 unless overridden by -R */
 /* If we need to force Table Mode on DDS for e.g. Par Calcs, or just via -M switch, then also force extra threads. */
 
-char title[MAXTITLESIZE]= "";  /* -T title. Usually in quotes which are removed by getopt flex action clause */
-size_t  title_len = 0 ;
+char title[MAXTITLE+1]= ""; /* -T title. Usually in quotes which are removed by getopt flex action clause */
+int title_len = -1 ;		  /* >0 valid title;  <0 no title specified =0 suppress zrdhdr record(s) even if title in dli file*/
 
 char *input_file = '\0';
 FILE *fexp;      /* -X file for exporting to; Normally NOT left as stdout except for testing */
 FILE *fcsv;      /* -C file for csvreport. Open in append mode unless user puts w:filename */
-FILE *fzrd;       /* -Z filename for saving generated deals for future use. Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */
-FILE *rp_file;   /* -L rpdd.zrd file. Default is ../rpLib.zrd */
+FILE *fzrd;       /* -Z [Nw:]filename Save generated deals for future use. Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */
+FILE *fzrdlib;   /* -L zrd Library file. Default is ../rpLib.zrd */
 
 
-char rplib_default[64] = "../rpLib.zrd"; /* parent dir means works from either Debug or Prod */
-int    rplib_mode= 0 ;              /* 0= Not using RP Lib file; 1= Using RP Lib file; affects swapping, predeal, seed, */
-int    rplib_blksz = RP_BLOCKSIZE ; /* will be adjusted based on DB file size */
-int    rplib_recs  = MAX_RPDD_RECS; /* will be calculated at run time */
-int    rplib_recnum = 0 ;
-int    rp_max_seed = MAX_RP_SEED ;
-int    rp_cnt      = 0 ;
-int    rp_pass_num = 0 ;
+char zrdlib_default[64] = "../rpLib.zrd"; /* parent dir means works from either Debug or Prod */
+int    zrdlib_mode= 0 ;              /* 0= Not using RP Lib file; 1= Using RP Lib file; affects swapping, predeal, seed, */
+int    zrdlib_blksz = ZRD_BLOCKSIZE ; /* will be adjusted based on DB file size */
+int    zrdlib_recs  = ZRD_MAX_LIBRECS; /* will be calculated at run time */
+int    zrdlib_recnum = 0 ;
+int    zrd_max_seed = ZRD_MAX_SEED ;
+int    zrd_cnt      = 0 ;
+int    zrdlib_pass_num = 0 ;
 
 /* -U Path name for the UserEval binary. Default is 'DealerServer' in the current directory. Can be set by -U cmd line parm
  * -U Must be full pathname. ../src/MyUserPgm will NOT work.
@@ -116,14 +113,14 @@ struct opc_Vals_st opcRes ;
  * The above is 49 chars for 26 cards. In theory you could predeal another 24 cards for 47 chars so a total of 96 chars.
  */
  char       export_buff[128] ; /* Max (never happen) predeal export is 96 chars. if doing all 4 hands which is not supported yet*/
- char       zrd_default[64] = "../dealLib.zrd"  ;
+ char       zrd_default[64] = "../dealLib.zrd"  ;  /* The default outfile name */
 
 	/* Decks for Shuffling, dealing, predealing and bias dealing */
  DEAL52_k  *deallist;			/* ptr to malloc'ed array of deals to be printed at end of run */
- DEAL52_k  asc_pack;    		/* pack in order C2 up   to SA used as a convenient source for Bias Deals*/
+ DEAL52_k  asc_pack;    		/* pack in order C2 up to SA used as a convenient source for Bias Deals*/
  DEAL52_k  curdeal;		
  DEAL52_k  fullpack;    		/* pack in order SA down to C2 */
- DEAL52_k  stacked_pack; 		/*deck with normal predeal cards in it */
+ DEAL52_k  stacked_pack; 		/* deck with normal predeal cards in it */
  DEAL52_k  small_pack;       	/* 2023-01-05 cards left after normal predeal done */
 int  small_size   = 52 ;  		/* number of cards left after predeal or bias deal done; used in Shuffle */
 int  stacked_size = 0  ;		/* number of non-bias cards predealt set by yyparse and cmdline parms*/

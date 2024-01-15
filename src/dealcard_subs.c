@@ -50,7 +50,7 @@ void merge_deal(DEAL52_k  d) {  /* local */
  *
  * Called by dealerv2 main loop passing in DealMode and curdeal
  * Returns 1 (+ve number) on success, and -1 (-ve number) on failure.
- * As of 2023-12-10 the only possible failure is too many wraparounds of RP Library file
+ * As of 2023-12-10 the only possible failure is too many wraparounds of RP Library file or an IO err 
  */
 int deal_cards(int dmode, DEAL52_k  d ) {  
 
@@ -61,9 +61,9 @@ int deal_cards(int dmode, DEAL52_k  d ) {
     * 	 4. Swapping
     */
    int rc = DL_OK; /*assume success */
-   int rp_rc = DL_OK;
+   int lib_rc = DL_OK;
 	switch (dmode) {
-		case DEF_MODE : /* No rplib, no swap, no predeal, no bias */
+		case DEF_MODE : /* No zrdlib, no swap, no predeal, no bias */
 		default :
 			Shuffle(d, 52) ;
 			JGMDPRT(8,"Vanilla Case Shuffle Done. \n");
@@ -104,8 +104,8 @@ int deal_cards(int dmode, DEAL52_k  d ) {
 			break ;
 	  } /* end swap mode */
 	  case LIB_MODE : {
-			rp_rc =  get_rpdeal(&options, d) ; /* sets curdeal and also the dds_res_bin 20 results struct */
-			return rp_rc ; /* -1 on wrap count >=2, 1 otherwise */
+		  lib_rc = zrd_getdeal(fzrdlib, &options, d) ; /* sets curdeal and also the dds_res_bin 20 results struct */
+			return lib_rc ; /* DL_OK or ENOZRD_DL if wrap count exceeded*/
 			break ; 
 	  }
 	  case BIAS_MODE : {

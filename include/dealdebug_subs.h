@@ -9,7 +9,8 @@ extern void dump_curdeal( DEAL52_k  dl);
 extern void hexdeal_show( DEAL52_k  dlx, int sz );
 extern void sr_deal_show( DEAL52_k  dlx );
 extern void sr_hand_show(int h,  DEAL52_k  dlx) ;
-extern void show_hands_pbn( int mask,  DEAL52_k  d ) ;
+extern void show_rprec(struct rpdd_st *rprec) ;	 /* show in human friendly */
+extern void dump_rprec(struct rpdd_st *rprec ) ; /* dump  in hex */
 extern void showtreenode(int tlev, struct tree *tr);
 extern void showvartree(struct tree *t) ;
 extern void showvarlist(struct var *v ) ;

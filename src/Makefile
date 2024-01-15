@@ -32,14 +32,16 @@ LIBNAME  = libdealerV2.a
 LIBBASE  = dealerV2
 LIBSRCS  = ../src/deal_conversion_subs.c ../src/dealdebug_subs.c ../src/dealdeck_subs.c 
 LIBSRCS += ../src/deal_knr.c ../src/deal_scorelib.c ../src/dealutil_subs.c ../lib/libVersion.c
-LIBOBJS = $(patsubst ../src/%.c,%.o,$(LIBSRCS) )
-LIBHDRS = $(patsubst ../src/%.c,%.h,$(LIBSRCS) )
+LIBOBJ1 = $(patsubst ../src/%.c,%.o,$(LIBSRCS) )
+LIBOBJS = $(patsubst ../lib/%.c,%.o,$(LIBOBJ1) )
+LIBHDR1 = $(patsubst ../src/%.c,%.h,$(LIBSRCS) )
+LIBHDRS = $(patsubst ../lib/%.c,%.h,$(LIBHDR1) )
 LIBHDRS += ../include/dbgprt_macros.h ../include/allheaders.h
 
 SRCS  = ../src/dealaction_subs.c ../src/deal_bias_subs.c ../src/deal_bktfreq_subs.c  ../src/dealcard_subs.c 
 SRCS += ../src/dealdds_subs.c    ../src/Dealer_DDS_IF.c  ../src/dealeval_subs.c   
 SRCS += ../src/dealinit_subs.c ../src/dealparse_subs.c   ../src/dealrpdd_subs.c ../src/dealServer_subs.c
-SRCS += ../src/dealerv2.c 
+SRCS += ../dealzrd_subs.c ../src/dealerv2.c 
 OBJS = $(patsubst ../src/%.c,%.o,$(SRCS) ) dealglobals.o dealflex.o dealyacc.tab.o              
 
 
@@ -55,7 +57,13 @@ allheaders :
 
 clean:
 	rm -f ${OBJS} ${LOBJ} ${YOBJ} ${LIBOBJS} *.gch ../include/*.gch ../include/*.o
-
+JUNK0 = ../src/dealxxx_subs.c ../lib/libXxxx.c
+JUNK1 = $(patsubst ../src/%.c,%.o,$(JUNK0) )
+JUNK2 = $(patsubst ../lib/%.c,%.o,$(JUNK1) )
+#  This next one does not work. Can use Perl Regexes JUNK3 = $(patsubst ../(src|lib)/%.c,%.o,$(JUNK0) )
+ShoJunk :
+	@echo SRC=$(JUNK0) OBJS1 = $(JUNK1) OBJS2 = $(JUNK2) 
+	
 showme:
 	@echo DestDir = $(DESTDIR) JGMDBG = $(JGMDBG)
 	@echo CC=$(CC) $(CCFLAGS) $(LDFLAGS)

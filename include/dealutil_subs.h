@@ -1,8 +1,9 @@
 /* File include/dealutil_subs.h */
-/* handcrafted sorts and random number routines */
+/* handcrafted sorts and random number routines and others as they occur */
 #ifndef DEALUTIL_SUBS_H
 #define DEALUTIL_SUBS_H
 #include "../include/dealtypes.h"
+int unmask( int mask ) ;
 int sort3(  char a[3] );								// sort array of  3 char in Asc order; not used in Dealer
 int sort4(  char a[4]); 								// sort array of  4 char in Asc order
 int sort13( char a[13] ) ; 								// sort array of 13 char in Asc order

@@ -17,8 +17,7 @@
 #include "../include/dealdebug_subs.h"
 // #include "../include/dealprotos.h"
 
-
-
+extern char *Hand52_to_PBNbuff (int p, char *dl52, char *buff ) ;
 #include "../include/dealdebug_subs.h"
 /* search 13 slots in deal looking  for one specific card -- original version of hascard
  * Since this is for debuging do NOT rely on deal being sorted, or having handstat filled in.
@@ -29,7 +28,7 @@ int gotKard (DEAL52_k  d, int player, CARD52_k  thiscard){
     if (d[i] == thiscard) return 1;
   return 0;
 } /* end gotKard */
-
+	
 void show_hands_PBN( int mask, DEAL52_k  d ) {
 /* Clone of printhands_pbn in action subs.c except always goes to stderr */
   char pt[] = "nesw";
@@ -140,6 +139,7 @@ void sr_hand_show(int p, DEAL52_k  dl ) {
     fprintf (stderr, "]\n");
     fsync(2);
 } /* end sr_hand_show */
+
 /* A true Deal52 always has players in order N,E,S,W. */
 void show_Deal52(DEAL52_k d) {  // This code does not sort the hands; but will work either way; output looks better sorted. 
     int  pnum ;

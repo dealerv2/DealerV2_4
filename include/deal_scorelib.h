@@ -14,9 +14,10 @@ int dbled_making ( int dbl_flag, int vul, int strain, int tricks_taken) ;       
 int imps (int scorediff) ;                                                        /* convert a score difference to IMPS (plus or minus) */                                             
 int score(int vul, int coded_contract, int tricks_taken ) ;                       /* decode the contract then call calc_score */
 int trickscore(int strain, int tricks_taken ) ;	                                  /*  score for tricks_taken > 6 ; does not include game or slam bonus */
-int undertricks( int utricks, int vul, int dbl_flag) ;  /* score (Re)Doubled UndeTricks(1..13)  DBLed dbl_flag=1 ReDBLed dbl_flag=2*/
+int undertricks( int utricks, int vul, int dbl_flag) ;  /* score (Re)Doubled UnderTricks(1..13)  DBLed dbl_flag=1 ReDBLed dbl_flag=2*/
 int undbled_score (int vuln, int suit, int level, int tricks) ; /* handles undertricks, overtricks and just making; includes game and slam bonus */
-/* there is also a function decode_contract from parse_subs that returns a structure. Used to build the action tree.
+/* there is also a function decode_contract from parse_subs that returns a structure. 
+ * Used to build the action tree.
  * Not needed in this library since we have the GET functions 
  */
 #endif

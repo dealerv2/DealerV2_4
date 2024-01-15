@@ -25,7 +25,7 @@
 
 CARD52_k  make_card (char rankchar, char suitchar)  ;
 int setDealMode( struct options_st *opt_ptr ) ; /* choose a mode from possibly competing options */
-void init_deal(int mode) ; 							/* setup the environment for the chosen dealing mode */
+void init_deal(int dealing_mode) ; 							/* setup the environment for the chosen dealing mode */
 extern void init_bias_deal() ; 						/* one time setup of various bias_deal vars */
 extern void re_init_bias_vars() ; 						/* init needed for every deal */
 #if 0
@@ -77,6 +77,9 @@ void init_globals ( struct options_st *opts ) {
   opts->seed         = 0 ;
   opts->quiet        = 0 ; 
   opts->progress_meter = 0;
+  opts->zrd_wanted   = 0 ;
+  opts->title_len = -1 ;				/* a title of zero length is valid to suppress zrd hdr records. */
+  opts->title[0]='\0';
 
    return ;
 } /* end init_globals */
@@ -166,18 +169,24 @@ void setup_dds_mode ( struct options_st *opts ) {
      opts->nThreads = TblModeThreads ;
      opts->maxRamMB = 160 * TblModeThreads ;
   } /* else dds_mode is 1 OR user has spec'd both Mode and Threads values */
-
-  SetResources(opts->maxRamMB, opts->nThreads) ; /* 160MB/Thread max; 9,12,16 all equal and 25% faster than 6 Threads for Mode2*/
+	
+	/* DDS docs say max Threads is set at 1.5 x nCores. 
+	 * but finding nCores on Linux is questionable?
+	 * In any case on my 4 core / 8 'cpu' intel chip, I cannot get more than 8 threads
+	 * Regardless of how many more I ask for. Firefox on the other hand can get 128 threads!
+	 */
+  SetResources(opts->maxRamMB, opts->nThreads) ; /* 160MB/Thread max */
   ZeroCache(&dds_res_bin) ; /* dds_res_bin is a global struct holding tricks for 20 combos of leader and strain */
    JGMDPRT(3,"DDS_mode Set. Mode=%d, Threads=%d, Ram=%d MB \n",opts->dds_mode, opts->nThreads, opts->maxRamMB ) ;
    return ;
 } /* end setup_dds_mode */
 
-void enforce_rplib_mode(FILE *rp_file,  struct options_st *opt_ptr) {
-  int set_rplib_vars(FILE *rpdd_file, struct options_st *opts); /* calc the blocksize, number of records etc. */
+void enforce_zrdlib_mode(FILE *fzrdlib,  struct options_st *opt_ptr) {
+  int set_zrdlib_vars(FILE *libfile, struct options_st *opts); /* calc the blocksize, number of records etc. */
+  long int zrd_seekfpos(FILE *fzrdlib, long int seed ) ;
   int myseed;
-  long rpdd_pos ;
-  rplib_mode = opt_ptr->rplib_mode ;
+  long zrdlib_pos = 0;
+  zrdlib_mode = opt_ptr->zrdlib_mode ;
   JGMDPRT(3, "Lib Mode Specified. Ignoring impossible options \n");
  
        predeal_compass = -1 ;    /* reset predeal_compass in case yyparse found predeal spec in input file */
@@ -193,29 +202,29 @@ void enforce_rplib_mode(FILE *rp_file,  struct options_st *opt_ptr) {
        }
 
        /* Repurpose the seed spec, if any, to mean an offset into the Library file */
-       rplib_recs = set_rplib_vars(rp_file, opt_ptr) ; /* calculate DB size, then calc blksize and  max seed accordingly */
-       JGMDPRT(4,"Set_rplib_vars Returns Globals: Recs=%d, Blksz=%d, Max_seed=%d, RECnum=%d\n",
-				rplib_recs, rplib_blksz, rp_max_seed, rplib_recnum);
-       if( opt_ptr->rp_seed > 0 ) { /* in Lib mode treat seed as an offset into the lib file */
-            myseed = (opt_ptr->rp_seed < rp_max_seed) ? opt_ptr->rp_seed : rp_max_seed ;
-            rpdd_pos = seek_rpdd_pos(rp_file, myseed) ;
-            if( rpdd_pos < 0 ) {
+       zrdlib_recs = set_zrdlib_vars(fzrdlib, opt_ptr) ; /* calculate DB size, then calc blksize and  max seed accordingly */
+       JGMDPRT(3,"Set_zrdlib_vars Returns Globals: Recs=%d, Blksz=%d, Max_seed=%d, zrdlib_recnum=%d\n",
+				zrdlib_recs, zrdlib_blksz, zrd_max_seed, zrdlib_recnum);
+       if( opt_ptr->zrd_seed >= 0 ) { /* in Lib mode treat seed as an offset into the lib file */
+            myseed = (opt_ptr->zrd_seed < zrd_max_seed) ? opt_ptr->zrd_seed : zrd_max_seed ;
+            zrdlib_pos = zrd_seekfpos(fzrdlib, myseed) ;
+            if( zrdlib_pos < 0 ) {
                fprintf(stderr, "Seeking to position of myseed=%d failed. Will start at beginning \n", myseed);
                myseed = 0 ; 
-               rpdd_pos = seek_rpdd_pos(rp_file, 0) ;
+               zrdlib_pos = zrd_seekfpos(fzrdlib, 0) ;
             }
-            JGMDPRT(3,"RPLIB Mode: myseed=%d, CmdLine_Seed=%ld,  MaxLib_seed=%d, LibRecs=%d, seek_to_seed_pos=%ld \n",
-									myseed, opt_ptr->rp_seed, rp_max_seed, rplib_recs, rpdd_pos ) ; 
+            JGMDPRT(3,"LIB Mode: myseed=%d, CmdLine_Seed=%ld,  MaxLib_seed=%d, LibRecs=%d, seek_to_seed_pos=%ld \n",
+									myseed, opt_ptr->zrd_seed, zrd_max_seed, zrdlib_recs, zrdlib_pos ) ; 
        }
-       rplib_recnum = rpdd_pos / RPDD_REC_SIZE; 
-       JGMDPRT(2,"enforce_rplib_mode Seeking to RP_Record # %u at beginning of rplib_recnum=%d, rplib_recs=%d, rplib_blksz=%d\n",
-									(myseed * rplib_blksz + 1 ), (rplib_recnum+1), rplib_recs, rplib_blksz );
+      zrdlib_recnum = zrdlib_pos / ZRD_REC_SIZE; 
+       JGMDPRT(2,"enforce_zrdlib_mode Seeking to ZRD_Record # %u at beginning of zrdlib_recnum=%d, zrdlib_recs=%d, zrdlib_blksz=%d\n",
+									(myseed * zrdlib_blksz + 1 ), (zrdlib_recnum+1), zrdlib_recs, zrdlib_blksz );
 
-       if (opt_ptr->max_generate > rplib_recs ) {
+       if (opt_ptr->max_generate > zrdlib_recs ) {
           fprintf(stderr, "dealinit_subs.c::Finalize Options::ERR maxgenerate too big. Library does not contain %d records. Setting to %d \n",
-                                    maxgenerate,rplib_recs ) ;
-          opt_ptr->max_generate = rplib_recs ; 
-          maxgenerate =  rplib_recs ;
+                                    maxgenerate,zrdlib_recs ) ;
+          opt_ptr->max_generate = zrdlib_recs ; 
+          maxgenerate =  zrdlib_recs ;
           if (opt_ptr->max_produce > opt_ptr->max_generate) {
              opt_ptr->max_produce = opt_ptr->max_generate ;
              maxproduce = opt_ptr->max_produce ;
@@ -227,12 +236,12 @@ void enforce_rplib_mode(FILE *rp_file,  struct options_st *opt_ptr) {
        predeal_compass = -1 ;
        memset(opt_ptr->preDeal,     0 , sizeof(opt_ptr->preDeal)     ) ;
        memset(opt_ptr->preDeal_len, 0 , sizeof(opt_ptr->preDeal_len) ) ;
-       JGMDPRT(4, "RPLIB mode enforced rplib_recs=%d, rplib_blksz=%d, Start of rplib_recnum=%d, rp_max_seed=%d\n",
-							rplib_recs, rplib_blksz, (rplib_recnum+1), rp_max_seed ) ; 
-        JGMDPRT(4,"*---------Enforce_rplib_mode all Done----------* \n");
+       JGMDPRT(4, "ZRDLIB mode enforced zrdlib_recs=%d, zrdlib_blksz=%d, Start of zrdlib_recnum=%d, zrd_max_seed=%d\n",
+							zrdlib_recs, zrdlib_blksz, (zrdlib_recnum+1), zrd_max_seed ) ; 
+        JGMDPRT(4,"*---------Enforce_zrdlib_mode all Done----------* \n");
        
        return ; 
-} /* end enforce_rplib_mode */
+} /* end enforce_zrdlib_mode */
 
  /* one time initialization to predeal stacked cards, or setup bias deal infrastructure */
 void init_deal(int dealing_mode ) {   /* One Time Initialize curdeal taking into account the Predeal requirements in stacked pack  */
@@ -327,33 +336,36 @@ void finalize_options ( struct options_st *opt_ptr) {
          opc_opener = opt_ptr->opc_opener;
     }
      /* need to check the title stuff here, since yyparse() may have set it also */
-    if( opt_ptr->title_len > 0 ) {
-       JGMDPRT(4,"Setting Title to CmdlineTitle=[%s],CmdLineTitleLen=[%ld]\n",
+    if( opt_ptr->title_len >= 0 ) {
+       JGMDPRT(4,"Setting Title to CmdlineTitle=[%s],CmdLineTitleLen=[%d]\n",
                   opt_ptr->title, opt_ptr->title_len ) ;
        title_len = opt_ptr->title_len  ;
-       strncpy( title, opt_ptr->title, MAXTITLESIZE - 1 );
+       strncpy( title, opt_ptr->title, MAXTITLE - 1 );
     }
     else if (title_len > 0 ) {
-       JGMDPRT(4,"Setting Title to input file Title=[%s],title_len=[%ld]\n",title, title_len );
+       JGMDPRT(4,"Setting Title to input file Title=[%s],title_len=[%d]\n",title, title_len );
        opt_ptr->title_len = title_len ;
        strncpy(opt_ptr->title, title, title_len+1) ;
     }
-    JGMDPRT(4,"Final Title=[%s], Final TitleLen=[%ld]\nOpt_Ptr title=[%s],Opt_ptr_>titleLen=[%ld]\n",
+    JGMDPRT(4,"Final Title=[%s], Final TitleLen=[%d]\nOpt_Ptr title=[%s],Opt_ptr_>titleLen=[%d]\n",
                   title, title_len, opt_ptr->title, opt_ptr->title_len ) ;
 
+	 if (1 == opt_ptr->zrd_wanted && 1 == opt_ptr->zrd_dds ) { /* might have -Z N:<fname> */
+		 opt_ptr->dds_mode = DDS_TABLE_MODE ;  dds_mode = DDS_TABLE_MODE ;
+	 }
     if (opt_ptr->max_generate > 0 ) { maxgenerate = opt_ptr->max_generate ; }
     else if (maxgenerate > 0 )      { opt_ptr->max_generate = maxgenerate ; }
 
      /* need to check the seed stuff here, since yyparse() may have set it also */
     if( opt_ptr->seed_provided > 0 ) {  /* getopts will set this to 1 if there is a -s switch on cmd line */
        seed_provided = opt_ptr->seed_provided  ;
-       seed = opt_ptr->seed; opt_ptr->rp_seed = seed ;
+       seed = opt_ptr->seed; opt_ptr->zrd_seed = seed ;
        JGMDPRT(4, "Cmd Line  Seed[%ld] sets global seed and rp_seed\n", opt_ptr->seed ) ;
     }
     else if (seed_provided) {  /* flex will set this to 1 if there is a seed in the input file */
        opt_ptr->seed_provided = seed_provided  ;
-       opt_ptr->seed = seed ; opt_ptr->rp_seed = seed ;
-    JGMDPRT(4, "Input file  Seed[%ld] sets opt_ptr->seed =%ld and opt_pt->rp_seed=%ld\n", seed, opt_ptr->seed,opt_ptr->rp_seed ) ;
+       opt_ptr->seed = seed ; opt_ptr->zrd_seed = seed ;
+    JGMDPRT(4, "Input file  Seed[%ld] sets opt_ptr->seed =%ld and opt_pt->zrd_seed=%ld\n", seed, opt_ptr->seed,opt_ptr->zrd_seed ) ;
     }
     else { JGMDPRT(4, "No Seed provided. Will use kernel entropy\n"); }
 
@@ -375,7 +387,7 @@ void finalize_options ( struct options_st *opt_ptr) {
 } /* end finalize_options */
 
 void init_runtime(struct options_st *opts) {
-    if (opts->rplib_mode != 1 ) {   /* If we are not in Library Mode */
+    if (opts->zrdlib_mode != 1 ) {   /* If we are not in Library Mode */
 		setup_rng( opts ) ;         /* used seed value to init the rng */
 		seed = opts->seed ;         /* set the global to match what setup_rng has done; if seed was zero, it was set by kernel */
 		setup_dds_mode(opts) ;
@@ -386,11 +398,11 @@ void init_runtime(struct options_st *opts) {
        */
      }
      init_deal(DealMode);
-     
+   if (options.par_vuln < 0 ) {options.par_vuln = 0 ; } /* set default to none_vul if user did not set on cmd line. */
    if (maxgenerate == 0) {
        maxgenerate = 10000000 ; /* 10 Million */
-       if (opts->rplib_mode == 1 && maxgenerate > rplib_recs ) {
-          maxgenerate = rplib_recs; 
+       if (opts->zrdlib_mode == 1 && maxgenerate > zrdlib_recs ) {
+          maxgenerate = zrdlib_recs; 
        }
        opts->max_generate = maxgenerate;
    }
@@ -399,8 +411,8 @@ void init_runtime(struct options_st *opts) {
    JGMDPRT(2, "Maxgenerate=%d, Maxproduce=%d, DDS Threads=%d, UserServerReqd=%d\n",
                maxgenerate, maxproduce, opts->nThreads, userserver_reqd );
     /* { ASSERT: maxproduce <= maxgenerate; opts->max_generate == maxgenerate; opts->max_produce == maxproduce 
-     *           if (rplib_mode == 1) then rplib_recs >= maxgenerate
-     *                                     seed <= rplib_recs / rp_blksize
+     *           if (zrdlib_mode == 1) then zrdlib_recs >= maxgenerate
+     *                                     seed <= zrdlib_recs / zrd_blksize
      * }
      */
    /* V4.5 ensure the two HCP tables are in sync yyparse may have changed one but not the other*/
@@ -434,7 +446,7 @@ void init_runtime(struct options_st *opts) {
 
 /* compare the cmd line, and the input file dealing options and choose one */
 int setDealMode( struct options_st *opt_ptr ) {
-	int libmode = opt_ptr->rplib_mode;
+	int libmode = opt_ptr->zrdlib_mode;
 	int biasmode = bias_deal_wanted;
 	int cmd_parm_predeal = opt_ptr->preDeal_len[0] >0 || opt_ptr->preDeal_len[1] >0 || 
 								  opt_ptr->preDeal_len[2] >0 || opt_ptr->preDeal_len[3] >0  ;
@@ -515,9 +527,9 @@ int setDealMode( struct options_st *opt_ptr ) {
 			break ;
 		case LIB_MODE :
 			init_cards() ; 
-			enforce_rplib_mode(rp_file, opt_ptr ) ; 
-			JGMDPRT(5, "RPLIB mode enforced rplib_recs=%d, rplib_blksz=%d, Start of rplib_recnum=%d, rp_max_seed=%d\n",
-							rplib_recs, rplib_blksz, (rplib_recnum+1), rp_max_seed ) ; 
+			enforce_zrdlib_mode(fzrdlib, opt_ptr ) ; 
+			JGMDPRT(5, "ZRDLIB mode enforced zrdlib_recs=%d, zrdlib_blksz=%d, Start of zrdlib_recnum=%d, zrd_max_seed=%d\n",
+							zrdlib_recs, zrdlib_blksz, (zrdlib_recnum+1), zrd_max_seed ) ; 
 			break ;		
 		case BIAS_MODE :
 			init_cards() ;

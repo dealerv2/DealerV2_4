@@ -31,7 +31,7 @@ extern int dbg_dds_lib_calls;    /* print dds counts at end of run for debugging
 extern int dbg_dds_res_calls;
 extern int dbg_parscore_calls;
 extern int csv_firsthand;        /* not used was intending to allow user to print deal in arbitrary seq; but too confusing */
-extern int rplib_mode ;
+extern int zrdlib_mode ;
 extern int TblModeThreads;
 
 /*API we export to the DDS side */
@@ -47,6 +47,10 @@ DDSRES_k dds_res_bin;
 /*    Prototypes of Dealer code, calling DDS library using DDS structs */
 #include "../include/Dealer_DDS_IF.h"
 
+char Denom[]         = "NSHDC";  	// Different order yet again ... for the parResultsMaster structure
+char seatNames[6][3] = { {"N"},{"E"},{"S"},{"W"},{"NS"},{"EW"} };
+char dl52Vul[4][6]   = { {"none"}, {"ns"}, {"ew"}, {"both"} } ;
+    
 DDSRES_k true_CalcTable(DEAL52_k  dl, int vul, int dds_mode ) ; // ddTableResults uses [suits][hands] index order.
 int      true_SolveBoard(DEAL52_k  curdeal, int compass, int strain ) ;
 int      rplib_Par(DDSRES_k *DealerRes, int par_vuln) ;
@@ -196,6 +200,20 @@ int dds_tricks(int compass, int strain ) {  //ngen, dds_dealnum, dds_res_bin, dd
        return dds_res_bin.tricks[compass][strain];
 } /* end dds_tricks */
 
+char *dds_ParContract(char *buff,  int dl52_vul, struct parResultsMaster *sidesRes ) { /*buff should point to area in dds_res_bin */
+	int nch ;
+	int buff_sz = sizeof(dds_res_bin.ParContracts[0]) ; 
+	char Dbled  ;
+	if(sidesRes->contracts[0].underTricks > 0 ) { Dbled = '*' ; }
+   else { Dbled = ' ' ; }
+   /* Example [ 4H* by NS] */
+   nch = snprintf( buff, buff_sz, "%2d%c%c by %s %s", sidesRes->contracts[0].level,
+                       Denom[sidesRes->contracts[0].denom], Dbled, seatNames[sidesRes->contracts[0].seats], dl52Vul[dl52_vul] );
+   JGMDPRT(8,"Vuln = %d, undertricks=%d, ParContract[%s], nch=%d\n",
+				options.par_vuln,sidesRes[0].contracts[0].underTricks, buff, nch ) ;
+	return (nch + buff) ;  /* points to NULL snprintf put in buffer */
+} /* end fmt_ParContract */
+	
 DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode should always be DDS_TABLE_MODE here...
     int dds_rc = 1; /* OK*/
     int si, so, h, t;
@@ -203,9 +221,7 @@ DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode sho
     struct ddTableDeal       dds_BIN_deal; /* Deal in DDS binary suitable for input to CalcDDtable */
     struct parResultsMaster  sidesRes[2] ;
     DDSRES_k DealerRes ;
-    char Denom[]   ="NSHDC";  // Different order yet again ... for the parResultsMaster structure
-    char seatNames[6][3] = { {"N"},{"E"},{"S"},{"W"},{"NS"},{"EW"} };
-    char line[128] ; // for DDS error messages
+    char line[128] ; 				// for DDS error messages
     int  dds_vuln   ;
     /* convert dealer coding par_vul argument  to DDS coding */
     dds_vuln =  (par_vul == 0 ) ? 0 :      // None
@@ -216,11 +232,11 @@ DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode sho
 
     // dbg_dds_lib_calls and dbg_dds_res_calls updated by dds_tricks before calling this function
 
-JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d jgmDebug=%d, dds_mode=%d\ dds_vuln=%dn",
-                           dbg_dds_lib_calls, ngen, dds_dealnum, jgmDebug, dds_mode, dds_vuln );
-        dds_BIN_deal =  Deal52_to_DDSBIN (dl);
-        dds_rc = CalcDDtable(dds_BIN_deal, &Res_20 );
-        JGMDPRT(7, " DDS CalcDDtable returned with RetCode=%d \n", dds_rc);
+   JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d jgmDebug=%d, dds_mode=%d, dds_vuln=%d\n",
+                                  dbg_dds_lib_calls, ngen, dds_dealnum,  jgmDebug,   dds_mode,     dds_vuln);
+   dds_BIN_deal =  Deal52_to_DDSBIN (dl);
+   dds_rc = CalcDDtable(dds_BIN_deal, &Res_20 );
+   JGMDPRT(7, " DDS CalcDDtable returned with RetCode=%d \n", dds_rc);
 
         // check return code; print error msg if not OK  NO_FAULT is 1
         if (dds_rc != RETURN_NO_FAULT)  {
@@ -231,6 +247,7 @@ JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d jgmDebug=%
         }
         /* Calculate the Par for all VUL. Does not take long, and simplifies caching */
         for (dds_vuln = 0 ; dds_vuln < 4 ; dds_vuln++) {
+			  int  dl52_vuln = dds2dl_vuln(dds_vuln) ;
 				dds_rc = SidesParBin(&Res_20, sidesRes, dds_vuln);  /* calculate Par result */
             // check return code; print error msg if not OK
 				if (dds_rc != RETURN_NO_FAULT)  {
@@ -239,7 +256,10 @@ JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d jgmDebug=%
 						strncpy(DealerRes.ddsmsg, line, 40);
 						DealerRes.errcode = -1 ;
 				}
-				DealerRes.parScores_NS[dds2dl_vuln(dds_vuln)] = sidesRes[0].score;
+				DealerRes.parScores_NS[dl52_vuln] = sidesRes[0].score;
+				dds_ParContract(DealerRes.ParContracts[dl52_vuln], dl52_vuln, &sidesRes[0] ) ; 
+				JGMDPRT(8,"Vuln = %d, Score=%d, , undertricks=%d, ParContract[%s]\n",dl52_vuln,
+					DealerRes.parScores_NS[dl52_vuln],sidesRes[0].contracts[0].underTricks, DealerRes.ParContracts[dl52_vuln]) ; 
 		  } /* end for dds_vuln */
 		  DealerRes.parScore_NS = DealerRes.parScores_NS[0] ;
 		  JGMDPRT(7, " DefParScore(NoneVul)=%d, 4xParScores Calc=[%d,%d,%d,%d]\n",
@@ -263,10 +283,11 @@ JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d jgmDebug=%
         } /* end for si < DDS_STRAINS */
 
         DBGDO(7, showReturns(&DealerRes) );
-        // report the par score and (one of) the corresponding contract(s)
-        DealerRes.parScore_NS = DealerRes.parScores_NS[options.par_vuln] ; // set the default one
-        sprintf( DealerRes.ddsmsg,"%2d%c by %s  ", sidesRes[0].contracts[0].level,
-                        Denom[sidesRes[0].contracts[0].denom], seatNames[sidesRes[0].contracts[0].seats] );
+        // set default par score for backwards compatibility
+
+        t = (options.par_vuln >= 0 ) ? options.par_vuln : 0  ;/* use vul set on cmd line with -P switch if not set will be -1*/
+        DealerRes.parScore_NS = DealerRes.parScores_NS[t] ; // set the default one backwards compat
+
         DealerRes.CacheStatus = CACHE_OK ;
         dds_dealnum = ngen ; /* mark the cache as up to date. */
 
@@ -353,10 +374,10 @@ int dds_parscore(int compass, int vuln ) {  /* uses globals */
     JGMDPRT(6,"IN DDS_PARSCORE par_calls=%d ngen=%d dds_dealnum=%d, dds_mode=%d, compass=%d, vuln=%d DefVuln=%d \n",
                            dbg_parscore_calls, ngen, dds_dealnum, dds_mode, compass, vuln,options.par_vuln );
     vuln_par = (vuln     >= 0 ) ? vuln :				          /* vul in input file takes priority */
-               (options.par_vuln >= 0 ) ? options.par_vuln : /* use vul set on cmd line with -P switch */
+               (options.par_vuln >= 0 ) ? options.par_vuln : /* use vul set on cmd line with -P switch if not set will be -1*/
                0 ; 											          /* default value */
  
-    if ( rplib_mode == 1 ) {
+    if ( 1 == zrdlib_mode ) {
        par_NS =  rplib_Par(&dds_res_bin , vuln_par) ; /* these globals will have been set by get_rp_deal and parsing stage */
        if(compass == COMPASS_NORTH || compass == COMPASS_SOUTH || compass == SIDE_NS ) {
           return par_NS ;

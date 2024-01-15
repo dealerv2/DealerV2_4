@@ -1,0 +1,7 @@
+
+title "No Condition Minimal input file Use as a Template"
+produce 1
+seed  211
+action
+  //printoneline (hcp(north)+hcp(south))
+  printrpt(deal,trix(deal))

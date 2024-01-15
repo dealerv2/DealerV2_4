@@ -123,7 +123,7 @@ int PBN_to_Deal52( DEAL52_k dl , char *t ) { /* convert a simple GIB-PBN text st
      */
      slen = strlen(t) ;
      if (slen != DEALSTRSIZE ) {
-          fprintf(stderr, "The source DEAL_k is in the wrong format.\n Submit DEAL_k as a COLON terminated %d char string \n",
+          fprintf(stderr, "The source PBN deal is in the wrong format.\n Submit PBN deal as a COLON terminated %d char string \n",
                           DEALSTRSIZE );
      }
      s=0; r=0; dlcnt = 0;
@@ -154,9 +154,10 @@ int PBN_to_Deal52( DEAL52_k dl , char *t ) { /* convert a simple GIB-PBN text st
              case '3' : r = THREE; dl[dlcnt++] = MAKECARD(s,r) ; break ;
              case '2' : r = TWO;   dl[dlcnt++] = MAKECARD(s,r) ; break ;
              case ':' : endofdeal = 1 ;  break ;
+             case '\0': endofdeal = 1 ;  break ;  /* allow pbn str to be null term as well as : term */
              default:
-                fprintf(stderr, "Invalid Char in DEAL_k source string\n") ;
-                fprintf(stderr, "Invalid Char in DEAL_k source string\n") ;
+                fprintf(stderr, "Invalid Char in PBN deal source string\n") ;
+                fprintf(stderr, "Invalid Char in PBN deal source string\n") ;
                 return -1 ;
          } /* end switch */
    } /* end for tc */

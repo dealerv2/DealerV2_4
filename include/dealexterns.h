@@ -39,15 +39,15 @@
  extern char    ucrep[] ;
  extern struct  handstat    hs[4] ;
  extern struct  sidestat_st ss[2] ; 
-extern const int beg_pos[4] ;   /* the slots in the deck where the suits or hands begin */
-extern const int end_pos[4] ;   /* the slots in the deck where the suits or hands end +1 -- for use in calls to get_rnd_slot among other things */
+ extern const int beg_pos[4] ;   /* the slots in the deck where the suits or hands begin */
+ extern const int end_pos[4] ;   /* the slots in the deck where the suits or hands end +1 -- for use in calls to get_rnd_slot among other things */
 
     /* cmd line parameter variables  some used by yyparse *and flex */
  extern struct options_st options ; /* defined and init in globals.c */
  extern struct options_st *p_opts ;
  extern struct param_st parm ;         /* for script parameters $0 thru $9 */
  extern int     csv_firsthand;
- extern char    csv_trixbuff[64] ; // room for 20 * (2digits + comma) and a bit extra
+ extern char    csv_trixbuff[64] ; // room for 20 * (2digits + comma) + NULL and a bit extra
  extern size_t  csv_trixbuff_len ;
  
  /* original cmd line switches -- many also appear in a yyparse action clause. --   would be nicer to put these all in a struct */
@@ -66,29 +66,26 @@ extern const int end_pos[4] ;   /* the slots in the deck where the suits or hand
  extern int     srvDebug ;          /* cmd line setting for child server debug level */
  
  extern int     dds_mode;           /* -M 1 use Board Mode fastest for 1-5 results; 2 Use Table Mode, fastest for 5-20 results*/
- // extern int     par_vuln;		 	/* -P -1 no par calculations, 0=noneVul, 1=bothVul, 2=nsVul, 3= ewVul */
 
- // extern int     nThreads;           /* -R 0..10 MaxRam = 160 * nThreads */
- // extern int     MaxRamMB ;
  extern int     TblModeThreads;
 
- extern char    title[MAXTITLESIZE] ;   /* set from cmd line or from input file directly from dealflex.l */
- extern size_t  title_len;
+ extern char    title[MAXTITLE+1] ;   /* set from cmd line or from input file directly from dealflex.l */
+ extern int     title_len;  /*  >0 valid title;  <0 no title specified =0 suppress zrdhdr record(s) even if title in dli file*/
  
  extern char   *input_file;
  extern FILE   *fexp ;
  extern FILE   *fcsv ;
  extern FILE   *fzrd ;
- extern FILE   *rp_file ;
+ extern FILE   *fzrdlib ;
  
- extern char    rplib_default[64] ;  /* path name of the default location for the RP Library file */
- extern int     rplib_mode ;
- extern int     rplib_blksz ;
- extern int     rplib_recs;
- extern int     rplib_recnum;
- extern int     rp_max_seed ;
- extern int     rp_cnt ;
- extern int     rp_pass_num ;
+ extern char    zrdlib_default[64] ;  /* path name of the default location for the RP Library file */
+ extern int     zrdlib_mode ;
+ extern int     zrdlib_blksz ;
+ extern int     zrdlib_recs;
+ extern int     zrdlib_recnum;
+ extern int     zrd_max_seed ;
+ extern int     zrd_cnt ;
+ extern int     zrdlib_pass_num ;
 /* Global Vars to launch DealerServer daemon */
 extern char server_dir[] ;    /* Path to the distro version */
 extern char server_pgm[] ;    /* Default DealerServer in the current directory. or user sets path name via -U switch */

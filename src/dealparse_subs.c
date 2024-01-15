@@ -206,5 +206,17 @@ void predeal (int player, CARD52_k  onecard) {  /* this moves a card from fullpa
   yyerror ("Card predealt twice");
 } /* end  predeal -- */
 
+char *newpar_cstr(int vuln) { /* return a pointer to the parcontract string in the DDSRES_k struct for the asked for vuln */
+	 /* global dds_res_bin contains all the dds results, tricks, parscores, and parcontracts */
+    int vuln_par =      /* error check the asked for vulnerability */
+				( 0 <= vuln && vuln <= 3 ) ? vuln :				          /* vul in input file takes priority */
+            (0 <= options.par_vuln && options.par_vuln <= 3 ) ? options.par_vuln : /* use vul set on cmd line with -P switch */
+               0 ; 											               /* non vul */
+	 /* Force the cache to be updated and the parcontracts to be calculated if they were not already.*/
+	 dds_parscore(SIDE_NS , vuln) ; 
+    return dds_res_bin.ParContracts[vuln_par] ;
+	
+}
+
 
 

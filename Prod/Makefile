@@ -11,6 +11,7 @@
 # 2023/11/03 -- Major re-Org to allow some pieces of DealerV2 to be library modules.
 # 2023/11/30 -- Updated LIB paths etc to be in sync with Debug directory Makefile
 # Replace -O2 -g in CFLAGS with -O3 for Release...
+# 2024/01/14 -- Added dealzrd_subs.c dealzrd_defs.h removed dealrpdd_subs.c 
 
 CC      = gcc
 CFLAGS = -std=gnu17 -mtune=corei7 -flto -fopenmp -pthread -Wall -pedantic -O2 -g  -I../include
@@ -39,8 +40,8 @@ YACC    = bison -d
 
 SRCS  = ../src/dealaction_subs.c ../src/deal_bias_subs.c ../src/deal_bktfreq_subs.c  ../src/dealcard_subs.c 
 SRCS += ../src/dealdds_subs.c    ../src/Dealer_DDS_IF.c  ../src/dealeval_subs.c   
-SRCS += ../src/dealinit_subs.c ../src/dealparse_subs.c   ../src/dealrpdd_subs.c ../src/dealServer_subs.c
-SRCS += ../src/dealerv2.c 
+SRCS += ../src/dealinit_subs.c ../src/dealparse_subs.c   ../src/dealServer_subs.c
+SRCS += ../src/dealzrd_subs.c ../src/dealerv2.c 
 OBJS = $(patsubst ../src/%.c,%.o,$(SRCS) ) dealglobals.o dealflex.o dealyacc.tab.o                 
 
 HDR  = ../include/allheaders.h ../include/dbgprt_macros.h ../include/libdealerV2.h
