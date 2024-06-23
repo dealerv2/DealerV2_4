@@ -40,8 +40,8 @@ LIBHDRS += ../include/dbgprt_macros.h ../include/allheaders.h
 
 SRCS  = ../src/dealaction_subs.c ../src/deal_bias_subs.c ../src/deal_bktfreq_subs.c  ../src/dealcard_subs.c 
 SRCS += ../src/dealdds_subs.c    ../src/Dealer_DDS_IF.c  ../src/dealeval_subs.c   
-SRCS += ../src/dealinit_subs.c ../src/dealparse_subs.c   ../src/dealrpdd_subs.c ../src/dealServer_subs.c
-SRCS += ../dealzrd_subs.c ../src/dealerv2.c 
+SRCS += ../src/dealinit_subs.c   ../src/dealparse_subs.c ../src/dealServer_subs.c
+SRCS += ../src/dealzrd_subs.c    ../src/dealerv2.c 
 OBJS = $(patsubst ../src/%.c,%.o,$(SRCS) ) dealglobals.o dealflex.o dealyacc.tab.o              
 
 
@@ -57,10 +57,13 @@ allheaders :
 
 clean:
 	rm -f ${OBJS} ${LOBJ} ${YOBJ} ${LIBOBJS} *.gch ../include/*.gch ../include/*.o
+	
 JUNK0 = ../src/dealxxx_subs.c ../lib/libXxxx.c
-JUNK1 = $(patsubst ../src/%.c,%.o,$(JUNK0) )
-JUNK2 = $(patsubst ../lib/%.c,%.o,$(JUNK1) )
-#  This next one does not work. Can use Perl Regexes JUNK3 = $(patsubst ../(src|lib)/%.c,%.o,$(JUNK0) )
+JUNK1 += $(patsubst ../src/%.c,%.o,$(JUNK0) )
+JUNK2 += $(patsubst ../lib/%.c,%.o,$(JUNK1) )
+
+#  This next one does not work. Cant use Perl Regexes JUNK3 = $(patsubst ../(src|lib)/%.c,%.o,$(JUNK0) )
+# Cannot have recursive variables e.g. JUNK1 += $(patsubst ../lib/%.c,%.o,$(JUNK1) ) does not work.
 ShoJunk :
 	@echo SRC=$(JUNK0) OBJS1 = $(JUNK1) OBJS2 = $(JUNK2) 
 	

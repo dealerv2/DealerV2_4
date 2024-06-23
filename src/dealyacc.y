@@ -434,7 +434,7 @@ expr
                 { $$ = newtree(TRT_PAR, NIL, NIL, $3,  $5);  /*  PAR Forces mode=2. VULN per call */ }
        | USEREVAL '(' number ',' side ',' number ')'
                { $$ = newquery( $3 , $5 , -1 , -1 , $7 ) ; }
-       | USEREVAL '(' number ',' side ',' SUIT ',' number ')'
+       | USEREVAL '(' number ',' side ',' SUIT ',' number ')'  /* Never used these next usereval fmts. Just the first one. To Be Deleted? */
                { $$ = newquery( $3 , $5 , -1 , $7 , $9 ) ; }
        | USEREVAL '(' number ',' compass ',' number ')'
                { $$ = newquery( $3 , -1 , $5 , -1 , $7 ) ; }
@@ -452,13 +452,16 @@ exprlist
         | exprlist ',' STRING
                 { $$ = newexpr(0, $3, $1); }  /* add a struct containing ptr to string($3) to end of expr list $1 */
         ;
-  // The csvlist is for the csvrpt and printrpt actions. Like printes but allows hands and trix as well as expr and strings
+
+
 par_contract : 
-			 PARCONTRACT '(' VULNERABILITY ')' 
+		PARCONTRACT '(' VULNERABILITY ')' 
 					 { $$ =  $3  ; } /* should be 0,1,2,3 */
-		  | PARCONTRACT 
+		| PARCONTRACT 
 					 { $$ =  4   ; } /* code will check the global par_vuln which could be set from cmd line at runtime */ 
-		
+	    ;
+	    
+  // The csvlist is for the csvrpt and printrpt actions. Like printes but allows hands and trix as well as expr and strings		
 csvlist
         : COMPASS           /* *tree *str hmask  tmask  par list_ptr */
                { $$ = new_csvterm(0,  0,  1<<$1,   0,    0,  0) ;  } /* set bit in bit mask */

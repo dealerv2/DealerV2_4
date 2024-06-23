@@ -77,8 +77,9 @@ int title_len = -1 ;		  /* >0 valid title;  <0 no title specified =0 suppress zr
 char *input_file = '\0';
 FILE *fexp;      /* -X file for exporting to; Normally NOT left as stdout except for testing */
 FILE *fcsv;      /* -C file for csvreport. Open in append mode unless user puts w:filename */
-FILE *fzrd;       /* -Z [Nw:]filename Save generated deals for future use. Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */
+FILE *fzrd;      /* -Z [Nw:]filename Save produced deals for future use. Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */
 FILE *fzrdlib;   /* -L zrd Library file. Default is ../rpLib.zrd */
+FILE *flog;      /* -l [Nw:]filename. Save produced deals in Deal52 fmt.Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */ 
 
 
 char zrdlib_default[64] = "../rpLib.zrd"; /* parent dir means works from either Debug or Prod */
@@ -91,7 +92,7 @@ int    zrd_cnt      = 0 ;
 int    zrdlib_pass_num = 0 ;
 
 /* -U Path name for the UserEval binary. Default is 'DealerServer' in the current directory. Can be set by -U cmd line parm
- * -U Must be full pathname. ../src/MyUserPgm will NOT work.
+ * -U ./DealerServer or ../Debug/DealSrvdbg
  * Instead: /usr/local/bin/DealerV2/UserEval/DealerServer  or /home/MyUser/MyDir/MySubDir/MyUserPgm
  */
  char server_pgm[64]   = "DealerServer"; /* In the current directory. or user sets path name via -U switch */
@@ -116,7 +117,7 @@ struct opc_Vals_st opcRes ;
  char       zrd_default[64] = "../dealLib.zrd"  ;  /* The default outfile name */
 
 	/* Decks for Shuffling, dealing, predealing and bias dealing */
- DEAL52_k  *deallist;			/* ptr to malloc'ed array of deals to be printed at end of run */
+ DEAL52_k  *deallist = NULL;	/* ptr to malloc'ed array of deals to be printed at end of run */
  DEAL52_k  asc_pack;    		/* pack in order C2 up to SA used as a convenient source for Bias Deals*/
  DEAL52_k  curdeal;		
  DEAL52_k  fullpack;    		/* pack in order SA down to C2 */

@@ -14,7 +14,7 @@ foreach $input (@files) {
   $outfile  =~ s/dli$/dlo/;
   $outfile  =~ s/..\/// ; 
   print "Now processing $input  -- creating Output/$outfile\n";
-  system("$exe_test -v -D0 $input >Output/$outfile"  ); # create a test result # use -v to suppress end of run stats.
+  system("$exe_test -v -D0.0 $input >Output/$outfile"  ); # create a test result # use -v to suppress end of run stats.
 
   print "Created Output/$outfile \n";
   $fileno++ ;
@@ -30,7 +30,7 @@ foreach $input (@files) {
   $outfile  =~ s/dlt$/dlo/;
   $outfile  =~ s/..\/// ; 
   print "Now processing $input  -- creating Output/$outfile\n";
-  $execmd = $exe_test . " -D2 -m " ; #generate eoj stats for timing and for counts of calls  
+  $execmd = $exe_test . " -D2.0 -m " ; #generate eoj stats for timing and for counts of calls  
   # print "[$execmd $input >Output/$outfile] \n" ; 
   system("$execmd $input >Output/$outfile"  ); 
   print "Created Output/$outfile \n";

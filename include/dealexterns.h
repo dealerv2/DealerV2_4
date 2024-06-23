@@ -77,6 +77,7 @@
  extern FILE   *fcsv ;
  extern FILE   *fzrd ;
  extern FILE   *fzrdlib ;
+ extern FILE   *flog;     
  
  extern char    zrdlib_default[64] ;  /* path name of the default location for the RP Library file */
  extern int     zrdlib_mode ;
@@ -112,8 +113,7 @@ extern struct opc_Vals_st opcRes ;
  extern int            full_size ;
  
 	/* Bias Dealing Variables. Some set by yyparse directly */
-// extern DEAL52_k       bias_pack ; 
-// extern int            bias_pack_sz; 
+
  extern int            bias_suits[4][4];  /* set by yyparse. The number of cards to predeal a given hand in given suit.*/
  extern int            bias_deal_wanted;  /* global flag set by yyparse, ref'd by shuffle and deal code */
  extern int 		     bias_tot_len ; 		/* the total number of all bias cards in all bias hand/suits */

@@ -33,7 +33,7 @@ update :
 	$(CC) -c -o $@ $<
 	
 libVersion.o : ../lib/libVersion.c
-		$(CC) -c -o $@ $<
+		$(CC) -O0 -c -o $@ $<
 
 clean :
 	rm -f *.o a.out

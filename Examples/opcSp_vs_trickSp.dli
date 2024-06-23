@@ -1,0 +1,11 @@
+generate 10000000
+title "8+ Spade Tricks"
+produce 50
+seed 0 
+NS_spade_Trix = (dds(north,spades)) > dds(south,spades) ? dds(north,spades) : dds(south,spades)
+  condition 
+			spades(north)+spades(south) >= 8 && NS_spade_Trix >= 8 
+action
+		// printrpt(deal, trix(deal)),
+		frequency "Spade Tricks North South" (NS_spade_Trix, 8, 13),
+		bktfreq "OPC_NS (Down)  vs NS_Spade Tricks" ( opc(NS,spade), 20.0,37.0,0.5, NS_spade_Trix,6,12,1 )

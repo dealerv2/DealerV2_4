@@ -11,7 +11,7 @@ else { $exe_test = shift (@ARGV) ;  }   # should include the directory as well
 # The following are the 'standard' script vars used in the regression test. Not all used in every script 
 $scriptparms = q/-0 east -1 west -2 hcp -3 top4 -4 ltc -5 12 -6 6.5 -7 spade -8 'any 4333 + any 4432 + any 5332' -9 '5+s4+mxx + 6+Mxxx'/;
 # use -v to suppress end of run stats bec exec time diffs cause an err msg
-$execmd = $exe_test . " -v -D0 " . $scriptparms ;
+$execmd = $exe_test . " -v -D0.0 " . $scriptparms ;
 # print "[[ "; print  $execmd ; print " ]]\n";
 $fileno = 0 ; 
 @files = <*.dls> ;    # dli files are in our current directory

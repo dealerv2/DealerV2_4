@@ -1,18 +1,28 @@
 This is the directory Regression 
 
-The Dealer Input files (suffix .dli) in this directory all have a seed cmd in them; 
-the seed number is typically a prime.
+The Dealer Input files (suffix .dli, dls, dlt, dlx ) in this directory all have a seed cmd in them; 
+.dli files are normal dealer input files. 
+.dls files are normal dealer input files, that have script variables ($0 to $9) in them. 
+    The perl script that runs dealer on these files has adopted a 'standard' set of script vars, 
+    that these files implement.
+    -0 east -1 west -2 hcp -3 top4 -4 ltc -5 12 -6 6.5 -7 spade -8 ' any 4333 + any 4432 + any 5332 ' -9 ' 5+s4+mxx + 6+mxxx '
+.dlx files are 'exception' files that are treated a bit differently from the others, and have special code in the perl or bash scripts
+To prevent spurious difference/error messages when comparing new to ref, the end of run stats for these files are suppressed.
+.dlt files are used to check the time taken by dealer in certain cases. These files are run without suppressing the end of run stats.
+
+The seed number in the above files is typically a prime.
 The primes can be got from the ./Code/files_mod.pl
-The Makefile will run scripts in the current directory
+
+The Makefile will run scripts(Perl or Bash) in the current directory to either:
 a) create files with suffix .dlo in the Output sub-directory by running the test version of dealerv2 on the .dli|.dls|.dlt|.dlx file(s)
 b) create files with suffix .ref in the Refer  sub-directory by 
-    first overwriting  the .dlo files in the Output directory by running the production version of dealerv2 on the .dli|.dls|.dlt|.dlx file(s)
-    copy-ing the new Output/*.dlo files to Refer/*.ref 
-c) check the .dlo files vs the .ref files for differences. 
+   o) first overwriting  the .dlo files in the Output directory by running the production version of dealerv2 on the .dli|.dls|.dlt|.dlx file(s)
+   o) then copy-ing the new Output/*.dlo files to Refer/*.ref 
+c) check the .dlo files vs the .ref files for differences using the 'diff' utility 
 
-the "make all" target does the steps (b) (a) (c) in that order.
-other targets are:
-showme      displays the various makefile variables and the versison of whatever dealerv2 is to be run
+The Makefile "make all" target does the steps (b) (a) (c) in that order.
+The other Makefile targets are:
+showme      displays the various makefile variables and the version of whatever dealerv2 is to be run
 clean       deletes all the files in Output
 dli         runs dealer on all the .dli and .dlt files
 dls         runs dealer on all the .dls and .dlx files

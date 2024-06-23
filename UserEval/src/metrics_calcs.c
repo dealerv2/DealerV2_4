@@ -5,7 +5,8 @@
 * 2023/01/20 1.1      JGM     Several Metrics working. Addd two flavors of mixed metrics.
 * 2023/02/07 2.0      JGM     Most interesting Metrics working. Redid KnR to put results in std locations.
 * 2023/03/31 2.1      JGM     Mods to set88, Added metrics Bissell, (Goren, Zar, .. )
-* 2023/05/24 2.2      JGM     Added ZarBasic and ZarFull metrics.
+* 2023/05/24 2.2      JGM     Added ZarBasic and ZarAdvanced metrics.
+* 2024/01/15 2.3      JGM		Refactored ahead of adding Roth Point Count
 */
 /*
  * This file implements the higher level overall flow of a metric. It will often call routines from factors_subs.c
@@ -15,7 +16,7 @@
 #include "../include/UserEval_externs.h"
 #include "../include/UserEval_protos.h"
 #include "../include/dbgprt_macros.h"
-
+int roth_calc (int side)  ;
  /* The metric Tag numbers were originally assigned in roughly alpha order.
  * Later add ons will just be added to the end. There is no reason to be rigid about the alpha order thing.
  */
@@ -714,7 +715,7 @@ int knr_calc ( int side ) {      /* Tag Number 7 */
    }
       /* Now check for a trump fit
        * If trump fit calculate calc the Dfit pts and the Fn pts
-       * mult the short pts  in each hand by 25%,59%,100% as needed
+       * mult the short pts  in each hand by 25%,50%,100% as needed
        * Return the len of the fit; a fit-len of 7 promises a 5-2 fit; a fit-len of 0 means no 8+fit and no 5-2 fit
        */
       trump_fit =  KnR_Trump_fit( phs, &KNR_pts[0], &KNR_pts[1] ) ; /* This will also calc the Dfit pts and the Fn pts */
@@ -925,7 +926,7 @@ int morse_calc( int side ) {     /* Tag Number: 9 -- this is LAR with BumWrap HC
    JGMDPRT(7,"morse NT pts done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d\n", morse_pts[0],morse_pts[1], UEv.nt_pts_side );
 
    /* Done both hands -- Now check for a trump fit */
-      TFpts = Do_Trump_fit(phs, DfitLAR, Fn_ptsNONE) ; /* will also set the globals dfit_pts[] and Fn_pts[] */
+   TFpts = Do_Trump_fit(phs, DfitLAR, Fn_ptsNONE) ; /* will also set the globals dfit_pts[] and Fn_pts[] */
    morse_pts[0] += dfit_pts[0] + Fn_pts[0] ;  /* there are no Fn pts currently */
    morse_pts[1] += dfit_pts[1] + Fn_pts[1] ;
    UEv.hldf_pts_seat[0] = morse_pts[0] ;
@@ -961,7 +962,6 @@ int morse_calc( int side ) {     /* Tag Number: 9 -- this is LAR with BumWrap HC
  * +1 body point for any combination of 4 Aces and 4 Tens ( +2 if all 8 )
  * If a fit is found, Declarer can get length pts for longer trumps and/or 4+ side suit. Len pts depends on fit type. 4-4 or not
  * Dummy can get extra Dfit (suppt) points for a stiff or void with 4+ Trumps, but not for a doubleton.
- *
  */
 
 int pav_calc ( int side ) {      /* Tag Number: 10 */
@@ -1247,7 +1247,7 @@ int sheinw_calc (int side) {     /* Tag Number: 11 */
  * 7) This code does not consider any Misfit points. Either Positive or Negative.
  * 8) The hand with the most length in trump is assumed to be Declarer. With Equal length, the stronger hand is Declarer. Else North/East.
  */
-int zarbasic_calc( int side ) {   /* Tag Number: 12 Two Hands independent. No HF, no Fn, No Dfit */
+int zarbas_calc( int side ) {   /* Tag Number: 12 Two Hands independent. No HF, no Fn, No Dfit */
    int suit_len[4];
    int zar_pts[2]   = {0}; /* Hand value if played in a suit */
    int zar_ctls[2]  = {0};
@@ -1258,7 +1258,7 @@ int zarbasic_calc( int side ) {   /* Tag Number: 12 Two Hands independent. No HF
    HANDSTAT_k *p_hs;
 
    prolog( side ) ;  /* zero globals, set the two handstat pointers, the two seats, and the pointer to the usereval results area */
-   JGMDPRT(7 , "++++++++++ zar_basic_calc prolog done for side= %d; compass[0]=%c, compass[1]=%c, phs[0]=%p, phs[1]=%p, hcp[0]=%d, hcp[1]=%d\n",
+   JGMDPRT(7 , "++++++++++ zarbas_calc prolog done for side= %d; compass[0]=%c, compass[1]=%c, phs[0]=%p, phs[1]=%p, hcp[0]=%d, hcp[1]=%d\n",
                side, compass[0],compass[1],(void *)phs[0], (void *)phs[1], phs[0]->hs_totalpoints, phs[1]->hs_totalpoints ) ;
    for (h = 0 ; h < 2 ; h++) {         /* for each hand */
       p_hs = phs[h] ; /* phs array set by prolog to point to hs[north] and hs[south] OR to hs[east] and hs[west] */
@@ -1270,12 +1270,11 @@ int zarbasic_calc( int side ) {   /* Tag Number: 12 Two Hands independent. No HF
          fhcp[h] += fhcp_suit[h][s] ;
          fhcp_adj[h] += fhcp_adj_suit[h][s] ;
 
-         JGMDPRT(8,"zarbasic_calc, Hand=%d, suit=%d, SuitLen=%d, fhcp[h][s]=%g, fhcp-adj[h][s]=%g\n",
+         JGMDPRT(8,"zarbas_calc, Hand=%d, suit=%d, SuitLen=%d, fhcp[h][s]=%g, fhcp-adj[h][s]=%g\n",
                      h, s, p_hs->hs_length[s], fhcp_suit[h][s], fhcp_adj_suit[h][s] );
       } /* end CLUBS <= s <= SPADES */
 
-      // insertionSort(4, suit_len, suit_id) ; /* sort suitlens in desc order suit_len[0] = longest. */
-      qsort(suit_len, 4, sizeof(int), desc_cmpxy ) ;
+      dsort_i4(suit_len) ;
       zar_Dist[h] = 2*suit_len[0] + suit_len[1] - suit_len[3] ;
       hcp_adj[h] = roundf(fhcp_adj[h]) ;
       hcp[h] = roundf( fhcp[h] + fhcp_adj[h] ) ;
@@ -1314,25 +1313,25 @@ int zarbasic_calc( int side ) {   /* Tag Number: 12 Two Hands independent. No HF
   JGMDPRT(7,"ZARBAS pts done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d MiscCount=%d\n",
                         zar_pts[0],zar_pts[1], UEv.nt_pts_side, UEv.misc_count );
   return ( 6 + UEv.misc_count ) ;
-} /* end zar_basic_calc */
+} /* end zarbas_calc */
 
-int zarfull_calc( int side ) {   /* Tag Number: 13 */
+int zaradv_calc( int side ) {   /* Tag Number: 13 */
 
-   zarbasic_calc( side ) ;  /* fill the UEv struct with the basic stuff */
+   zarbas_calc( side ) ;  /* fill the UEv struct with the basic stuff */
    /* the basic zar pts are in the UEv.nt_pts_side, and UEv.nt_pts_seat[h] */
    /* Now add in Fn_pts, Hf_pts, Dfit_pts */
-   int dc ;
-   int zTrumps, zHf_pts, zDfit_pts ;
-   TRUMP_SUIT_k trump_suit ;
 
-   zTrumps = SetTrumps( phs , &trump_suit  ) ;
-   dc = SetDeclarer( phs , zTrumps ) ;
-   Fill_side_fitstat( phs , &fitstat ) ;
-   JGMDPRT(8,"ZARFULL ztrumps=%d, decl=%d, t_fitlen=%d\n",zTrumps,dc,fitstat.t_fitlen );
+   int zTrumps, zHf_pts, zDfit_pts ;
+   SIDE_FIT_k fitstat ; 
+
+   Fill_side_fitstat(   phs, &fitstat ) ;  /* will calll SetTrumps and fill trump_details, and also SetDeclarer */
+   zTrumps = fitstat.t_suit;
+
+   JGMDPRT(8,"ZARADV ztrumps=%d, decl=%d, t_fitlen=%d\n",zTrumps, fitstat.decl_h ,fitstat.t_fitlen );
    Fn_pts[1] = Fn_ptsZar( phs , zTrumps ) ;  /* one or two points for a secondary fit Arbitrary choose hand 1*/
    zHf_pts = Hf_ptsZar( phs ) ;              /* Sets the globals hf_pts[2] */
    zDfit_pts = DfitZAR( phs , &fitstat ) ;   /* Sets the globals dfit_pts[2] */
-   JGMDPRT(8,"ZARFULL zFn_pts=%d, zHf_pts=%d, zDfit_pts=%d\n",Fn_pts[1], zHf_pts, zDfit_pts );
+   JGMDPRT(8,"ZARADV zFn_pts=%d, zHf_pts=%d, zDfit_pts=%d\n",Fn_pts[1], zHf_pts, zDfit_pts );
    /* now add the extra pts to the UEv array */
    UEv.hldf_pts_seat[0] += hf_pts[0] + dfit_pts[0] ;
    UEv.hldf_pts_seat[1] += hf_pts[1] + dfit_pts[1]  + Fn_pts[1] ; /* arbitrarily give the Fn pts to Hand 1 */
@@ -1346,9 +1345,9 @@ int zarfull_calc( int side ) {   /* Tag Number: 13 */
    UEv.misc_pts[UEv.misc_count++] = dfit_pts[1]; // result[19]
   /* now put the results into the user result area at p_uservals */
   SaveUserVals( UEv , p_uservals ) ;
-  JGMDPRT(7,"ZARFULL pts done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d\n", UEv.hldf_pts_seat[0],UEv.hldf_pts_seat[1], UEv.nt_pts_side );
+  JGMDPRT(7,"ZARADV pts done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d\n", UEv.hldf_pts_seat[0],UEv.hldf_pts_seat[1], UEv.nt_pts_side );
   return ( 6 + UEv.misc_count ) ;
-} /* end zarfull_calc */
+} /* end zaradv_calc */
 
 /* These next ones are place holders until the actual code is written */
 int unkn_err(   int side ) { fprintf(stderr,"Unknown Metric Not Implemented. Returning -1\n"); return -1 ; }
@@ -1358,28 +1357,37 @@ int unkn_err(   int side ) { fprintf(stderr,"Unknown Metric Not Implemented. Ret
  * The downside is that only a limited number of results per metric can be obtained.
  * But in practice this is not a drawback as usually we are only interested in at most two results:
  * The total for the side if played in NT and the total for the side if played in the longest suit.
- * If we never exceed 16 metrics, then we can get 4 results for each one, or 2 results for 32 metrics.
+ * Since we can gete 128 results stored in the mmap, this allows the main 6 results for up to 21 metrics
  */
  /* we could also adapt this approach and have tags 77, or 89 etc. for other special cases. */
 
 /* Tag Number 88 -- do all the metrics flagged in the matrix set88
  * The HLDF total for the side will be in slot 'm' the NT value will be in slot m+32
- * Currently m varies from 0 (BERG) to 14 (ZAR) ; Room for 32 such metrics using this scheme
+ * Currently m varies from 0 (BERG) to 15 (ROTH) ; Room for 32 such metrics using this scheme
  */
 /* the set88 array allows us filter or choose which of the implemented metrics to do the evaluations for
  * Recompile or patch the array with a hex editor or a Debugger
  */
  char FIND88[]="8888 SET 8888";  /*marker in case we want to patch next array with GDB */
- //              B,b,D,  G,J,E,  K,k,L, M,P,R,  S, Z, U    1 means include in set, zero skip. -0 not implemented
- int  set88[20]={1,1,1,  1,1,1,  1,1,1, 1,1,-0, 1,-0,-0 } ;
+  /*                     0        1       2     3     4      5       6      7    8    9     10     11       12      13      14      15        20          21  */
+//enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEND, MixJGM=20, MixMOR,
+ //              B,b,D,  G,J,E,  K,k,L, M,P,S,  z, Z, R  U    1 means include in set, zero skip. -0 not implemented Future HCP Flavors
+ int  set88[20]={1,1,1,  1,1,1,  1,1,1, 1,1,1,  1, 1, 1, -0 } ;
  #define SET88_SZ sizeof(set88)/sizeof(int)
+/*
+ * The Query tags in alpha? order: The adj_hcp arrays use these values to lookup adjustments. ~ means not coded yet.
+ *    0        1       2     3     4      5       6      7    8    9     10     11       12      13     14     15        20          21
+   BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEND, MixJGM=20, MixMOR,
+// possibly add metrics in the 50 - 79 range to implement different hand factors like quicktricks, or quicklosers, or shortest suit etc.
+                    SET=88, SYNTST=99, Quit=-1} ;
+*/
 
 typedef int (*pCALC_FUNC_k)( int ) ;
 pCALC_FUNC_k p_cfunc[] = {bergen_calc,  bissell_calc, dkp_calc,      goren_calc,   jgm1_calc,
                           kaplan_calc,  karpin_calc,  knr_calc,      lar_calc,     morse_calc,
-                          pav_calc,     sheinw_calc,  zarbasic_calc, zarfull_calc, unkn_err } ;
- char cf_name[][10] = {"Bergen", "BISSELL", "DKP", "Goren","JGM1","Kaplan","Karpin","KnR","Larsson","Morse",
-                       "Pavlicek","Sheinwold","ZarBasic","ZarFull","!Unkn" };
+                          pav_calc,     sheinw_calc,  zarbas_calc,   zaradv_calc,  roth_calc, unkn_err } ;
+ char cf_name[][10] = {"Bergen", "Bissel", "DKP", "Goren","JGM1","Kaplan","Karpin","KnR","Larsson","Morse",
+                       "Pavlicek","Sheinwold","ZarBasic","ZarAdvced","ROTH", "!Unkn" };
 /*
  * These next ones have not been given entries in the p_cfunc[] table. But the UserEval mainline will call them
  * if given the right tag number.
@@ -1413,7 +1421,7 @@ int set88_calc (int side ) {
    return m_cnt; /* the number of valid results in the 0 .. SET88_SZ and 32 .. SET88_SZ slots */
 }
 
-int mixed_JGM1calc ( int side ) { /* call karpin_calc then jgm1_calc  tag = 20 */
+int mixed_KARcalc ( int side ) { /* call karpin_calc then jgm1_calc  tag = 20 */
    int karpin_pts[6] = { 0 };
    int jgm_pts[6] = { 0 };
    int i ;
@@ -1437,7 +1445,7 @@ int mixed_JGM1calc ( int side ) { /* call karpin_calc then jgm1_calc  tag = 20 *
     * The misc extra debug values in slots 12 .. nn are still there, but will be ignored by Dealer
     */
     return 12 ;
-} /* end mixed_JGM1calc */
+} /* end mixed_KARcalc */
 
 int mixed_LARcalc  ( int side ) { /* call lar_calc    then morse_calc tag = 21 */
 

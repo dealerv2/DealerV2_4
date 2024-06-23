@@ -1,8 +1,0 @@
-
-//title "01 No Condition Minimal input file Use as a Template"
-produce 1
-seed  211
-  // condition hcp(north) > 20
-action
-  //printoneline (hcp(north)+hcp(south))
-  printrpt(deal,trix(deal))

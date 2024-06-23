@@ -16,9 +16,12 @@
  * Util/Helper Functions used by the metrics_calc.c high level code and some by the Factors code
  */
 extern void prolog( int side ) ;
-extern void insertionSort(int size, int arr_val[], int arr_idx[] ) ;
-extern int asc_cmpxy ( const void *x, const void *y) ;
-extern int desc_cmpxy( const void *x, const void *y) ;
+int dsort_i4( int a[4] ) ;  /* sorts ints e.g. suit_lens, when idx version not needed */
+extern void didxsort4(int arr_val[], int arr_idx[] ) ; /* sorts arr_val and arr_idx by comparing elements of idx */
+int dsort4( char a[4] )   ; /* sorts chars; eg cards; used by dsort13 which sorts hands */
+int dsort13 (char a[13] ) ; /* sorts sets of 13 chars, e.g. hands. called by sortDeal */
+void sortDeal(DEAL52_k dl ) ;
+
 extern struct trump_fit_st trump_fit_chk( HANDSTAT_k *phs[] );
 extern struct misfit_st misfit_chk(HANDSTAT_k *phs[], int s ) ;
 extern void SaveUserVals(struct UserEvals_st UEv , USER_VALUES_k *p_ures ) ;
@@ -31,9 +34,9 @@ int KnR_Trump_fit(HANDSTAT_k *phs[2], struct KnR_points_st *Ph0, struct KnR_poin
 int KnR_Round ( int Body, int KnR_pts ) ;
 void show_knr_pts(int lvl, struct KnR_points_st Pts, char *descr ) ;
 int Fill_side_fitstat( HANDSTAT_k *phs[] , SIDE_FIT_k *sf ) ;
-int SetTrumps(HANDSTAT_k *phs[], TRUMP_SUIT_k *trumps ) ;
+int SetTrumps(HANDSTAT_k *phs[], TRUMP_SUIT_k *trumps, SIDE_FIT_k *sf ) ;
 int SetDeclarer( HANDSTAT_k *phs[], int suit );
-
+void sort_suitlens ( HANDSTAT_k *phs[] ) ;
 
 /*
  * Protos for various factors sub-functions of the main metric_calc functions
@@ -119,8 +122,8 @@ int SynZAR(    HANDSTAT_k *p_hs  ) ;        /* +1 if the HCP are in 2 suits (11-
 /* protos for debugging */
 extern int arr_min(int arr[], size_t nelem ) ;
 extern void dump_curdeal( void ) ; /* for debugging; uses only the Has_card array in handstat[p] */
-extern void sr_deal_show(deal dl) ;
-extern void sortDeal52(deal dl );
+extern void sr_deal_show(DEAL52_k dl) ;
+extern void sortDeal52(DEAL52_k dl );
 
 #endif /* end file guard */
 

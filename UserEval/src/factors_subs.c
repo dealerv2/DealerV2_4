@@ -15,8 +15,8 @@
 #include <math.h>  /* for type float_t */
 #if 0
 /* These next two lines for doc only. actual definitions are in UserEval_types.h
- *                     0        1       2     3     4      5~      6      7    8    9     10     11       12      13      14        20          21
-enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, metricEND, MixJGM=20, MixMOR,
+ *                     0        1       2     3     4      5       6      7    8    9     10     11       12      13     14       15      20          21
+enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEND, MixJGM=20, MixMOR,
                     SET=88, SYNTST=99, Quit=-1} ;
 */
  /* Notes re various ways evaluating 'points' esp as relates to short Honors.
@@ -24,22 +24,33 @@ enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LA
   * BISSEL: Deduct -1 or -0.5 as reqd to preserve the relative strengths. Bissell honors are 3,2,1,0 depending on missing higher
   * DKP:    Deduct for any suit where lowest card > Ten. These deductions are BEFORE div by 3;
   * GOREN:  Count shortness initially. Deductions per Pavlicek web site.
-  * JGM1:   Various mods. Currently reflects Karpin.
+  * JGM1:   Various mods. Currently reflects Karpin with BumWrap HCP.
   * KAPLAN: Count for length; Deductions for short honors inferred from his book.
   * KARPIN: Count for length; Deductions from Pavlicek website
   * KnR:    As per the BW article. Table Entries are placeholders only since the code does it all, these values never referenced
   * LAR:    Count for length; Deductions per his book.
-  * MORSE:  Various mods. Currently reflects Larsson
+  * MORSE:  Various mods. Currently reflects Larsson with BumWrap HCP and Dfit
   * PAV:    Count for shortness. Per the Pavlicek website and online evaluator
-  * ZARBAS: Basic Zar Points; HCP + CTLS + (A+B) + (A -D)
-  * ZARADV: Basic + Hf pts + adj for HCP in 2/3 suits + FN pts for extra trump length etc. No Misfit points.
+  * ZARBAS: Basic Zar Points; HCP + CTLS + (A+B) + (A-D)
+  * ZARADV: Basic + Hf_pts + adj for HCP in 2/3 suits + FN_pts for extra trump length etc. No Misfit points.
+  * ROTH:   Count both Dpts and Lpts; also Dfit and kind of FN; Dpts demoted often; Lpts 6/7 card suits.
+  * metricEND: 15
+  * ----------------------- additional add on calls ------
+  * MixJGM=20, MixMOR=21,
+  * mixed_KARcalc : Karpin and JGM1 as one set (MixJGM aka 20) Karpin and Larsson seem to be the best overall.
+  * mixed_LARcalc : Larsson and Morse as one set (MixMOR aka 21)
+  * set88         : all the metrics in the set88 array set to 1; limited number of results per metric
+  * set99         : Debugging values easy to see in GDB or the like to verify Client/Server mmap communications
+  * ---- Fut Metric 15: HCP flavors 3xInts 6xDecNums 1xLTC ----- 
   */
 #endif
-/*                           std              BUM-RAP/OPC           C13          KnR          DKP*3        Andrews Fifths  */
-float_t hcp_val[7][5] = { {4,3,2,1,0}, {4.5,3.0,1.5,0.75,0.25}, {6,4,2,1,0}, {3,2,1,0,0} , {13,9,5,2,0}, {4.,2.8,1.8,1.,0.4 },
-                                       {4.5,3.0,1.75,0.75} /* Woolsey */
+/* Raw HCP values in suits of length 3 or more. The basis for deductions when stiff or dlbton, or additions when with A or K */
+/* Future: Implement these and also std_a, std_t, std_at per Andrews research in a 31 col table for easy lookup of the combos */
+/*                           std              BUM-RAP             C13          KnR          DKP*3        Andrews Fifths  */
+float_t hcp_val[][5] = { {4,3,2,1,0}, {4.5,3.0,1.5,0.75,0.25}, {6,4,2,1,0}, {3,2,1,0,0} , {13,9,5,2,0}, {4.,2.8,1.8,1.,0.4 },
+								/* Woolsey */ {4.5,3.0,1.75,0.75,0.0}, /* OPC */ {4.5,3.0,1.5,0.5,0} , 
 };
-float_t stiff_H_adj[14][5] = {
+float_t stiff_H_adj[][5] = {
    //              A   K   Q   J   T                       A    K   Q   J   T
    /* Bergen */ {-.5, -1, -1, -1, -0.},     /* BISSEL */ { -0, -1, -1, -1, -0. },
    /* DKP    */ { -0, -3, -3, -2, -0.},     /* Goren  */ { -0, -2, -2, -1. -0. }, /* Stiff K in NT = 1*/
@@ -48,20 +59,23 @@ float_t stiff_H_adj[14][5] = {
    /* KnR    */ { -0,-2.5,-1, -0, -0.},     /* LAR    */ { -0, -1, -1,  -1, -0. }, /* based on his book. LAR counts for Len */
    /* MORSE  */ { -0, -1, -1,-.75,-.25},    /* PAV    */ { -0, -2, -2,  -1, -0. }, /* He says he follows Goren */
    /* SHEINW */ { -0, -1, -1, -1, -0.},     /* per 5 Weeks To Winning Bridge */
-   /* ZARBAS */ { -1, -1, -1, -1, 0. },     /* ZARADV */ { -1, -1, -1, -1, 0.}    /* Stiff A is questionable ?*/
+   /* ZARBAS */ { -1, -1, -1, -1,  0.},     /* ZARADV */ { -1, -1, -1,  -1,  0. },    /* Stiff A is questionable ?*/
+   /* ROTH   */ { -0, -1, -1, -1, -0.},     /* Roth keeps HCP always; he adjusts the Dpts for H, HH, and Hx */
+// /* OPC    */ { -1, -1, -1, -0.5, -0},    /* For Doc Only. OPC uses the net after deduction preCalculated */
    // OPC Stiff H values after Deductions (for ref Only): A=3.5, K=2, Q=0.5, J=0, T=0
 } ;
 
 /* dbl_HH_Adj:
  * Morse using BumWrap[4.5,3,1.5,.75,.25] for HCP and Ded to reflect H and HH in OPC
  * JGM1  using BUmWrap with Ded similar to standard Deductions
- * OPC Deductions: (Reference Only. Not used in this code)
- *             { -1, -1,-.5,  0,  0., -.5,  0, 0,  0., -1, -1,-.5,-1.5, -.5,  0,  0.0}
+ * OPC Deductions: (Reference Only OPC not in this code. With 3+ Len Axx=4.5, Kxx=3, Qxx=1.5, Jxx=0.5, KTx=3.4, QJx=3, QTx=2.5, JTx=2 )
+ * { AK=-1(6.5), AQ=-1(5.5),AJ=-.5(5.0),  AT=0(4.5),  Ax=0(4.5)., KQ=-.5(4.5),  KJ=0(4.0), KT=0(3.5),  Kx=0.(3.0),
+ * QJ=-1(2.0), QT=-1(1.5),Qx=-.5(1.0),JT=-1.5(0.5), Jx=-.5(0.),  Tx=0(0),  xx=0.0}
  */
 /*                AK, AQ, AJ, AT, Ax,  KQ, KJ, KT, Kx,  QJ, QT, Qx,  JT, Jx, Tx,   xx */
-float_t dbl_HH_adj[14][16] = {
+float_t dbl_HH_adj[][16] = {
    /* Bergen */ { -0, -0,-.5, -0, -0.,-.5,-.5, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Book gives -.5*/
-   /* Bissell*/ { -0,-0, -0,  -0, -0.,  0,  0, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Bissell per PAV */
+   /* Bissell*/ { -0, -0, -0, -0, -0.,  0,  0, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Bissell per PAV */
    /* DKP    */ { -0, -0, -0, -0, -0., -1, -0,  0, -0., -3, -3, -3., -2, -2, -0,  -0.0}, /* unguarded H; but only 1/3 of shwn */
    /* Goren  */ { -0, -0, -0, -0, -0., -0, -0, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Goren KQ? KJ? */
    /* JGM1   */ { -1, -1,-.5, -0, -0., -1, -0, -0, -0., -1, -1, -1., -1,-.75,-.25,-0.0}, /* Ded for BumWrap? 4.5,3,1.5,0.75,0.25 */
@@ -74,6 +88,8 @@ float_t dbl_HH_adj[14][16] = {
    /* SHEINW */ { -0, -0, -0, -0, -0., -0, -0, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* KQ? KJ? assuming NO.*/
    /* ZARBAS */ { -0, -0, -1, -0, -0., -1, -1, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Based on 2005 PDF */
    /* ZARADV */ { -0, -0, -1, -0, -0., -1, -1, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Based on 2005 PDF */
+   /* Roth   */ { -0, -0, -0, -0, -0., -1, -1, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Per Book. 1968 */
+   /* OPC Net   {  6.5,5.5,5, 4.5, 4.5, 4.5, 4, 3.5,3.,  2, 1.5, 1., .5,  0,  0,   0.0},  Ref Only. The net values post deductions. */
 } ;
 //                  0          1    2    3     4      5       6      7    8    9     10     11      12      13      14        20    88    -1
 //enum metric_ek { BERGEN=0,BISSEL,DKP,GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW, ZARBAS, ZARADV, metricEND,EXCP=20,SET=88,Quit=-1} ;
@@ -81,14 +97,15 @@ float_t dbl_HH_adj[14][16] = {
 /* Dpts_vals is 'cooked' such that hcp + hcp_adj + Dpts_val gives the correct answer for the given metric.
  * does not always come out to +2 for a stiff and +1 for a dblton
  *
- * Looks like it comes out to just the usual 2 pts stiff, 1 pt dblton thanks to the deductions above.
+ * Roth is the exception. He adjusts HCP only in suits; short honors in NT are not adjusted
 */
-enum {GOREN_dpts_idx=0, PAV_dpts_idx, SHEINW_dpts_idx} ;
-int Dpts_vals[3][22] = {
-   //               A         x  AK     Ax  KQ    Kx  QJ  Qx JT  Tx,xx
+enum {GOREN_dpts_idx=0, PAV_dpts_idx, SHEINW_dpts_idx, ROTH_dpts_idx} ;
+int Dpts_vals[][22] = {
+   //               A K Q J T x  AK     Ax  KQ    Kx  QJ  Qx JT  Tx,xx
    {  /* Goren   */ 2,2,2,2,2,2, 1,1,1,1,1, 1,1,1,1,  1,1,1, 1,1, 1,1 }, // Stiff K = 3 - 2 + 3 = 4
    {  /* Pavlicek*/ 2,2,2,2,2,2, 1,1,1,1,1, 1,1,1,1,  1,1,1, 1,1, 1,1 },
    {  /*Sheinwold*/ 2,2,2,2,2,2, 1,1,1,1,1, 1,1,1,1,  1,1,1, 1,1, 1,1 },
+   {  /* Roth    */ 2,2,2,2,2,2, 1,1,1,1,1, 1,1,1,1,  1,1,1, 1,1, 1,1 }, /* These Dpts are demoted to zero if no suppt*/
 } ;
 
 float_t lookup_adj_stiff_H(enum metric_ek m, int w1) { /* metric  and top card bitmask */
@@ -140,26 +157,23 @@ float_t shortHon_adj (HANDSTAT_k *phs, int suit, int tag ) {
    float_t adj_pts ;   // usually negative.
    int w1, w2 ;
    if (tag > metricEND ) { adj_pts = excp_adj_fhcp(phs, suit, tag) ; return adj_pts; }
-   assert(BERGEN <= tag && tag <= ZARFULL);
+   assert(BERGEN <= tag && tag < metricEND);
 /*
- * The Query tags in alpha order: The adj_hcp arrays use these values to lookup adjustments. ~ means not coded yet.
- *                     0        1       2     3     4      5~      6      7    8    9     10     11       12      13      14        20          21
-                    BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, metricEND, MixJGM=20, MixMOR,
+ * The Query tags in alpha? order: The adj_hcp arrays use these values to lookup adjustments. ~ means not coded yet.
+ *    0        1       2     3     4      5       6      7    8    9     10     11       12      13     14     15        20          21
+   BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEND, MixJGM=20, MixMOR,
 // possibly add metrics in the 50 - 79 range to implement different hand factors like quicktricks, or quicklosers, or shortest suit etc.
                     SET=88, SYNTST=99, Quit=-1} ;
 */
    if (phs->hs_length[suit] >= 3 || 0 == phs->hs_length[suit] ) { return 0.0 ; }
 
-   w1 = phs->topcards[suit][0] ;
-   w2 = phs->topcards[suit][1] + w1 ;
-   JGMDPRT(8,"Metric=%d, suit=%c, len=%d, w1=%d, w2=%d \n", tag, "CDHS"[suit], phs->hs_length[suit], w1, w2 ) ;
+   w1 = phs->topcards[suit][0] ;      /* w1 is a bit mask for stiff */
+   w2 = phs->topcards[suit][1] + w1 ; /* w2 is a bit mask for dblton */
+ 
+   if (phs->hs_length[suit] == 1 ) { adj_pts = lookup_adj_stiff_H( tag , w1 ) ; } /* end length == 1 */
+   else { adj_pts = lookup_adj_HH( tag , w2 ) ; } /* Len must be two here */
+   JGMDPRT(6,"Metric=%d, suit=%c, len=%d, w1=%d, w2=%d \n", tag, "CDHS"[suit], phs->hs_length[suit], w1, w2 ) ;
 
-   if (phs->hs_length[suit] == 1 ) {
-      adj_pts = lookup_adj_stiff_H( tag , w1 ) ;
-      return (adj_pts) ;
-   } /* end length == 1 */
-   // Len must be two here
-   adj_pts = lookup_adj_HH( tag , w2 ) ;
    return (adj_pts);
 } /* end shortHon_adj */
 
@@ -368,7 +382,7 @@ int DfitSTD( HANDSTAT_k *phs, TRUMP_FIT_k trump ) { /* phs will point to Dummy's
 } /* end DfitSTD */
 
 
-/* Bergen FN: A sort of catchall routine for the points that Opener adds to his hand after a raise; Not for a 4-4 fit */
+/* Bergen FN: A kind of catchall routine for the points that Opener adds to his hand after a raise; Not for a 4-4 fit */
 /* Only needs the phs for the hand getting the Fn pts usually -- not both as would be the case for OPC . */
 int Fn_ptsBERG( HANDSTAT_k *phs, TRUMP_FIT_k trump ) {
    int  dbltons, fn_pts, t5, v0, s1 ;
@@ -903,11 +917,9 @@ int Hf_ptsZar( HANDSTAT_k *phs[] ) {
       hf_pts_suit[h_Hf][s] = top5[h_Hf] - temp ;  /* top5 <= 2 here; temp is negative */
       JGMDPRT(9,"%d Hf Points assigned to hand=%d in suit =%d reversing %g deduction\n",hf_pts_suit[h_Hf][s], h_Hf, s,temp);
    }
-   qsort(hf_pts_suit[0], 4, sizeof(int), desc_cmpxy ) ;
-   qsort(hf_pts_suit[1], 4, sizeof(int), desc_cmpxy ) ;
-   insertionSort(4,hf_pts_suit[0], suit_idx[0]);            /* sort the HfPts for hand 0 in Desc order We need the sorted suit_ids also*/
+   didxsort4(hf_pts_suit[0], suit_idx[0]);            /* sort the HfPts for hand 0 in Desc order We need the sorted suit_ids also*/
+   didxsort4(hf_pts_suit[1], suit_idx[1]);            /* sort the HfPts for hand 1 in Desc order */
    hf_pts[0] = hf_pts_suit[0][0] + hf_pts_suit[0][1] ;      /* keep only the two suits with the highest Hf */
-   insertionSort(4,hf_pts_suit[1], suit_idx[1]);            /* sort the HfPts for hand 1 in Desc order */
    hf_pts[1] = hf_pts_suit[1][0] + hf_pts_suit[1][1]  ;     /* keep only the two suits with the highest Hf */
    JGMDPRT(9,"Zar Hf for hand[0]=%d, for hand[1]=%d\n", hf_pts[0], hf_pts[1] ) ;
    return (hf_pts[0] + hf_pts[1]) ;
@@ -997,10 +1009,3 @@ struct FitPoints_st Do_Trump_fit(
       return TFpts ;
 } /* end Do Trump Fit  */
 /* end Do_Trump_Fit */
-
-
-
-
-
-
-

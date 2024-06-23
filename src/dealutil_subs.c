@@ -3,6 +3,7 @@
  * Date        Version  Author   Comment
  * 2023/10/29     1.0   JGM   Created as part of bias_deal effort
  * 2023/11/04     1.1   JGM   Mods for turning into a library module
+ * 2024/05/15     1.2   JGM    Fixed bug in aidxsort4 and didxsort4 where idx values not properly swapped.
  */
 /* Eventually these should replace the other home grown insertion sort routines in files:
  * dealaction_subs.c, dealcard_subs.c, Dealer_DDS_IF.c, dealeval_subs.c and Utils/libbridge.c
@@ -100,7 +101,7 @@ int didxsort4( int v[4], int x[4] ) {
 		 } 
        else if (*(v+2) > *(v+1) ) {     // swap 2nd and 3rd elems
 			 t=*(v+2); *(v+2)=*(v+1); *(v+1) = t ;
-			 s=*(x+2); *(x+2)=*(x+1); *(x+1) = t ;  
+			 s=*(x+2); *(x+2)=*(x+1); *(x+1) = s ;  
 		 } 
 
        if      (*(v+3) >= *(v) ) {   	// shuffle all up one place
@@ -189,7 +190,7 @@ int aidxsort4( int v[4], int x[4] ) {
 		 } 
        else if (*(v+2) < *(v+1) ) {     // swap 2nd and 3rd elems
 			 t=*(v+2); *(v+2)=*(v+1); *(v+1) = t ;
-			 s=*(x+2); *(x+2)=*(x+1); *(x+1) = t ;  
+			 s=*(x+2); *(x+2)=*(x+1); *(x+1) = s ;  
 		 } 
 
        if      (*(v+3) <= *(v) ) {   	// shuffle all up one place

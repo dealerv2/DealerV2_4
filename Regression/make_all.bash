@@ -57,14 +57,14 @@ err_chk 		#check that we are in the correct directory and that the necessary scr
 echo "Re Making the .ref files in the Refer directory using ${REFPGM}"
 ./make_dliTests.pl $REFPGM
 ./make_dlsTests.pl $REFPGM
-${REFPGM}  -m chk_deal_stats_s239.dlx | ./fmt_deal_stats.pl >Refer/chk_deal_stats_fmt.ref 
+${REFPGM}  -m -D0.0 chk_deal_stats_s239.dlx | ./fmt_deal_stats.pl >Refer/chk_deal_stats_fmt.ref 
 make dlo_to_ref 
 
 echo "Running make <dli dls deal stats> using ${TSTPGM}"
 ./make_dliTests.pl ${TSTPGM} 
 ./make_dlsTests.pl ${TSTPGM}
 echo "Processing chk_deal_stats_s239.dlx to Output/chk_deal_stats_fmt.dlo "
-${TSTPGM}  -m chk_deal_stats_s239.dlx | ./fmt_deal_stats.pl >Output/chk_deal_stats_fmt.dlo 
+${TSTPGM}  -m -D0.0 chk_deal_stats_s239.dlx | ./fmt_deal_stats.pl >Output/chk_deal_stats_fmt.dlo 
 
 echo "Comparing .dlo files in Output to corresponding .ref file in Refer"
 ./cmp_dlo_to_ref.bash Refer

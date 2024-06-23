@@ -1,0 +1,84 @@
+                  [Descr.blue_team]
+   1. West               East 
+     A Q 5 2             K T 9 
+     Q 8 6               J 5 3 2 
+     A K T 4             J 9 3 
+     A T                 K Q 4 
+
+   2. West               East 
+     A 6 3               K Q T 
+     -                   K 9 8 7 5 3 
+     A K Q J 2           9 7 4 
+     A K Q 9 6           4 
+
+   3. West               East 
+     K 2                 Q 7 5 3 
+     A K J 9 5 3         Q 7 
+     A T                 8 6 3 
+     K Q 4               A T 9 8 
+
+   4. West               East 
+     A Q J 5 3           9 
+     A K 9 6 5           Q 7 4 
+     A K 2               J 8 6 
+     -                   A J 8 6 5 3 
+
+   5. West               East 
+     A K T 7             Q 8 6 5 4 3 
+     A K 8 7             Q 6 3 
+     5                   Q 2 
+     A 9 6 5             Q 3 
+
+   6. West               East 
+     K 2                 A J T 8 6 4 3 
+     A K J T 9 8 3       4 
+     A K                 Q 7 
+     K 7                 Q T 8 
+
+   7. West               East 
+     A K                 Q T 8 5 
+     K T 2               Q J 6 
+     K T 4               A Q 8 7 
+     A K Q T 4           J 8 
+
+   8. West               East 
+     K 8 3               A J T 2 
+     A 9 7 6             Q J T 3 
+     A K Q 8             7 2 
+     A 3                 9 5 2 
+
+   9. West               East 
+     8 2                 A Q T 
+     A K J 9             Q T 5 4 2 
+     K Q J               9 7 6 
+     A K T 6             Q 9 
+
+  10. West               East 
+     3 2                 Q J T 9 8 
+     A J 9 8 7 6         5 
+     A K J               Q 9 
+     A 9                 Q J 7 4 2 
+
+Frequency :
+    0	       2
+    1	       0
+    2	       8
+    3	       0
+    4	       0
+    5	       0
+    6	       0
+Frequency :
+    0	       0
+    1	       0
+    2	       0
+    3	       0
+    4	       0
+    5	       0
+    6	       0
+    7	       4
+    8	       3
+    9	       3
+   10	       0
+   11	       0
+   12	       0
+   13	       0

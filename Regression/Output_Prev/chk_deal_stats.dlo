@@ -1,0 +1,1020 @@
+Frequency HCP N:
+    0	   36274
+    1	   78906
+    2	  135459
+    3	  245948
+    4	  384499
+    5	  519427
+    6	  654223
+    7	  803134
+    8	  889155
+    9	  935280
+   10	  940186
+   11	  895175
+   12	  803170
+   13	  691972
+   14	  570045
+   15	  442520
+   16	  330875
+   17	  235862
+   18	  159944
+   19	  103661
+   20	   64014
+   21	   37559
+   22	   21173
+   23	   11339
+   24	    5627
+   25	    2641
+   26	    1146
+   27	     522
+   28	     200
+   29	      48
+   30	      13
+   31	       3
+   32	       0
+   33	       0
+   34	       0
+   35	       0
+   36	       0
+   37	       0
+Frequency HCP E:
+    0	   36048
+    1	   78364
+    2	  135171
+    3	  246105
+    4	  385445
+    5	  518800
+    6	  655725
+    7	  801397
+    8	  889136
+    9	  937970
+   10	  940198
+   11	  894081
+   12	  801874
+   13	  692613
+   14	  568856
+   15	  441616
+   16	  331088
+   17	  235992
+   18	  159903
+   19	  104452
+   20	   65024
+   21	   37937
+   22	   20880
+   23	   11184
+   24	    5578
+   25	    2624
+   26	    1187
+   27	     494
+   28	     162
+   29	      54
+   30	      28
+   31	       9
+   32	       5
+   33	       0
+   34	       0
+   35	       0
+   36	       0
+   37	       0
+Frequency HCP S:
+    0	   36518
+    1	   78804
+    2	  135503
+    3	  246032
+    4	  384869
+    5	  519390
+    6	  656279
+    7	  802070
+    8	  890322
+    9	  935465
+   10	  942410
+   11	  894097
+   12	  802691
+   13	  691521
+   14	  568527
+   15	  441142
+   16	  330691
+   17	  236411
+   18	  159946
+   19	  103534
+   20	   64083
+   21	   37596
+   22	   20949
+   23	   11011
+   24	    5519
+   25	    2693
+   26	    1144
+   27	     510
+   28	     179
+   29	      61
+   30	      27
+   31	       3
+   32	       2
+   33	       1
+   34	       0
+   35	       0
+   36	       0
+   37	       0
+Frequency HCP W:
+    0	   36349
+    1	   78687
+    2	  135725
+    3	  246297
+    4	  383238
+    5	  518034
+    6	  655381
+    7	  803576
+    8	  889419
+    9	  934771
+   10	  940276
+   11	  893951
+   12	  803271
+   13	  691864
+   14	  570244
+   15	  442321
+   16	  331682
+   17	  236271
+   18	  160308
+   19	  103951
+   20	   64462
+   21	   37733
+   22	   20852
+   23	   11051
+   24	    5598
+   25	    2677
+   26	    1219
+   27	     480
+   28	     209
+   29	      67
+   30	      25
+   31	       9
+   32	       2
+   33	       0
+   34	       0
+   35	       0
+   36	       0
+   37	       0
+Frequency Spades N:
+    0	  127741
+    1	  800170
+    2	 2058151
+    3	 2864043
+    4	 2387850
+    5	 1246855
+    6	  414672
+    7	   87974
+    8	   11561
+    9	     937
+   10	      46
+   11	       0
+   12	       0
+   13	       0
+Frequency Spades E:
+    0	  127778
+    1	  800186
+    2	 2057807
+    3	 2865922
+    4	 2386587
+    5	 1245667
+    6	  415843
+    7	   87447
+    8	   11829
+    9	     880
+   10	      53
+   11	       1
+   12	       0
+   13	       0
+Frequency Spades S:
+    0	  127938
+    1	  799649
+    2	 2060937
+    3	 2862467
+    4	 2386576
+    5	 1245611
+    6	  416074
+    7	   88081
+    8	   11657
+    9	     962
+   10	      48
+   11	       0
+   12	       0
+   13	       0
+Frequency Spades W:
+    0	  127611
+    1	  799775
+    2	 2059768
+    3	 2861672
+    4	 2387631
+    5	 1247373
+    6	  415125
+    7	   88552
+    8	   11533
+    9	     919
+   10	      40
+   11	       1
+   12	       0
+   13	       0
+Frequency Hearts N:
+    0	  127740
+    1	  800350
+    2	 2059412
+    3	 2861970
+    4	 2385560
+    5	 1248210
+    6	  416476
+    7	   87809
+    8	   11522
+    9	     920
+   10	      31
+   11	       0
+   12	       0
+   13	       0
+Frequency Hearts E:
+    0	  128373
+    1	  801110
+    2	 2054926
+    3	 2864719
+    4	 2386728
+    5	 1247581
+    6	  416114
+    7	   87918
+    8	   11607
+    9	     884
+   10	      40
+   11	       0
+   12	       0
+   13	       0
+Frequency Hearts S:
+    0	  127208
+    1	  800191
+    2	 2060349
+    3	 2864233
+    4	 2385074
+    5	 1246848
+    6	  415100
+    7	   88337
+    8	   11693
+    9	     919
+   10	      48
+   11	       0
+   12	       0
+   13	       0
+Frequency Hearts W:
+    0	  127965
+    1	  801280
+    2	 2059055
+    3	 2863202
+    4	 2386260
+    5	 1246510
+    6	  415603
+    7	   87490
+    8	   11683
+    9	     913
+   10	      39
+   11	       0
+   12	       0
+   13	       0
+Frequency Diamonds N:
+    0	  127525
+    1	  801849
+    2	 2057666
+    3	 2864777
+    4	 2384268
+    5	 1248155
+    6	  415256
+    7	   87871
+    8	   11665
+    9	     918
+   10	      50
+   11	       0
+   12	       0
+   13	       0
+Frequency Diamonds E:
+    0	  127573
+    1	  800025
+    2	 2060262
+    3	 2862541
+    4	 2386722
+    5	 1245722
+    6	  416266
+    7	   88310
+    8	   11627
+    9	     909
+   10	      42
+   11	       1
+   12	       0
+   13	       0
+Frequency Diamonds S:
+    0	  127758
+    1	  799131
+    2	 2056756
+    3	 2864652
+    4	 2388480
+    5	 1246455
+    6	  416131
+    7	   88014
+    8	   11674
+    9	     909
+   10	      38
+   11	       2
+   12	       0
+   13	       0
+Frequency Diamonds W:
+    0	  127817
+    1	  800042
+    2	 2062573
+    3	 2862704
+    4	 2385113
+    5	 1245411
+    6	  415797
+    7	   87747
+    8	   11813
+    9	     944
+   10	      38
+   11	       1
+   12	       0
+   13	       0
+Frequency Clubs N:
+    0	  127824
+    1	  799934
+    2	 2060078
+    3	 2862430
+    4	 2385881
+    5	 1248222
+    6	  415248
+    7	   87841
+    8	   11551
+    9	     947
+   10	      44
+   11	       0
+   12	       0
+   13	       0
+Frequency Clubs E:
+    0	  128300
+    1	  800494
+    2	 2059258
+    3	 2864243
+    4	 2384235
+    5	 1247016
+    6	  415401
+    7	   88416
+    8	   11699
+    9	     902
+   10	      34
+   11	       2
+   12	       0
+   13	       0
+Frequency Clubs S:
+    0	  128588
+    1	  800114
+    2	 2058547
+    3	 2865136
+    4	 2386494
+    5	 1245315
+    6	  415198
+    7	   87908
+    8	   11758
+    9	     914
+   10	      28
+   11	       0
+   12	       0
+   13	       0
+Frequency Clubs W:
+    0	  127521
+    1	  800110
+    2	 2058331
+    3	 2862258
+    4	 2385891
+    5	 1248402
+    6	  416337
+    7	   88561
+    8	   11607
+    9	     935
+   10	      47
+   11	       0
+   12	       0
+   13	       0
+Frequency Card N SA:
+    0	 7496863
+    1	 2503137
+Frequency Card N SK:
+    0	 7503170
+    1	 2496830
+Frequency Card N SQ:
+    0	 7501273
+    1	 2498727
+Frequency Card N SJ:
+    0	 7498931
+    1	 2501069
+Frequency Card N ST:
+    0	 7498854
+    1	 2501146
+Frequency Card N S9:
+    0	 7499725
+    1	 2500275
+Frequency Card N S8:
+    0	 7499248
+    1	 2500752
+Frequency Card N S7:
+    0	 7498441
+    1	 2501559
+Frequency Card N S6:
+    0	 7501795
+    1	 2498205
+Frequency Card N S5:
+    0	 7499059
+    1	 2500941
+Frequency Card N S4:
+    0	 7500542
+    1	 2499458
+Frequency Card N S3:
+    0	 7501236
+    1	 2498764
+Frequency Card N S2:
+    0	 7501356
+    1	 2498644
+Frequency Card N HA:
+    0	 7501154
+    1	 2498846
+Frequency Card N HK:
+    0	 7499948
+    1	 2500052
+Frequency Card N HQ:
+    0	 7498641
+    1	 2501359
+Frequency Card N HJ:
+    0	 7502004
+    1	 2497996
+Frequency Card N HT:
+    0	 7499262
+    1	 2500738
+Frequency Card N H9:
+    0	 7500252
+    1	 2499748
+Frequency Card N H8:
+    0	 7499814
+    1	 2500186
+Frequency Card N H7:
+    0	 7498224
+    1	 2501776
+Frequency Card N H6:
+    0	 7501271
+    1	 2498729
+Frequency Card N H5:
+    0	 7499896
+    1	 2500104
+Frequency Card N H4:
+    0	 7498921
+    1	 2501079
+Frequency Card N H3:
+    0	 7500007
+    1	 2499993
+Frequency Card N H2:
+    0	 7497947
+    1	 2502053
+Frequency Card N DA:
+    0	 7499204
+    1	 2500796
+Frequency Card N DK:
+    0	 7498904
+    1	 2501096
+Frequency Card N DQ:
+    0	 7500578
+    1	 2499422
+Frequency Card N DJ:
+    0	 7498475
+    1	 2501525
+Frequency Card N DT:
+    0	 7502337
+    1	 2497663
+Frequency Card N D9:
+    0	 7500863
+    1	 2499137
+Frequency Card N D8:
+    0	 7499503
+    1	 2500497
+Frequency Card N D7:
+    0	 7500027
+    1	 2499973
+Frequency Card N D6:
+    0	 7501601
+    1	 2498399
+Frequency Card N D5:
+    0	 7499703
+    1	 2500297
+Frequency Card N D4:
+    0	 7502065
+    1	 2497935
+Frequency Card N D3:
+    0	 7498984
+    1	 2501016
+Frequency Card N D2:
+    0	 7501935
+    1	 2498065
+Frequency Card N CA:
+    0	 7500113
+    1	 2499887
+Frequency Card N CK:
+    0	 7500889
+    1	 2499111
+Frequency Card N CQ:
+    0	 7499999
+    1	 2500001
+Frequency Card N CJ:
+    0	 7499548
+    1	 2500452
+Frequency Card N CT:
+    0	 7499936
+    1	 2500064
+Frequency Card N C9:
+    0	 7498572
+    1	 2501428
+Frequency Card N C8:
+    0	 7499132
+    1	 2500868
+Frequency Card N C7:
+    0	 7498161
+    1	 2501839
+Frequency Card N C6:
+    0	 7497654
+    1	 2502346
+Frequency Card N C5:
+    0	 7501155
+    1	 2498845
+Frequency Card N C4:
+    0	 7501256
+    1	 2498744
+Frequency Card N C3:
+    0	 7501890
+    1	 2498110
+Frequency Card N C2:
+    0	 7501935
+    1	 2498065
+Frequency Card E SA:
+    0	 7502557
+    1	 2497443
+Frequency Card E SK:
+    0	 7500226
+    1	 2499774
+Frequency Card E SQ:
+    0	 7500094
+    1	 2499906
+Frequency Card E SJ:
+    0	 7499849
+    1	 2500151
+Frequency Card E ST:
+    0	 7500075
+    1	 2499925
+Frequency Card E S9:
+    0	 7498665
+    1	 2501335
+Frequency Card E S8:
+    0	 7502311
+    1	 2497689
+Frequency Card E S7:
+    0	 7499452
+    1	 2500548
+Frequency Card E S6:
+    0	 7499886
+    1	 2500114
+Frequency Card E S5:
+    0	 7503100
+    1	 2496900
+Frequency Card E S4:
+    0	 7497720
+    1	 2502280
+Frequency Card E S3:
+    0	 7498004
+    1	 2501996
+Frequency Card E S2:
+    0	 7499532
+    1	 2500468
+Frequency Card E HA:
+    0	 7498773
+    1	 2501227
+Frequency Card E HK:
+    0	 7499703
+    1	 2500297
+Frequency Card E HQ:
+    0	 7499115
+    1	 2500885
+Frequency Card E HJ:
+    0	 7497424
+    1	 2502576
+Frequency Card E HT:
+    0	 7499572
+    1	 2500428
+Frequency Card E H9:
+    0	 7499580
+    1	 2500420
+Frequency Card E H8:
+    0	 7499640
+    1	 2500360
+Frequency Card E H7:
+    0	 7501120
+    1	 2498880
+Frequency Card E H6:
+    0	 7501473
+    1	 2498527
+Frequency Card E H5:
+    0	 7501342
+    1	 2498658
+Frequency Card E H4:
+    0	 7499896
+    1	 2500104
+Frequency Card E H3:
+    0	 7499452
+    1	 2500548
+Frequency Card E H2:
+    0	 7499652
+    1	 2500348
+Frequency Card E DA:
+    0	 7498856
+    1	 2501144
+Frequency Card E DK:
+    0	 7497378
+    1	 2502622
+Frequency Card E DQ:
+    0	 7498277
+    1	 2501723
+Frequency Card E DJ:
+    0	 7501276
+    1	 2498724
+Frequency Card E DT:
+    0	 7497566
+    1	 2502434
+Frequency Card E D9:
+    0	 7499777
+    1	 2500223
+Frequency Card E D8:
+    0	 7503132
+    1	 2496868
+Frequency Card E D7:
+    0	 7501050
+    1	 2498950
+Frequency Card E D6:
+    0	 7501799
+    1	 2498201
+Frequency Card E D5:
+    0	 7501006
+    1	 2498994
+Frequency Card E D4:
+    0	 7498993
+    1	 2501007
+Frequency Card E D3:
+    0	 7499849
+    1	 2500151
+Frequency Card E D2:
+    0	 7500610
+    1	 2499390
+Frequency Card E CA:
+    0	 7501076
+    1	 2498924
+Frequency Card E CK:
+    0	 7499880
+    1	 2500120
+Frequency Card E CQ:
+    0	 7499606
+    1	 2500394
+Frequency Card E CJ:
+    0	 7500442
+    1	 2499558
+Frequency Card E CT:
+    0	 7497512
+    1	 2502488
+Frequency Card E C9:
+    0	 7501892
+    1	 2498108
+Frequency Card E C8:
+    0	 7500326
+    1	 2499674
+Frequency Card E C7:
+    0	 7501674
+    1	 2498326
+Frequency Card E C6:
+    0	 7499957
+    1	 2500043
+Frequency Card E C5:
+    0	 7500385
+    1	 2499615
+Frequency Card E C4:
+    0	 7498410
+    1	 2501590
+Frequency Card E C3:
+    0	 7501081
+    1	 2498919
+Frequency Card E C2:
+    0	 7500610
+    1	 2499390
+Frequency Card S SA:
+    0	 7500772
+    1	 2499228
+Frequency Card S SK:
+    0	 7500666
+    1	 2499334
+Frequency Card S SQ:
+    0	 7500692
+    1	 2499308
+Frequency Card S SJ:
+    0	 7500578
+    1	 2499422
+Frequency Card S ST:
+    0	 7498063
+    1	 2501937
+Frequency Card S S9:
+    0	 7500818
+    1	 2499182
+Frequency Card S S8:
+    0	 7498486
+    1	 2501514
+Frequency Card S S7:
+    0	 7501817
+    1	 2498183
+Frequency Card S S6:
+    0	 7499547
+    1	 2500453
+Frequency Card S S5:
+    0	 7500284
+    1	 2499716
+Frequency Card S S4:
+    0	 7500192
+    1	 2499808
+Frequency Card S S3:
+    0	 7501361
+    1	 2498639
+Frequency Card S S2:
+    0	 7498036
+    1	 2501964
+Frequency Card S HA:
+    0	 7504465
+    1	 2495535
+Frequency Card S HK:
+    0	 7500082
+    1	 2499918
+Frequency Card S HQ:
+    0	 7501823
+    1	 2498177
+Frequency Card S HJ:
+    0	 7500333
+    1	 2499667
+Frequency Card S HT:
+    0	 7499294
+    1	 2500706
+Frequency Card S H9:
+    0	 7502069
+    1	 2497931
+Frequency Card S H8:
+    0	 7498479
+    1	 2501521
+Frequency Card S H7:
+    0	 7498558
+    1	 2501442
+Frequency Card S H6:
+    0	 7499502
+    1	 2500498
+Frequency Card S H5:
+    0	 7496462
+    1	 2503538
+Frequency Card S H4:
+    0	 7498859
+    1	 2501141
+Frequency Card S H3:
+    0	 7501126
+    1	 2498874
+Frequency Card S H2:
+    0	 7499570
+    1	 2500430
+Frequency Card S DA:
+    0	 7498658
+    1	 2501342
+Frequency Card S DK:
+    0	 7501409
+    1	 2498591
+Frequency Card S DQ:
+    0	 7499380
+    1	 2500620
+Frequency Card S DJ:
+    0	 7500024
+    1	 2499976
+Frequency Card S DT:
+    0	 7500698
+    1	 2499302
+Frequency Card S D9:
+    0	 7501819
+    1	 2498181
+Frequency Card S D8:
+    0	 7498017
+    1	 2501983
+Frequency Card S D7:
+    0	 7498446
+    1	 2501554
+Frequency Card S D6:
+    0	 7498348
+    1	 2501652
+Frequency Card S D5:
+    0	 7497581
+    1	 2502419
+Frequency Card S D4:
+    0	 7498088
+    1	 2501912
+Frequency Card S D3:
+    0	 7500108
+    1	 2499892
+Frequency Card S D2:
+    0	 7498326
+    1	 2501674
+Frequency Card S CA:
+    0	 7500690
+    1	 2499310
+Frequency Card S CK:
+    0	 7500945
+    1	 2499055
+Frequency Card S CQ:
+    0	 7499426
+    1	 2500574
+Frequency Card S CJ:
+    0	 7500180
+    1	 2499820
+Frequency Card S CT:
+    0	 7502868
+    1	 2497132
+Frequency Card S C9:
+    0	 7500926
+    1	 2499074
+Frequency Card S C8:
+    0	 7501638
+    1	 2498362
+Frequency Card S C7:
+    0	 7500774
+    1	 2499226
+Frequency Card S C6:
+    0	 7500402
+    1	 2499598
+Frequency Card S C5:
+    0	 7499252
+    1	 2500748
+Frequency Card S C4:
+    0	 7500411
+    1	 2499589
+Frequency Card S C3:
+    0	 7499881
+    1	 2500119
+Frequency Card S C2:
+    0	 7498326
+    1	 2501674
+Frequency Card W SA:
+    0	 7499808
+    1	 2500192
+Frequency Card W SK:
+    0	 7495938
+    1	 2504062
+Frequency Card W SQ:
+    0	 7497941
+    1	 2502059
+Frequency Card W SJ:
+    0	 7500642
+    1	 2499358
+Frequency Card W ST:
+    0	 7503008
+    1	 2496992
+Frequency Card W S9:
+    0	 7500792
+    1	 2499208
+Frequency Card W S8:
+    0	 7499955
+    1	 2500045
+Frequency Card W S7:
+    0	 7500290
+    1	 2499710
+Frequency Card W S6:
+    0	 7498772
+    1	 2501228
+Frequency Card W S5:
+    0	 7497557
+    1	 2502443
+Frequency Card W S4:
+    0	 7501546
+    1	 2498454
+Frequency Card W S3:
+    0	 7499399
+    1	 2500601
+Frequency Card W S2:
+    0	 7501076
+    1	 2498924
+Frequency Card W HA:
+    0	 7495608
+    1	 2504392
+Frequency Card W HK:
+    0	 7500267
+    1	 2499733
+Frequency Card W HQ:
+    0	 7500421
+    1	 2499579
+Frequency Card W HJ:
+    0	 7500239
+    1	 2499761
+Frequency Card W HT:
+    0	 7501872
+    1	 2498128
+Frequency Card W H9:
+    0	 7498099
+    1	 2501901
+Frequency Card W H8:
+    0	 7502067
+    1	 2497933
+Frequency Card W H7:
+    0	 7502098
+    1	 2497902
+Frequency Card W H6:
+    0	 7497754
+    1	 2502246
+Frequency Card W H5:
+    0	 7502300
+    1	 2497700
+Frequency Card W H4:
+    0	 7502324
+    1	 2497676
+Frequency Card W H3:
+    0	 7499415
+    1	 2500585
+Frequency Card W H2:
+    0	 7502831
+    1	 2497169
+Frequency Card W DA:
+    0	 7503282
+    1	 2496718
+Frequency Card W DK:
+    0	 7502309
+    1	 2497691
+Frequency Card W DQ:
+    0	 7501765
+    1	 2498235
+Frequency Card W DJ:
+    0	 7500225
+    1	 2499775
+Frequency Card W DT:
+    0	 7499399
+    1	 2500601
+Frequency Card W D9:
+    0	 7497541
+    1	 2502459
+Frequency Card W D8:
+    0	 7499348
+    1	 2500652
+Frequency Card W D7:
+    0	 7500477
+    1	 2499523
+Frequency Card W D6:
+    0	 7498252
+    1	 2501748
+Frequency Card W D5:
+    0	 7501710
+    1	 2498290
+Frequency Card W D4:
+    0	 7500854
+    1	 2499146
+Frequency Card W D3:
+    0	 7501059
+    1	 2498941
+Frequency Card W D2:
+    0	 7499129
+    1	 2500871
+Frequency Card W CA:
+    0	 7498121
+    1	 2501879
+Frequency Card W CK:
+    0	 7498286
+    1	 2501714
+Frequency Card W CQ:
+    0	 7500969
+    1	 2499031
+Frequency Card W CJ:
+    0	 7499830
+    1	 2500170
+Frequency Card W CT:
+    0	 7499684
+    1	 2500316
+Frequency Card W C9:
+    0	 7498610
+    1	 2501390
+Frequency Card W C8:
+    0	 7498904
+    1	 2501096
+Frequency Card W C7:
+    0	 7499391
+    1	 2500609
+Frequency Card W C6:
+    0	 7501987
+    1	 2498013
+Frequency Card W C5:
+    0	 7499208
+    1	 2500792
+Frequency Card W C4:
+    0	 7499923
+    1	 2500077
+Frequency Card W C3:
+    0	 7497148
+    1	 2502852
+Frequency Card W C2:
+    0	 7499129
+    1	 2500871

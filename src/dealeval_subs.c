@@ -3,6 +3,7 @@
 /*  2022-01-10  JGM  Adding code for OPC trees */
 /*  2022-03-07  JGM  Fine tune debug levels
  *  2023/01/07 -- Merged in changes from V4 to fix predeal; dealcards_subs.c and globals, etc.
+ *  2024/06/14  JGM Hacked rnd(0) to return the current value of nprod; could be useful for DBG and EOJ calcs
  */
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
@@ -330,7 +331,7 @@ void analyze (DEAL52_k  d, struct handstat *hsbase) {
 int evaltree (struct tree *t) {                 /* walk thru the user's request and compare to handstat */
    JGMDPRT(8, "evaltree treetype[%d] tr_int1=%d, tr_int2=%d \n",
                         t->tr_type, t->tr_int1, t->tr_int2 ) ;
-   switch (t->tr_type) {
+   switch (t->tr_type) { // all these cases end with a return statement so no need for "break ; "
     default:
       assert ( 0 );
     case TRT_NUMBER:
@@ -486,6 +487,7 @@ int evaltree (struct tree *t) {                 /* walk thru the user's request 
     case TRT_IMPS:
       return imps (evaltree (t->tr_leaf1));
     case TRT_RND:
+      if ( t->tr_leaf1 == 0 ) return (nprod) ; // Hack rnd(0) makes no sense. Use it to get curr value of nprod 
       return (int) (  RANDOM( (double)evaltree (t->tr_leaf1) ) ); /* ret rand int between 0 .. (expr in leaf1) */
                                                     /* JGM redefined RANDOM to use std lib call drand48 */
     case TRT_DECNUM:

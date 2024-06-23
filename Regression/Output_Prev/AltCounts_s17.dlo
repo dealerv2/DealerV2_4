@@ -1,0 +1,141 @@
+Test script for debugging the analyze function
+
+North hands:
+
+   1.               
+7 
+T 7 5 4 3 
+A K 7 
+Q 8 6 2 
+
+HCP: Mean=    9.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    7.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C4: Mean= 1090.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=   25.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=  210.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=   80.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+opc NS: Mean= 2550.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+opc S : Mean= 2250.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+opc H : Mean= 2550.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+opc D : Mean= 2150.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+opc C : Mean= 2150.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+opc NT: Mean= 2050.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Test script for debugging the analyze function
+
+North hands:
+
+   1.               
+7 
+T 7 5 4 3 
+A K 7 
+Q 8 6 2 
+
+Control: Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Losers: Mean=    7.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+LTC : Mean=  750.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=  100.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=  300.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=  100.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=  250.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Test script for debugging the analyze function
+
+North hands:
+
+   1.               
+7 
+T 7 5 4 3 
+A K 7 
+Q 8 6 2 
+
+tens: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+jacks: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Test script for debugging the analyze function
+
+North hands:
+
+   1.               
+7 
+T 7 5 4 3 
+A K 7 
+Q 8 6 2 
+
+queens: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+kings: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+aces: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Test script for debugging the analyze function
+
+North hands:
+
+   1.               
+7 
+T 7 5 4 3 
+A K 7 
+Q 8 6 2 
+
+top2: Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+top3: Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+top4: Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Test script for debugging the analyze function
+
+North hands:
+
+   1.               
+7 
+T 7 5 4 3 
+A K 7 
+Q 8 6 2 
+
+top5: Mean=    4.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+c13: Mean=   12.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=   10.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 

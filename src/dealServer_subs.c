@@ -223,7 +223,7 @@ char *create_mmap(int *fd , char *mmap_fname) {
       if (lastoffset < 0 ) { die("Cant lseek on mm_fd. "); }
       else {      bytesWritten = write(mm_fd, eofmsg, 3);  } /* grow file1 to 1 page. Dont need the \0 null term here.*/
       if(jgmDebug >=3 ) {
-            DBGLOC("Main created mm_fd[%d] and wrote %zd bytes to it\n", mm_fd, bytesWritten );
+            DBGLOC(" created mm_fd[%d] and wrote %zd bytes to it\n", mm_fd, bytesWritten );
       }
 /*
  * Now mmap the file we created and extended using the mm_fd
@@ -244,7 +244,7 @@ char *create_mmap(int *fd , char *mmap_fname) {
       }
    *fd = mm_fd ;   /* set the global fd so we can pass to the child */
    return (mm_ptr) ;
-} /* end create_mmap line 191*/
+} /* end create_mmap line 1207*/
 
 void calc_mmap_offsets(mmap_hdr_k *mm_hdr) {  /* store offsets to mmap template sections in the mm_hdr_struct */
    off_t q_off, r_off, dldata_off, user_nsvals_off, user_ewvals_off, cache_off ;
@@ -309,7 +309,7 @@ pid_t create_server(int mm_fd, char *userserver_path) {
    char buff[32];
    char dbgbuff[32];
    char logpath[128]="/tmp/DealerServer_XXXXXX.log" ;
-   FILE *my_stderr ;
+   int my_logfd ;
 
   pid_t server_pid = fork() ;
   if (server_pid == 0 ) { /* we are in child */
@@ -319,12 +319,13 @@ pid_t create_server(int mm_fd, char *userserver_path) {
 
       /* Some Debugging here */
       if(srvDebug > 0 ) {
-         setup_logfile(logpath) ; /* logpath is a template for a temp file name. Will redirect stderr to this path.*/
-         printf( "\nServer Logfile Name=%s Check Here for Error Messages and Debugging output\n\n",logpath);
+			fprintf(stderr, "++++ CHILD:: POST FORK:: child pid=%d, Pathname To start=%s\n",server_pid, userserver_path ) ;
+         my_logfd=setup_logfile(logpath) ; /* use template for a temp file name. modified by call. stderr will use this tmpfile*/
+         printf( "\nServer Logfile Name=%s logfdfd=%d Check Here for Error Messages and Debugging output\n\n",logpath, my_logfd);
          fsync(1);
          /* if debugging then send Child/UserServer debug output to different location. we can tail -f that file in another terminal */
-         DBGLOC("++++ CHILD++ After stderr Reopen. Preparing to execve the server. my_stderr=%p \n",(void *)my_stderr ) ;
-         DBGLOC("++++ CHILD::  PID=%d using fd=%d\n",server_pid, mm_fd ) ;
+         DBGLOC("++++ CHILD:: After stderr Reopen. Preparing to execve the server. \n" ) ;
+         DBGLOC("++++ CHILD:: PID=%d using mm_fd=%d\n",server_pid, mm_fd ) ;
          DBGLOC("++++ CHILD:: Sees mm_ptr=%p, p_mm_hdr=%p\n", (void *)mm_ptr, (void *)p_mm_hdr );
          DBGLOC("++++ CHILD:: Accessing MapName from Child shared area %s \n",p_mm_hdr->map_name ) ;
          fsync(2); /* force DBGLOC printout */
@@ -359,7 +360,7 @@ pid_t create_server(int mm_fd, char *userserver_path) {
       JGMDPRT(3,"After Fork; In Parent Create Child; Server_pid=%d;  Server Log=%s\n",server_pid, logpath);
       fsync(2);
    }
-   if (srvDebug > 0 ) { sleep (0) ; } /* give Server time to setup its logfile and issue startup message */
+   if (srvDebug > 0 ) { sleep (1) ; } /* give Server time to setup its logfile and issue startup message */
    return (server_pid) ;
 } /* end create server line 307 */
 
@@ -396,12 +397,14 @@ int waitfor_server(pid_t pid) {
 } /* end waitfor server */
 /* Open a unique filename to log to, so we can run several instances of dealer at once. */
 int setup_logfile(char *template) {
+	// return 1 ; /* TEMP## for debug purposes */
    int log_fd ;
    fclose(stderr) ;
-   log_fd = mkstemps(template, 4) ;
+   log_fd = mkstemps(template, 4) ; /* template should be modified by this */
+   JGMDPRT(3, "SETUP Logfile[%s] templated returns log_fd=%d \n",template, log_fd);
    if (log_fd < 0 ) {die("Open log_fd for tempfile Failed: "); }
    stderr = fdopen(log_fd, "w+") ;
-   return 1 ;
+   return log_fd ;
 } /* end setup log file */
 
 int cache_upd( UEVAL_CACHE_k *p_cache, int dealnum, int qtag, int side ) {
@@ -485,10 +488,10 @@ int ask_query (int qtag, int side, int qcoded) {
          res_ptr->u.res[0],res_ptr->u.res[1],res_ptr->u.res[2],res_ptr->u.res[3],res_ptr->u.res[4],res_ptr->u.res[5]);
    /*
     * Each of the 4 cases a) to d) can hold 16 results.
-    * But the way we have implemented case a here we can use it to access all 64 results
+    * But the way we have implemented case (a) here we can use it to access all 64 results
     */
    if ( qc.ucbits.hflag == 0 ) {          // side not hand
-      if (qc.ucbits.sflag == 0 )   {      // case a: usereval(side, idx) /* idx in theory 0 .. 15 in practice 0 .. 63 */
+      if (qc.ucbits.sflag == 0 )   {      // case a: usereval(tag, side, idx) /* idx in theory 0 .. 15 in practice 0 .. 63 */
             return ( res_ptr->u.res[qc.ucbits.idx] ) ;
       }
       else {                              // case b: usereval(side, suit, idx )

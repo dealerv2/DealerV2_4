@@ -1,4 +1,4 @@
-/* File std_hdrs.h-- by ;;JGM COllect all the standard headers used in one place.  Use -Iinclude as a compile flag ... */
+/* File std_hdrs_all.h-- by JGM ;; Collect all the standard headers used in one place.  Use -Iinclude as a compile flag ... */
 /* The headers used by the main dealer code, augmented by the stuff needed by the UserEval code */
 #ifndef STD_HDRS_H
 #define STD_HDRS_H 1
@@ -29,7 +29,26 @@
 #include <sys/types.h>        /* /usr/include/x86_64-linux-gnu/sys   for pid_t  */
 #include <sys/wait.h>         /* Wait status etc. for server */
 
-#endif /* ifndef std_hdrs_h */
+#endif /* ifndef STD_HDRS_H */
 
+#if 0   // Next bit for documentation purposes only.
+# per the GNU documentation you can assume that any C compiler will have the following header files intstalled.
+#include  <float.h> 
+#include  <limits.h> 
+#include  <stdarg.h> 
+#include  <stdbool.h> 
+#include  <stddef.h> 
+#include  <stdint.h> 
 
+#include  <ctype.h> 
+#include  <errno.h> 
+#include  <fcntl.h> 
+#include  <locale.h>
+#include  <signal.h>
+#include  <stdio.h>
+#include  <stdlib.h>
+#include  <string.h>
+#include  <time.h> 
+#include  <sys/types.h>
+#endif 
 

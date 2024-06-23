@@ -343,4 +343,21 @@ void show_opcVals(struct sidestat_st *resp ) {
    return ;
 }
 
+void show1D_arr( int *arr, int NC ) {
+			for (int nc=0; nc< NC; nc++ ) {
+			fprintf(stderr,"%d ", arr[nc] );
+		}
+		fprintf(stderr,"\n");
+	}
+void show2D_arr( int *arr, int NR, int NC ) {
+	int nr, nc ; 
+	for (nr=0 ; nr< NR ; nr++ ) {
+		fprintf(stderr,"NR=%d: ",nr);
+		for (nc=0; nc< NC; nc++ ) {
+			fprintf(stderr,"%d ", *(arr + nr*NC + nc) );
+		}
+		fprintf(stderr,"\n");
+	} 
+   return;
+}	
 

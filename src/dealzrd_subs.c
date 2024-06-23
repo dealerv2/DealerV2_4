@@ -212,7 +212,7 @@ int fwrite_zrdrec(FILE *fzrd, ZRD_REC_k *pzrec) { /* low level; write and err ch
 	cnt = fwrite(pzrec, 23, 1 , fzrd) ;  /* *buff, size, nmemb, File* */
 	if ( ferror( fzrd ) ) {
 		perror("zrdrec write error" ) ;
-		fprintf(stderr, "ERR**: Error Writing ZRD Library file.\n");
+		fprintf(stderr, "ERR**: Error Writing ZRD Output file.\n");
 		return EIOZRD ; 
 	}
 	return cnt ; /* should always be 1 unless an error */

@@ -39,7 +39,7 @@
 #ifndef UsageMessage
   #include "../src/UsageMsg.h"
 #endif
-#define OPTSTR "hmqvVg:p:s:x:C:D:L:M:O:P:R:T:N:E:S:W:X:U:Z:0:1:2:3:4:5:6:7:8:9:"
+#define OPTSTR "hmqvVg:p:s:x:C:D:L:M:O:P:R:T:N:E:S:W:X:U:Z:0:1:2:3:4:5:6:7:8:9:l:"
 void show_options ( struct options_st *opts , int v );
 void showargs(int argc, char *argv[]);
 void show_script_vars ( struct param_st *p , int v ) ;
@@ -62,8 +62,9 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
     struct stat statbuff ;
     char mybuff[128];		// for printing library version 
     // int  mybuff_len ;
-    char *pch , ch ; 		// temp vars for use by case 'Z'
-    char zrd_optstr[8]; 	//      ditto 
+    char *pch , ch ; 		// temp vars for use by case 'Z' or case 'l'
+    char zrd_optstr[8]; 	//      ditto
+    char log_optstr[8];    //  temp vars for use by case 'l' 
 
     opterr = 0;
     opts->options_error = 0 ;  /* assume success */
@@ -93,10 +94,14 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
     memset(opts->preDeal_len, 0, 4*sizeof(int) ) ; /* preDeal stores the -N,-E,-S,-W opt settings */
     memset(opts->preDeal, '\0' , 128 ) ;
     strcpy(opts->zrdlib_fname ,"=");    /* = is translated to the default location at initialization time. */
-    opts->zrdlib_mode  = 0 ;           /* no LIB by default */
-    opts->zrd_seed = seed ;            /* No effect unless the program is run in Library mode */
-    opts->zrd_wanted = 0 ;					/* write our own zrd file */
+    opts->zrdlib_mode  = 0 ;           /* default to NO RPLIB file of solved deals -L*/
+    opts->zrd_seed = seed ;            /* No effect unless the program is run in Library(-L) mode */
+    
+    opts->zrd_wanted = 0 ;					/* write our own zrd file (-Z switch) */
     opts->zrd_fname[0]  = '\0';			/* No default ZRD filename. Must be provided */ 
+
+    opts->log_wanted = 0 ;					/* write interesting deals to LOG file in DL52 fmt (-l switch) */
+    opts->log_fname[0]  = '\0';			/* No default LOG filename. Must be provided */     
 
     while ((opt_c = getopt(argc, argv, OPTSTR)) != EOF) {
       switch(opt_c) {
@@ -176,7 +181,7 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
         opts->srv_dbg_lvl = srv_dbg( optarg ) ; /* check if the D option was x.y or .y or 0.y where y is debug verbosity for server */
         srvDebug = opts->srv_dbg_lvl ;
         break ;
-     case 'L':
+     case 'L':  // RPLIB file of solved deals
          strncpy( opts->zrdlib_fname, optarg, sizeof(opts->zrdlib_fname)-1 ) ;
          if ( strcmp(opts->zrdlib_fname, "=") == 0 ) {      /* equal sign is shorthand for default rplib path name */
             strncpy(opts->zrdlib_fname, zrdlib_default, sizeof(opts->zrdlib_fname)-1 );
@@ -265,7 +270,7 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
 			}
 		break ;
          
-	   case 'Z':         /* Filename for ZRDLib report. Normally opened with append unless preceded by w: */
+	   case 'Z':         /* Filename for deals saved in zrd fmt Normally opened with append unless preceded by w: */
 			opts->zrd_fmode[0] = 'a' ; opts->zrd_fmode[1] = '\0';  /* append mode */
 			opts->zrd_dds  = 1 ;  /* assume user wants solved deals */
 			opts->zrd_wanted=1 ;  /* wants zrd, even if no solutions */
@@ -289,16 +294,49 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
 						zrd_optstr,opts->zrd_fmode,opts->zrd_dds, opts->zrd_fname ) ; 
          fzrd = fopen(opts->zrd_fname , opts->zrd_fmode) ;
          if (fzrd == NULL ) {
-            perror("ERROR!! Open ZRD Library file FAILED");
+            perror("ERROR!! Open ZRD Output file FAILED");
             fprintf(stderr, "ERROR!! Cant open [%s] for %s \n",opts->zrd_fname, opts->zrd_fmode );
             opts->options_error =  FATAL_OPTS_ERR - 8;
          }
          else {
-					JGMDPRT(2,"ZRDLIB File %s opened in %s Mode\n",opts->zrd_fname, opts->zrd_fmode ); 
+					JGMDPRT(2,"ZRD Out File %s opened in %s Mode\n",opts->zrd_fname, opts->zrd_fmode ); 
 					;
 			}
       break;         
-
+	   case 'l':         /* Filename for deals saved in DL52 fmt Normally opened with append unless preceded by w: */
+			opts->log_fmode[0] = 'a' ; opts->log_fmode[1] = '\0';  /* append mode */
+			opts->log_dds  = 1 ;  /* assume user wants solved deals */
+			opts->log_wanted=1 ;  /* wants log, even if no solutions */
+	      pch = strchr(optarg, ':' ) ; /* is there a colon? i.e. [[w][N]:]<filename> */
+	      if (pch == NULL ) { 
+				strcpy(opts->log_fname, optarg) ; 
+			}
+			else { /* filename preceded by options N, w, or both */ 
+				strcpy(opts->log_fname, (pch+1) );
+				*pch = '\0';
+				strcpy(log_optstr, optarg) ;
+				JGMDPRT(2,"LOG OptStr=%s, Fname=%s\n",log_optstr, opts->log_fname ) ;
+				pch = &log_optstr[0] ;  
+				while ( (ch = *pch++) ) {
+					if (ch == 'w' ) opts->log_fmode[0] = 'w' ; 
+					if (ch == 'N' || ch == 'n' ) opts->log_dds = 0 ;   /* no dds solutions */
+					if (ch == ':' ) break ; 
+				}
+			} /*end l options else */
+			JGMDPRT(2,"optstr=%s, log_fmode=%s,log_dds=%d, log_fname=%s\n",
+						log_optstr,opts->log_fmode,opts->log_dds, opts->log_fname ) ; 
+         flog = fopen(opts->log_fname , opts->log_fmode) ;
+         if (flog == NULL ) {
+            perror("ERROR!! Open LOG52 Output file FAILED");
+            fprintf(stderr, "ERROR!! Cant open [%s] for %s \n",opts->log_fname, opts->log_fmode );
+            opts->options_error =  FATAL_OPTS_ERR - 8;
+         }
+         else {
+					JGMDPRT(2,"LOG52 Out File %s opened in %s Mode\n",opts->log_fname, opts->log_fmode ); 
+					;
+			}
+      break;
+      
       /* Next ten options set the scripting variables stored in the global struct 'parm' */
       /* parm.script_var[i] SHOULD always have a NULL since optarg will be NUL terminated, and should never be > PARAM_SIZE */
       case '0' :
@@ -400,6 +438,7 @@ void show_options ( struct options_st *opts , int v ) {
     fprintf(stderr, "\t %s=[%s]\n", "X:Fname",   opts->ex_fname   ) ;
     fprintf(stderr, "\t %s=[%s]\n", "U:Fname",   opts->userpgm    ) ;
     fprintf(stderr, "\t %s=[%s] mode=[%s] DDtricks=%c\n", "Z:Fname", opts->zrd_fname, opts->zrd_fmode,"NY"[opts->zrd_dds]) ;
+    fprintf(stderr, "\t %s=[%s] mode=[%s] DDtricks=%c\n", "l:Fname", opts->log_fname, opts->log_fmode,"NY"[opts->log_dds]) ;
    return ;
 } /* end show opts */
 

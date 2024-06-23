@@ -46,9 +46,12 @@ void setup_action () { /* run once right after the parsing done */
       case ACT_CSVRPT :
       case ACT_PRINTRPT :
         break;
-      case ACT_PRINT:
-        deallist = (DEAL52_k *) mycalloc (maxproduce, sizeof (DEAL52_k));
-        JGMDPRT(3, "Setup Action ACT_PRINT maxproduce*52 =%d,  malloc succeeded\n", maxproduce*52 );
+      case ACT_PRINT: /* if there are several ACT_PRINT actions we dont want to do several mallocs. Memory leak? */
+        if( NULL == deallist ) {
+				deallist = (DEAL52_k *) mycalloc (maxproduce+1, sizeof (DEAL52_k));
+				JGMDPRT(3, "Setup Action ACT_PRINT (maxproduce+1)*52 =%d,  malloc succeeded @dealist=%p\n",
+					(maxproduce+1)*52, (void *)deallist );
+			}
         break;
       case ACT_AVERAGE:
         acp->ac_int1 = 0 ; // this holds the sum  so far.
@@ -153,8 +156,8 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
           printpbn (nprod, curdeal);
         break;
       case ACT_PRINT:
-        memcpy (deallist+nprod, curdeal, sizeof (DEAL52_k));  /*save sorted curdeal in malloc'ed area for later printing */
-        JGMDPRT(6,"nprod=%d,dealsize=%ld,@deallist[0]=%p,@deal_dest=%p\n",nprod,sizeof(DEAL52_k),(void *)deallist, (void *)(deallist+nprod) );
+        memcpy (&deallist[nprod-1], curdeal, sizeof (DEAL52_k));  /*save sorted curdeal in malloc'ed area for later printing */
+        JGMDPRT(6,"nprod=%d,dealsize=%ld,@deallist[0]=%p,@deal_dest=%p\n",nprod,sizeof(DEAL52_k),(void *)&deallist[0], (void *)(&deallist[nprod-1]) );
         break;
       case ACT_AVERAGE:  /* mods by JGM to a) have a running avg, and b) include Variance as well as avg in final rpt */
         expr0 = evaltree (acp->ac_expr1);   /* calculate the expr we are averaging */
@@ -387,7 +390,7 @@ void printdeal (DEAL52_k d) {   /* the PRINTALL action. Print All 4 hands on the
       printf("%18s[%s]\n"," ",title);
       do_title = 0;
   }
-  printf ("%4d. North              East                South               West \n", (nprod+1) );
+  printf ("%4d. North              East                South               West \n", (nprod) );
 
   for (suit = SUIT_SPADE; suit >= SUIT_CLUB; suit--) {
     printf("     "); /* indent on page to allow room for board number */
@@ -412,7 +415,7 @@ void printdeal (DEAL52_k d) {   /* the PRINTALL action. Print All 4 hands on the
     printf ("\n");
   }  /* end for suits */
   printf ("\n");
-  if ( (((nprod+1) % 10) == 0) && (title_len > 0)) { printf("\f"); do_title = 1 ; } /* 10 deals per page then a form feed and another title */
+  if ( (((nprod) % 10) == 0) && (title_len > 0)) { printf("\f"); do_title = 1 ; } /* 10 deals per page then a form feed and another title */
 }  /* end printdeal */
 
     /*     ----- REDO ------
@@ -424,8 +427,9 @@ void printhands (int boardno, DEAL52_k *dealp, int player, int nhands) {
 
   int i, suit, rank, cards;
   JGMDPRT(6,"printhands called with boardno=%d, player=%d, nhands=%d, dealptr=%p \n",boardno,player,nhands,(void *)dealp);
-  for (i = 0; i < nhands; i++)
+  for (i = 0; i < nhands; i++) {
     printf ("%4d.%15c", boardno + i + 1, ' '); /* print board number as a heading */
+  }
   printf ("\n");
   for (suit = SUIT_SPADE; suit >= SUIT_CLUB; suit--) {
     cards = 10;  /* left justify the first hand */
@@ -466,7 +470,7 @@ void printside (DEAL52_k d, int side ) {  /* JGM Replacement for printew to allo
       printf("%18s[%s]\n"," ",title);
       do_title = 0;
   }
-  printf ("%4d. %-5s              %-5s\n", (nprod+1), player_name[players[0]], player_name[players[1]] );
+  printf ("%4d. %-5s              %-5s\n", (nprod), player_name[players[0]], player_name[players[1]] );
   JGMDPRT(7,"Printing parnership side [%d] players=[%s , %s]\n",
                                      side, player_name[players[0]], player_name[players[1]]);
   for (suit = SUIT_SPADE; suit >= SUIT_CLUB; suit--) {
@@ -496,7 +500,7 @@ void printside (DEAL52_k d, int side ) {  /* JGM Replacement for printew to allo
     printf("\n");
   } /* end for suit = spades downto clubs */
    printf ("\n");
-   if ( (((nprod+1) % 10) == 0) && (title_len > 0)) { printf("\f"); do_title = 1 ; } /* 10 deals per page then a form feed and another title */
+   if ( (((nprod) % 10) == 0) && (title_len > 0)) { printf("\f"); do_title = 1 ; } /* 10 deals per page then a form feed and another title */
 }  /* end print side */
 
 int printpbn (int board, DEAL52_k d) {  /* Rudimentary PBN report primarily to exg with others */
@@ -514,6 +518,7 @@ int printpbn (int board, DEAL52_k d) {  /* Rudimentary PBN report primarily to e
   // size_t len;
   char timearray[12];
   int player, suit, rank;
+  int board_idx  = board - 1 ; /* offset into the VUL and Dealer name arrays */ 
 
   printf ("[Event \"Hand simulated by dealer with file %s, seed %lu\"]\n",
   input_file, seed);
@@ -527,7 +532,7 @@ int printpbn (int board, DEAL52_k d) {  /* Rudimentary PBN report primarily to e
   strftime (timearray, 12, "%Y.%m.%d", localtime(&timet));
   printf ("[Date \"%s\"]\n", timearray);
 
-  printf ("[Board \"%d\"]\n", board+1);
+  printf ("[Board \"%d\"]\n", board);
 
   /* Blank tags for the players */
   printf ("[West \"-\"]\n");
@@ -537,14 +542,14 @@ int printpbn (int board, DEAL52_k d) {  /* Rudimentary PBN report primarily to e
 
   /* Dealer, rotates unless set by the user */
   if ((maxdealer < 0) || (maxdealer > 3)) {
-     printf ("[Dealer \"%s\"]\n", dealer_name[board%4]);
+     printf ("[Dealer \"%s\"]\n", dealer_name[board_idx%4]);
   } else {
     printf ("[Dealer \"%s\"]\n", dealer_name[maxdealer]);
   }
 
   /* Vulnerability, rotates unless set by the user */
   if ((maxvuln < 0) || (maxvuln > 3)) {
-     printf ("[Vulnerable \"%s\"]\n", vulner_name[board_vul[board%16]]);
+     printf ("[Vulnerable \"%s\"]\n", vulner_name[board_vul[board_idx%16]]);
   } else {
      printf ("[Vulnerable \"%s\"]\n", vulner_name[maxvuln]);
   }

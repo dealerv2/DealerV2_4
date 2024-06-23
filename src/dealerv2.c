@@ -66,6 +66,7 @@ int main (int argc, char **argv) {
     void init_runtime(struct options_st *opts) ;
     void init_cards() ;
     int  deal_cards(int dmode, DEAL52_k d) ; 
+    int  dl52_write(FILE *fdl52, DEAL52_k d) ; 
 
 
     /* opts collects all cmd line parms in one place. Vars from previous versions of Dealer kept also so some duplication */
@@ -170,7 +171,7 @@ int main (int argc, char **argv) {
 	JGMDPRT(4," Assert: zrd_cnt[%d]<Maxgen, zrdlib_pass_num[%d]<=1, zrdlib_recnum[%d]<zrdlib_recs[%d]\n", zrd_cnt, zrdlib_pass_num, (zrdlib_recnum+1), zrdlib_recs);
  
  /* ----------- Begin the Main Loop ------------*/
-  JGMDPRT(2,"^^^^^^ Begin Main Loop ^^^^^^ libMode=%d ardlib_pass_num=%d\n",opts->zrdlib_mode, zrdlib_pass_num) ;
+  JGMDPRT(2,"^^^^^^ Begin Main Loop ^^^^^^ libMode=%d zrdlib_pass_num=%d\n",opts->zrdlib_mode, zrdlib_pass_num) ;
 
    if (progressmeter) { fprintf (stderr, "Calculating...  0%% complete\r"); }// \r CR not \n since want same line ..
 	if (1 == options.zrd_wanted && options.title_len > 0 ) { /* to suppress zrdhdr, use -T "" on cmd line */
@@ -221,7 +222,14 @@ int main (int argc, char **argv) {
 				}
 				JGMDPRT(8,"ZRDOK: zrd rec written from deal # %d \n",nprod);
 			 } /* end zrd_wanted */
-          
+          if(1 == options.log_wanted ) {
+				rc = dl52_write(flog, curdeal) ;
+				if (rc < 0 ) {
+					fprintf(stderr, "ERR** Writing log_DEAL Failed for nprod=%d ... Aborting Run\n", nprod);
+					return (-1) ; 
+				}
+				JGMDPRT(8,"logOK: log rec written from deal # %d \n",nprod);
+			 } /* end log_wanted */
           if (progressmeter) {
             if ((100 * nprod / maxproduce) > 100 * (nprod - 1) / maxproduce)
               fprintf (stderr, "Calculating... %2d%% complete\r",
@@ -279,5 +287,20 @@ int main (int argc, char **argv) {
 		/* ?? close fzrd, fcsv, fexp, frplib, finput_file ?*/
   return 0;
 } /* end main */
-
+/* write the produced deal to a file in dl52 fmt for future use, mainly by DDS programs
+ * sort of dups the functionality of zrd file, but I did not want to add all the zrd decoding
+ * routines to the DDS demo programs. No tricks appended tho; strictly the cards only 
+ */
+ int dl52_write(FILE *fdl52, DEAL52_k d ) {
+	int cnt ;
+	cnt = fwrite(d, 52, 1 , fdl52) ;  /* *buff, size, nmemb, File* */
+	if ( ferror( fdl52 ) ) {
+		perror("dl52 Log write error" ) ;
+		fprintf(stderr, "ERR**: Error Writing DL52 Output file.\n");
+		return EIOERR ; 
+	}
+	return cnt ; /* should always be 1 unless an error */
+}
+/* end dl52_write */		 
+	 
 

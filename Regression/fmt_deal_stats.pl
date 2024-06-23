@@ -1,20 +1,19 @@
 #!/usr/bin/perl
 
-# File: fmt_distribution.pl minor mods by JGM from the original HvS script convert.pl
+# File: fmt_deal_stats.pl minor mods by JGM from the original HvS script convert.pl
 
-# This script reformats the output of Descr.distribution_chk into a nice
+# This script reformats the output of chk_deal_stats_s239.dlx into a nice
 # table, with the theoretical values next to the hcp and suit distributions
-# for the 4 players.
+# for the 4 players. (by HvS)
 #
-# i.e. dealerv2 -m chk_deal_stats_s239.dlx | ./fmt_deal_stats.pl >Output/chk_deal_stats_fmt.dlo
+# i.e. dealerv2 -m -D0.0 chk_deal_stats_s239.dlx | ./fmt_deal_stats.pl >Output/chk_deal_stats_fmt.dlo
 # or to see the results on the terminal
-#      dealerv2 -m chk_deal_stats_s239.dlx >chk_deal_stats_s239.dl0 ; ./fmt_distribution.pl <chk_deal_stats_s239.dl0
+#      dealerv2 -m -D0.0 chk_deal_stats_s239.dlx >chk_deal_stats_s239.dl0 ; ./fmt_deal_stats.pl <chk_deal_stats_s239.dl0
 
 # This is not the best piece of Perl that I've ever written. (from HvS)
 
 #
-# Frequency of suit lengths and hcp help by players.  From Frederic H. Frost,
-# "Bridge Odds Complete".
+# Frequency of suit lengths and hcp help by players.  From Frederic H. Frost,"Bridge Odds Complete".
 #
 @suitlen = (1.27, 8.01, 20.59, 28.63, 23.87, 12.47, 4.16, 0.88, 0.12, 0.01, 0,0,0);
 @rawhcp = (0.36, 0.79, 1.35, 2.46, 3.85, 5.19, 6.55, 8.03, 8.89, 9.36, 9.41, 8.94, 8.03, 6.91, 5.69, 4.42, 3.31, 2.36, 1.61, 1.04, 0.64, 0.38, 0.21, 0.11, 0.06, 0.03, 0.01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);

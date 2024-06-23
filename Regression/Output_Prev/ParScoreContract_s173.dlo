@@ -1,0 +1,27 @@
+
+Contract  2Nx V by  NS Average Result =   126.70, Made pct=   43.00, Fail pct=   57.00
+Missed Game_pct=   13.00, Missed Slam_pct=   0.00, Missed Game Imps/board=   1.30, Missed Slam Imps/board=   0.00
+
+Contract  1N  V by  NS Average Result =    59.10, Made pct=   79.00, Fail pct=   21.00
+Missed Game_pct=   13.00, Missed Slam_pct=   0.00, Missed Game Imps/board=   1.30, Missed Slam Imps/board=   0.00
+
+Contract  3Hx   by  EW Average Result =  -780.90, Made pct=    7.00, Fail pct=   93.00
+Missed Game_pct=    1.00, Missed Slam_pct=   0.00, Missed Game Imps/board=   0.06, Missed Slam Imps/board=   0.00
+
+Contract 2Hxx   by  EW Average Result = -1049.60, Made pct=   16.00, Fail pct=   84.00
+Missed Game_pct=    1.00, Missed Slam_pct=   0.00, Missed Game Imps/board=   0.06, Missed Slam Imps/board=   0.00
+Par NS      = : Mean=  190.4000, Std Dev=  213.3945, Var=45537.2121, Sample Size=100 
+ScoreNS_2NTx= : Mean=  126.7000, Std Dev=  598.6433, Var=358373.8485, Sample Size=100 
+ScoreNS_1NT = : Mean=   59.1000, Std Dev=  113.1022, Var=12792.1111, Sample Size=100 
+Frequency HCP Vs Tricks:
+        Low      5      6      7      8      9     10     11   High    Sum
+Low       0      0      0      0      0      0      0      0      0      0
+  20      0      0      0      0      0      0      0      0      0      0
+  21      1      3      7     12      6      2      0      0      0     31
+  22      1      1      1     12     12      1      0      0      0     28
+  23      0      0      4      8      6      4      2      0      0     24
+  24      0      0      3      4      6      2      2      0      0     17
+  25      0      0      0      0      0      0      0      0      0      0
+High      0      0      0      0      0      0      0      0      0      0
+Sum       2      4     15     36     30      9      4      0      0    100
+

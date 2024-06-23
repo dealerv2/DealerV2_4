@@ -11,7 +11,8 @@
  *    1.0.0  2023-02-17    Most relevant metrics working. Set88 working. Prep for first github upload
  *    1.0.1  2023-03-31    Set88 modified to return both HLDF and NT pts. More Metrics. Bissell,....
  *    1.0.5  2023-04-10    Coded Sheinwold, Goren; more debugging.
- *    1.5    2023-05-26    Coded all metrics including ZarBasic and ZarFull. Dropped Rule22.
+ *    1.5    2023-05-26    Coded all metrics including ZarBasic and ZarAdvanced. Dropped Rule22.
+ * 	1.5.2  2024-02-26		Roth Evaluation from Roth and Rubens book coding done. Debug started.
  */
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
@@ -28,10 +29,10 @@
  *
  */
 #define SERVER_NAME "DealerServer"
-#define SERVER_VERSION "1.5.0"
-#define SERVER_BUILD_DATE "2023/05/26"
+#define SERVER_VERSION "1.5.3"
+#define SERVER_BUILD_DATE "2024/05/14"
 #define SERVER_AUTHOR "JGM"
-int jgmDebug = 1 ;  /* value will be passed in from Dealer if Debugging wanted */
+int jgmDebug = 0 ;  /* value will be passed in from Dealer if Debugging wanted */
 #include "../include/std_hdrs_all.h"
 /* The Interface to Dealer These are symbolic links to the file in the Dealer include directory*/
 #include "../include/dealtypes.h"            /* HANDSTAT_k, deal52_k ... */
@@ -52,12 +53,13 @@ int jgmDebug = 1 ;  /* value will be passed in from Dealer if Debugging wanted *
 char *link_mmap(int mm_fd );
 sem_t *open_semaphore(char *sem_name) ;
 void calc_ptrs ( char *p_mm, struct mmap_ptrs_st *p_pst, struct mmap_off_st *p_ost ) ;
+struct gbl_struct_st set_gblquery ( struct query_type_st *pqt ) ;
 void eoj_mutex(  ) ;
 void server_eoj() ;
 
 // Evaluation Reply Functions
 /* Replace all these with one function which accepts arguments to fill in the reply block and the user map area */
-int user_reply( int tag, int ures[64], struct reply_type_st *prt, struct query_type_st *pqt );
+int user_reply( int tag, int ures[], struct reply_type_st *prt, struct query_type_st *pqt );
 int userfunc( struct query_type_st *p_q_type, struct reply_type_st *p_r_type, DEALDATA_k *p_dldat,
                USER_VALUES_k *p_nsdat,USER_VALUES_k *p_ewdat, MMAP_TEMPLATE_k *mm_ptr) ;
 int bergen_reply(   USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
@@ -72,11 +74,12 @@ int knr_reply(      USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq
 int larsson_reply(  USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int morse_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int pav_reply(      USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
+int roth_reply(     USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int sheinw_reply(   USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
-int zarbasic_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
-int zarfull_reply(  USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
+int zarbas_reply(   USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
+int zaradv_reply(   USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int unk_reply(      USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
-int mixed_JGM1reply(USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
+int mixed_KARreply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int mixed_LARreply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int test_reply(     USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int set88_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
@@ -90,13 +93,14 @@ int set88_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq
 // Error and Debug functions -- see also Serverdebug_subs.c
 static void die(char *msg) {   perror(msg);   exit(255); }
 static void show_mmap_ptrs( MMAP_TEMPLATE_k *p_mm, struct mmap_ptrs_st *ptrs, struct mmap_off_st *offs ) ;
-void show_hands_pbn( int mask, deal d ) ;
+void show_hands_pbn( int mask, DEAL52_k d ) ;
 void show_reply_type(struct reply_type_st *prt) ;
 
 
 // DBGLOC and JGMDPRT are  macros defined if JGMDBG is defined, Do nothing definitions otherwise
 extern float DBG_run ;
 int setup_logfile(char *template) ;
+
 int main(int argc, char *argv[] ) {
    pid_t my_pid ;
    int urc ;
@@ -109,16 +113,20 @@ int main(int argc, char *argv[] ) {
    USER_VALUES_k *p_nsres;
    USER_VALUES_k *p_ewres;
    MMAP_TEMPLATE_k *p_mm_base ;
-   deal          *pcurdeal;
+   DEAL52_k        *pcurdeal;
     my_pid = getpid() ;
+    if (jgmDebug >= 1 ) {   // print to stdout so appears on main pgm screen. stderr has been redirected ... 
+		printf("%s:%d UE::pid=%d, Argc=%d, argv[0]= %s ,  mmap_fd=%s,  jgmDebug=%s \n",__FILE__,__LINE__,my_pid,argc,argv[0],argv[1],argv[2] );
+	 }
     if (argc < 2 )  {die("DealerServer Missing FD arg. Aborting..."); }
-    if (0 == strcmp(argv[1], "-V") ) {
+    if ( (0 == strcmp(argv[1], "-V")) || (0 == strcmp(argv[1], "-h")) ) {
        printf("%s Version %s for DealerV2.  Author=%s Build Date=%s\n",SERVER_NAME, SERVER_VERSION,SERVER_AUTHOR,SERVER_BUILD_DATE ) ;
-       printf("Usage: %s <mmap_fd> [dbg_verbosity]  -- note no commas, no minus signs \n", SERVER_NAME);
-#ifdef JGMDBG
-       JGMDPRT(1, "JGMDBG IS DEFINED= %d in Serverpid=%d; jgmDebug=%d Server_Version = %s DBG_run=%g\n",
+       printf("Usage: %s <mmap_fd> [dbg_verbosity]  -- note no commas, no minus signs \n", argv[0]);
+       if (argc >= 3 ) { jgmDebug = atoi( argv[2] ) ; }
+       #ifdef JGMDBG
+         JGMDPRT(0, "JGMDBG IS DEFINED= %d in Serverpid=%d; jgmDebug=%d Server_Version = %s DBG_run=%g\n",
                JGMDBG, my_pid, jgmDebug, SERVER_VERSION , DBG_run);
-#endif
+		 #endif
        return(0);
     }
 
@@ -132,8 +140,9 @@ int main(int argc, char *argv[] ) {
    /* Initialize IPC mechanisms */
    mm_ptr = link_mmap( mm_fd ) ; /* sets (char *)mm_ptr */
    p_mm_base = (void *)mm_ptr ;
+   
    JGMDPRT(1,"In %s:: link_mmap returns map_ptr=%p p_mm_tmpl=%p\n",SERVER_NAME,(void *)mm_ptr, (void *)p_mm_base ) ;
-
+ printf("UE::In %s:: link_mmap returns map_ptr=%p p_mm_tmpl=%p\n",SERVER_NAME,(void *)mm_ptr, (void *)p_mm_base ) ;
    strcpy( (mm_ptr + 4090), "EOF " ); /* so we can see it in a dump of disk file -- Assumes PageSize is 4096*/
    /*
     * Use the data in the mmap_hdr area to find the names and offsets used by the client
@@ -147,13 +156,15 @@ int main(int argc, char *argv[] ) {
     p_nsres = ptrs.nsres ;
     p_ewres = ptrs.ewres ;
     for (int h = 0 ; h < 4 ; h++ ) { hs_ptr[h] = ptrs.phs[h] ; } /* so everything can work off a HANDSTAT typedef */
-#ifdef JGMDBG
-    if (jgmDebug >= 2 ) { show_mmap_ptrs(p_mm_base, &ptrs, &offs );}
-#endif
+
+    DBGDO(2,show_mmap_ptrs(p_mm_base, &ptrs, &offs ));
+
     strncpy(query_sema, phdr->q_sema_name, 31 ) ;
     strncpy(reply_sema, phdr->r_sema_name, 31 ) ;
     strncpy(mmap_fname, phdr->map_name,   128 ) ;
     JGMDPRT(2, "^^^UserEval Local Copy from shared area: map_name=%s, q_sema=%s, r_sema=%s\n",mmap_fname, query_sema,  reply_sema );
+ printf("UE::^^^UserEval Local Copy from shared area: map_name=%s, q_sema=%s, r_sema=%s\n",mmap_fname, query_sema,  reply_sema );
+
 
     p_qsem = open_semaphore(query_sema) ;
     p_rsem = open_semaphore(reply_sema) ;
@@ -162,29 +173,39 @@ int main(int argc, char *argv[] ) {
   /*
     * Server ready to re-act to query posts and issue replies
     */
-    //sleep(1) ;
+    if( jgmDebug > 1 ) { /* sleep for 5 in case we want to attach GDB to this process */
+		printf("UE:: UserEval Version=%s Sleep for 5 then; waiting for semaphore \n",SERVER_VERSION) ;
+		sleep(5) ;
+	 }
   while( 1 ) {
     sem_wait(p_qsem) ;
     JGMDPRT(4,"in Server:: Woke from p_qsem wait with Query Tag[%i], Descr=[%s], side=%d, idx=%d\n",
                pqt->query_tag, pqt->query_descr,pqt->query_side, pqt->query_idx) ;
+   //printf("%s:%d in Server:: Woke from p_qsem wait with Query Tag[%i], Descr=[%s], side=%d, idx=%d\n", __FILE__,__LINE__,
+   //            pqt->query_tag, pqt->query_descr,pqt->query_side, pqt->query_idx) ;
     if(pqt->query_tag < 0 ) {
        JGMDPRT(3,"Server pid=%d Got QUIT Query. Descr=%s \n",my_pid, pqt->query_descr) ;
        server_eoj(mm_ptr, PageSize ) ;
        JGMDPRT(1,"%s cleanup done. Exiting from while(1) main loop \n",SERVER_NAME);
+       printf("%s cleanup done. Exiting from while(1) main loop \n",SERVER_NAME);
        exit(0) ;
        /* NOTREACHED */
     }
-    // fprintf(stderr, "***** DealerServer calling sortDeal52 @line %d with dealptr=%p\n", __LINE__, (void *) pcurdeal);
-    sortDeal52( (char *)pcurdeal ) ; /* why is not sorted by Dealer already? */
+    // fprintf(stderr, "***** DealerServer calling sortDeal @line %d with dealptr=%p\n", __LINE__, (void *) pcurdeal);
+    sortDeal( (char *)pcurdeal ) ; /* Dealer does not sort the Deal unless it passes the condition clause. */
 
     #ifdef JGMDBG
-      if (jgmDebug >= 5) {
+      if (jgmDebug >= 3) {
          fprintf(stderr, "*------%s.%d Begin Sorted Deal Number %d -------*\n", __FILE__,__LINE__,pdldat->curr_gen );
          show_hands_pbn( 15 , (char *)pcurdeal ) ;
       }
     #endif
     urc = userfunc(pqt, prt, pdldat, p_nsres, p_ewres, p_mm_base) ; /*userfunc uses pqt->query_tag, to call relevant xxxx_reply() */
-    if (-1 == urc ) { die("Fatal in User_eval; Aborting. Must Manually stop dealverV2") ; }
+    if (-1 == urc ) {
+		 char msgbuff[80] ; 
+		 sprintf(msgbuff,"Fatal in User_eval; Aborting. Must Manually stop dealverV2 PID=%d",my_pid) ; 
+		 die(msgbuff) ;
+	 }
 /* got OK result. Tell client */
    sem_post(p_rsem) ;
    JGMDPRT(4,"ServerMain:: Dealnum=%d user_eval done for q_tag[%d], r_tag[%d], r_descr=[%s] Waiting for next Query. zzzz \n",
@@ -200,6 +221,7 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
                USER_VALUES_k *p_nsdat,USER_VALUES_k *p_ewdat, MMAP_TEMPLATE_k *mm_ptr)
 {
     USER_VALUES_k *res_ptr;
+    gbl = set_gblquery( pqt ) ;		/* fill gbl struct from the query pkt */
     if (pqt->query_side == 0 ) { res_ptr = p_nsdat ; }
     else                       { res_ptr = p_ewdat ; }
     JGMDPRT(4,"^^^userfunc Switch: for tag=[%d] Descr=[%s] using reply ptr=%p\n",pqt->query_tag, pqt->query_descr, (void *)prt ) ;
@@ -209,8 +231,8 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
     strcpy( prt->reply_descr ,  "Normal Server Return" );
 /*
  * The Query tags in alpha order: The adj_hcp arrays use these values to lookup adjustments.
- *                     0        1       2     3     4      5      6       7    8    9     10     11       12      13      14        20          21
-                    BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARFULL, metricEND, MixJGM=20, MixMOR,
+ *                     0        1       2     3     4      5      6       7    8    9     10     11       12      13      14  15      		20          21
+                    BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, Roth, metricEnd, MixJGM=20, MixMOR,
 // possibly add metrics in the 50 - 79 range to implement different hand factors like quicktricks, or quicklosers, or shortest suit etc.
                     SET=88, SYNTST=99, Quit=-1} ;
 */
@@ -237,14 +259,16 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
       case MORSE:    morse_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* Larsson with BumWrap and Dfit mods   */
       case 'P':
       case PAV :     pav_reply(     res_ptr, prt, p_dldat, pqt);  break ; /* PAV -- from  Website. Like Goren minor mods */
+      case 'R':
+      case ROTH :    roth_reply(    res_ptr, prt, p_dldat, pqt);  break ; /* ROTH -- from 1968 Book. Dpts, Lpts,Dfit,FN */
       case 'S':
       case SHEINW :  sheinw_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Sheinwold from book. Short suits. */
       case 'z':
-      case ZARBAS :  zarbasic_reply(res_ptr, prt, p_dldat, pqt);  break ; /* Basic Zar pts from the 2005 PDF download */
+      case ZARBAS :  zarbas_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Basic Zar pts from the 2005 PDF download */
       case 'Z':
-      case ZARFULL:  zarfull_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Basic Zar plus HF, FN, HCP in 2/3 suits etc */
+      case ZARADV:   zaradv_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Basic Zar plus HF, FN, HCP in 2/3 suits etc */
 
-      case 20:    mixed_JGM1reply(  res_ptr, prt, p_dldat, pqt);  break ; /* jgm1 and karpin     */
+      case 20:    mixed_KARreply(   res_ptr, prt, p_dldat, pqt);  break ; /* jgm1 and karpin     */
       case 21:    mixed_LARreply(   res_ptr, prt, p_dldat, pqt);  break ; /* morse and larsson   */
 
       case 88:     set88_reply(     res_ptr, prt, p_dldat, pqt);  break ; /* do all the metrics for which there is code */
@@ -365,6 +389,17 @@ sem_t *open_semaphore(char *sem_name) {
    if (p_mtx == SEM_FAILED ) die("Main Cannot Open/Create semaphore ");
    return (p_mtx) ;
 }
+
+struct gbl_struct_st set_gblquery ( struct query_type_st *pqt ) {
+	struct gbl_struct_st gbl ;
+	gbl.g_tag = pqt->query_tag ;
+	gbl.g_side = pqt->query_side ;  /* side always set by code in the parser */
+	gbl.g_compass = (pqt->query_hflag) ? pqt->query_hand : - 1; /* 0=N, 3=W */
+	gbl.g_suit = (pqt->query_sflag) ? pqt->query_suit : - 1; 
+	gbl.g_idx  = pqt->query_idx ;
+  return gbl ;
+}
+
 /* Uses file Globals */
 void eoj_mutex(  ) {
    sem_close(p_rsem);
@@ -432,7 +467,7 @@ int jgm1_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_da
     // fprintf(stderr, "**** Calling jgm1_calc with pqt->query_side=%d \n",pqt->query_side );
    num_res = jgm1_calc( pqt->query_side ) ;
    JGMDPRT(6,"jgm1_calc returns %d fields calculated\n",num_res) ;
-   return (0) ;
+   return (num_res) ;
 }
 int kaplan_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    int num_res = 0 ;
@@ -440,7 +475,7 @@ int kaplan_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_
    prt->reply_tag = pqt->query_tag ;
    num_res = kaplan_calc( pqt->query_side) ;
    JGMDPRT(6,"kaplan_calc returns %d fields calculated\n",num_res) ;
-   return (0) ;
+   return (num_res) ;
 }
 int karpin_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    int num_res = 0 ;
@@ -448,7 +483,7 @@ int karpin_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_
    prt->reply_tag = pqt->query_tag ;
    num_res = karpin_calc( pqt->query_side) ;
    JGMDPRT(6,"karpin_calc returns %d fields calculated\n",num_res) ;
-   return (0) ;
+   return (num_res) ;
 }
 int knr_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    int num_res = 0 ;
@@ -491,22 +526,31 @@ int sheinw_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_
    JGMDPRT(6,"=====sheinw_calc returns %d fields calculated, res[0]=%d, res[3]=%d\n",num_res, pr->u.res[0],pr->u.res[3]) ;
    return (num_res) ;
 } /* end sheinw_reply */
-int zarbasic_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
+int roth_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
+   strcpy(prt->reply_descr, "Roth" ) ;
+   int num_res = 0;
+   prt->reply_tag = pqt->query_tag ;
+   /* Future: pass the suit parameter to roth_calc? pqt->query_suit */
+   num_res = roth_calc( pqt->query_side )  ; /* all the xxxx_calc functions call prolog which sets up the ptrs and other stuff */
+   JGMDPRT(6,"=====roth_calc returns %d fields calculated, res[0]=%d, res[3]=%d\n",num_res, pr->u.res[0],pr->u.res[3]) ;
+   return (num_res) ;
+} /* end roth_reply */
+int zarbas_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    strcpy(prt->reply_descr, "Zar Basic" ) ;
    int num_res = 0;
    prt->reply_tag = pqt->query_tag ;
-   num_res = zarbasic_calc( pqt->query_side )  ; /* all the xxxx_calc functions call prolog which sets up the ptrs and other stuff */
-   JGMDPRT(6,"=====zarbasic_calc returns %d fields calculated, res[0]=%d, res[3]=%d\n",num_res, pr->u.res[0],pr->u.res[3]) ;
+   num_res = zarbas_calc( pqt->query_side )  ; /* all the xxxx_calc functions call prolog which sets up the ptrs and other stuff */
+   JGMDPRT(6,"=====zarbas_calc returns %d fields calculated, res[0]=%d, res[3]=%d\n",num_res, pr->u.res[0],pr->u.res[3]) ;
    return (num_res) ;
-} /* end zarbasic_reply */
-int zarfull_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
-   strcpy(prt->reply_descr, "Zar Full" ) ;
+} /* end zarbas_reply */
+int zaradv_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
+   strcpy(prt->reply_descr, "Zar Advanced" ) ;
    int num_res = 0;
    prt->reply_tag = pqt->query_tag ;
-   num_res = zarfull_calc( pqt->query_side )  ; /* all the xxxx_calc functions call prolog which sets up the ptrs and other stuff */
-   JGMDPRT(6,"=====zarfull_calc returns %d fields calculated, res[0]=%d, res[3]=%d\n",num_res, pr->u.res[0],pr->u.res[3]) ;
+   num_res = zaradv_calc( pqt->query_side )  ; /* all the xxxx_calc functions call prolog which sets up the ptrs and other stuff */
+   JGMDPRT(6,"=====zaradv_calc returns %d fields calculated, res[0]=%d, res[3]=%d\n",num_res, pr->u.res[0],pr->u.res[3]) ;
    return (num_res) ;
-} /* end zarfull_reply */
+} /* end zaradv_reply */
 int set88_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    int num_res = -1 ;
    strcpy(prt->reply_descr, "Set88 Query" ) ;
@@ -524,14 +568,14 @@ int unk_reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat
    }
  return (0) ;
 }
-int mixed_JGM1reply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
+int mixed_KARreply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    int num_res =0 ;
    strcpy(prt->reply_descr, "MIX Test Karpin(Milton) vs JGM(BumWrap)" ) ;
     prt->reply_tag = pqt->query_tag ;
-    // fprintf(stderr, "**** Calling mixed_JGM1calc with pqt->query_side=%d \n",pqt->query_side );
-   num_res = mixed_JGM1calc( pqt->query_side ) ;
-   JGMDPRT(6,"mixed_JGM1calc returns %d fields calculated\n",num_res) ;
- return (0) ;
+    // fprintf(stderr, "**** Calling mixed_KARcalc with pqt->query_side=%d \n",pqt->query_side );
+   num_res = mixed_KARcalc( pqt->query_side ) ;
+   JGMDPRT(6,"mixed_KARcalc returns %d fields calculated\n",num_res) ;
+ return (num_res) ;
 }
 int mixed_LARreply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    int num_res =0 ;
@@ -540,7 +584,7 @@ int mixed_LARreply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pd
     // fprintf(stderr, "**** Calling mixed_LARcalc with pqt->query_side=%d \n",pqt->query_side );
    num_res = mixed_LARcalc( pqt->query_side ) ;
    JGMDPRT(6,"mixed_LARcalc returns %d fields calculated\n",num_res) ;
- return (0) ;
+ return (num_res) ;
 }
 int test_reply(     USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt) {
    int num_res =0 ;
@@ -549,7 +593,7 @@ int test_reply(     USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq
    fprintf(stderr, "**** Calling Testing Calc with pqt->query_side=%d \n",pqt->query_side );
    num_res = test_calc( pqt->query_side, pqt ) ;
    JGMDPRT(6,"testing_calc returns %d fields calculated\n",num_res) ;
- return (0) ;
+ return (num_res) ;
 }
 void show_reply_type(struct reply_type_st *prt) {
  #ifdef JGMDBG

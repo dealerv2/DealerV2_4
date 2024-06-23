@@ -7,11 +7,12 @@ produce 4
 #
 # Dealer and Vulnerability of the simulated problem
 #
-vulnerable all
-dealer north
+  // To check the printpbn routine allow the vulnerability and dealer to rotate. To check flex parsing uncomment next ones
+  // vulnerable all
+  // dealer north
 
 #
-title "West Big Club; Both Vul; North Deals"	
+title "Regression Test PBN output; Both Vul; Dealer Rotates"	
 west1c = hcp(west)>16
 
 east1h = hcp(east)>7 && control(east)<3

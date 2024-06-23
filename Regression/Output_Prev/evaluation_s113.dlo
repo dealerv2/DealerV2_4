@@ -1,0 +1,131 @@
+Descr.evaluation debug 
+
+North hands:
+
+   1.               
+Q J 
+K 3 2 
+9 5 2 
+Q 9 6 5 3 
+
+Losers: Mean=    9.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+HCP: Mean=    8.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Control: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Descr.evaluation debug 
+
+North hands:
+
+   1.               
+Q J 
+K 3 2 
+9 5 2 
+Q 9 6 5 3 
+
+C4: Mean=  575.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=   60.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=   90.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=  100.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+tens: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+jacks: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Descr.evaluation debug 
+
+North hands:
+
+   1.               
+Q J 
+K 3 2 
+9 5 2 
+Q 9 6 5 3 
+
+queens: Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+kings: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+aces: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Descr.evaluation debug 
+
+North hands:
+
+   1.               
+Q J 
+K 3 2 
+9 5 2 
+Q 9 6 5 3 
+
+top2: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+top3: Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+top4: Mean=    4.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Descr.evaluation debug 
+
+North hands:
+
+   1.               
+Q J 
+K 3 2 
+9 5 2 
+Q 9 6 5 3 
+
+top5: Mean=    4.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+c13: Mean=    9.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+S : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+H : Mean=    4.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Descr.evaluation debug 
+
+North hands:
+
+   1.               
+Q J 
+K 3 2 
+9 5 2 
+Q 9 6 5 3 
+
+

@@ -22,6 +22,8 @@ extern void showAltCounts( void ) ;
 extern void show_hands_PBN( int mask, DEAL52_k  d ) ;
 extern void show_opcVals(struct sidestat_st *resp ) ; 
 extern void show_opcRes(struct opc_Vals_st *resp ) ;
+extern void show1D_arr( int *arr, int NC ) ;
+extern void show2D_arr( int *arr, int NR, int NC ) ;
 
 #endif
 
