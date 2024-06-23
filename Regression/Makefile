@@ -17,10 +17,10 @@ DEALER = ../Prod/dealerv2    # new version of dealerv2 to be tested
 SHELL=/usr/bin/bash
 
 OUTPUT = $(wildcard ./Output/*.dlo)   # a list of all the .dlo files in the Output directory
-INPUT  = $(wildcard *.dli)  $(wildcard *.dls) $(wildcard *.dlx) # a list of all the .dl? files in the Regression (current)  directory
+INPUT  = $(wildcard *.dli)  $(wildcard *.dls) $(wildcard *.dlt) $(wildcard *.dlx)# a list of all the .dl? files in the Regression (current)  directory
 
 all:
-	./make_all.bash ${DEALPGM}
+	./make_all.bash ${DEALER}
 	
 dli:
 	./make_dliTests.pl $(DEALER)
