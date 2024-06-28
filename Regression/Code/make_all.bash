@@ -1,11 +1,11 @@
 #!/bin/bash
 TSTPGM=${1:-./dealerv2}
-REFPGM=${2:-/usr/local/bin/DealerV2/dealerv2}
-export DEALPGM
+REFPGM=${2:-/usr/local/games/DealerV2_4/dealerv2}
+export TSTPGM
 export REFPGM
 
 function usage() {
-	echo "basename($0) [ [tst_dealer] production_dealer] e.g. $0 ../Debug/dealdbg /usr/local/DealerV2/dealerv2 " 
+	echo "basename($0) [ [tst_dealer] production_dealer] e.g. $0 ../Debug/dealdbg /usr/local/games/DealerV2_4/dealerv2 " 
 }
 
 function err_chk() { 

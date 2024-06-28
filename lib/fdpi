@@ -2,7 +2,8 @@
 #  Mod by JGM to put a prompt for input
 #  Mod by JGM to have Dist loaded from our own location not the system wide Perl5 @INC
 # Changed Dealer::Dist->new to Dist->new
-use lib "/usr/local/bin/DealerV2/lib"; 
+# 2024/06/30 changed the following path
+use lib "/usr/local/games/DealerV2_4/lib"; 
 use Dist;
 use strict;
 use Carp;

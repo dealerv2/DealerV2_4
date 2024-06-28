@@ -2,140 +2,120 @@ Test script for debugging the analyze function
 
 North hands:
 
-   1.               
-7 
-T 7 5 4 3 
-A K 7 
-Q 8 6 2 
+   1.                  2.                  3.                  4.               
+7                   Q J 4               J 3 2               K T 7 2 
+T 7 5 4 3           K 7 6               K T 3 2             A 7 6 
+A K 7               K J 7               J 7 3               J 8 
+Q 8 6 2             K J 8 5             J T 7               A K Q T 
 
-HCP: Mean=    9.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    7.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C4: Mean= 1090.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=   25.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=  210.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=   80.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-opc NS: Mean= 2550.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-opc S : Mean= 2250.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-opc H : Mean= 2550.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-opc D : Mean= 2150.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-opc C : Mean= 2150.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-opc NT: Mean= 2050.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+    HCP: Mean=   11.5000, Std Dev=    4.9329, Var=   24.3333, Sample Size=4 
+      S: Mean=    1.7500, Std Dev=    1.5000, Var=    2.2500, Sample Size=4 
+      H: Mean=    2.5000, Std Dev=    1.7321, Var=    3.0000, Sample Size=4 
+      D: Mean=    3.2500, Std Dev=    2.8723, Var=    8.2500, Sample Size=4 
+      C: Mean=    4.0000, Std Dev=    3.5590, Var=   12.6667, Sample Size=4 
+     C4: Mean= 1110.0000, Std Dev=  560.2975, Var=313933.3333, Sample Size=4 
+    Q S: Mean=   65.0000, Std Dev=   62.4500, Var= 3900.0000, Sample Size=4 
+    Q H: Mean=   93.7500, Std Dev=   50.2286, Var= 2522.9167, Sample Size=4 
+    Q D: Mean=   95.0000, Std Dev=   88.8819, Var= 7900.0000, Sample Size=4 
+    Q C: Mean=  175.0000, Std Dev=  156.0983, Var=24366.6667, Sample Size=4 
+ opc NS: Mean= 2500.0000, Std Dev= 1118.7791, Var=1251666.6667, Sample Size=4 
+ opc S : Mean= 2375.0000, Std Dev= 1109.4293, Var=1230833.3333, Sample Size=4 
+ opc H : Mean= 2350.0000, Std Dev=  966.9540, Var=935000.0000, Sample Size=4 
+ opc D : Mean= 2300.0000, Std Dev= 1035.2133, Var=1071666.6667, Sample Size=4 
+ opc C : Mean= 2350.0000, Std Dev= 1055.9356, Var=1115000.0000, Sample Size=4 
+ opc NT: Mean= 2150.0000, Std Dev=  859.2633, Var=738333.3333, Sample Size=4 
 Test script for debugging the analyze function
 
 North hands:
 
-   1.               
-7 
-T 7 5 4 3 
-A K 7 
-Q 8 6 2 
+   1.                  2.                  3.                  4.               
+7                   Q J 4               J 3 2               K T 7 2 
+T 7 5 4 3           K 7 6               K T 3 2             A 7 6 
+A K 7               K J 7               J 7 3               J 8 
+Q 8 6 2             K J 8 5             J T 7               A K Q T 
 
-Control: Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-Losers: Mean=    7.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-LTC : Mean=  750.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=  100.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=  300.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=  100.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=  250.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+Control: Mean=    3.2500, Std Dev=    2.0616, Var=    4.2500, Sample Size=4 
+      S: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      H: Mean=    1.0000, Std Dev=    0.8165, Var=    0.6667, Sample Size=4 
+      D: Mean=    1.0000, Std Dev=    1.4142, Var=    2.0000, Sample Size=4 
+      C: Mean=    1.0000, Std Dev=    1.4142, Var=    2.0000, Sample Size=4 
+ Losers: Mean=    8.0000, Std Dev=    2.1602, Var=    4.6667, Sample Size=4 
+      S: Mean=    2.0000, Std Dev=    0.8165, Var=    0.6667, Sample Size=4 
+      H: Mean=    2.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      D: Mean=    2.0000, Std Dev=    0.8165, Var=    0.6667, Sample Size=4 
+      C: Mean=    1.7500, Std Dev=    1.2583, Var=    1.5833, Sample Size=4 
+    LTC: Mean=  812.5000, Std Dev=  209.6624, Var=43958.3333, Sample Size=4 
+      S: Mean=  200.0000, Std Dev=   81.6497, Var= 6666.6667, Sample Size=4 
+      H: Mean=  225.0000, Std Dev=   50.0000, Var= 2500.0000, Sample Size=4 
+      D: Mean=  200.0000, Std Dev=   81.6497, Var= 6666.6667, Sample Size=4 
+      C: Mean=  187.5000, Std Dev=  131.4978, Var=17291.6667, Sample Size=4 
 Test script for debugging the analyze function
 
 North hands:
 
-   1.               
-7 
-T 7 5 4 3 
-A K 7 
-Q 8 6 2 
+   1.                  2.                  3.                  4.               
+7                   Q J 4               J 3 2               K T 7 2 
+T 7 5 4 3           K 7 6               K T 3 2             A 7 6 
+A K 7               K J 7               J 7 3               J 8 
+Q 8 6 2             K J 8 5             J T 7               A K Q T 
 
-tens: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-jacks: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+   tens: Mean=    1.2500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+      S: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      H: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+      D: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=4 
+      C: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+  jacks: Mean=    1.7500, Std Dev=    1.5000, Var=    2.2500, Sample Size=4 
+      S: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+      H: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=4 
+      D: Mean=    0.7500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      C: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+ queens: Mean=    0.7500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      S: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      H: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=4 
+      D: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=4 
+      C: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+  kings: Mean=    1.7500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+      S: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      H: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+      D: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+      C: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+   aces: Mean=    0.7500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+      S: Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=4 
+      H: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      D: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      C: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
 Test script for debugging the analyze function
 
 North hands:
 
-   1.               
-7 
-T 7 5 4 3 
-A K 7 
-Q 8 6 2 
+   1.                  2.                  3.                  4.               
+7                   Q J 4               J 3 2               K T 7 2 
+T 7 5 4 3           K 7 6               K T 3 2             A 7 6 
+A K 7               K J 7               J 7 3               J 8 
+Q 8 6 2             K J 8 5             J T 7               A K Q T 
 
-queens: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-kings: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-aces: Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-Test script for debugging the analyze function
-
-North hands:
-
-   1.               
-7 
-T 7 5 4 3 
-A K 7 
-Q 8 6 2 
-
-top2: Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-top3: Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-top4: Mean=    3.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-Test script for debugging the analyze function
-
-North hands:
-
-   1.               
-7 
-T 7 5 4 3 
-A K 7 
-Q 8 6 2 
-
-top5: Mean=    4.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    1.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-c13: Mean=   12.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-S : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-H : Mean=    0.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-D : Mean=   10.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
-C : Mean=    2.0000, Std Dev=    0.0000, Var=    0.0000, Sample Size=1 
+   top2: Mean=    2.5000, Std Dev=    1.2910, Var=    1.6667, Sample Size=4 
+      S: Mean=    0.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      H: Mean=    0.7500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      D: Mean=    0.7500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+      C: Mean=    0.7500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+   top3: Mean=    3.2500, Std Dev=    1.7078, Var=    2.9167, Sample Size=4 
+      S: Mean=    0.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+      H: Mean=    0.7500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      D: Mean=    0.7500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+      C: Mean=    1.2500, Std Dev=    1.2583, Var=    1.5833, Sample Size=4 
+   top4: Mean=    5.0000, Std Dev=    1.8257, Var=    3.3333, Sample Size=4 
+      S: Mean=    1.0000, Std Dev=    0.8165, Var=    0.6667, Sample Size=4 
+      H: Mean=    0.7500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      D: Mean=    1.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+      C: Mean=    1.7500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+   top5: Mean=    6.2500, Std Dev=    1.7078, Var=    2.9167, Sample Size=4 
+      S: Mean=    1.2500, Std Dev=    0.9574, Var=    0.9167, Sample Size=4 
+      H: Mean=    1.2500, Std Dev=    0.5000, Var=    0.2500, Sample Size=4 
+      D: Mean=    1.5000, Std Dev=    0.5774, Var=    0.3333, Sample Size=4 
+      C: Mean=    2.2500, Std Dev=    1.2583, Var=    1.5833, Sample Size=4 
+    c13: Mean=   14.7500, Std Dev=    6.8496, Var=   46.9167, Sample Size=4 
+      S: Mean=    2.0000, Std Dev=    1.8257, Var=    3.3333, Sample Size=4 
+      H: Mean=    3.5000, Std Dev=    2.5166, Var=    6.3333, Sample Size=4 
+      D: Mean=    4.2500, Std Dev=    4.2720, Var=   18.2500, Sample Size=4 
+      C: Mean=    5.0000, Std Dev=    4.9666, Var=   24.6667, Sample Size=4 

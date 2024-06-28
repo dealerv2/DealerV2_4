@@ -39,7 +39,7 @@ cmp_dlo_to_ref.bash  :  This will run the 'diff' utility on the .dlo and .ref fi
 make_all.bash        : This shell script takes two optional parameters: the pathname of the version of dealer under test, 
                         such as ../Debug/dealdbg, (default is ./dealerv2 in the current directory) and 
                         the pathname of the production version of dealer known to produce good output, such as
-                        /usr/local/bin/DealerV2/dealerv2 (which is the default value).
+                        /usr/local/games/DealerV2_4/dealerv2 (which is the default value).
                         
                         The script first overwrites all the .dlo files in Output by running the the 3 perl scripts above, 
                         using the production version of dealerv2, and then

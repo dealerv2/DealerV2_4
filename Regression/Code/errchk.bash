@@ -17,8 +17,8 @@ usage() {
 usage 		# no parens in function call. to pass args say usage arg1 arg2 arg3 just like a cmd line.
 
 TSTPGM=${1:-./dealerv2}
-REFPGM=${2:-/usr/local/bin/DealerV2/dealerv2}
-export DEALPGM
+REFPGM=${2:-/usr/local/games/DealerV2_4/dealerv2}
+export TSTPGM
 export REFPGM
 
 function err_chk() { 

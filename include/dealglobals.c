@@ -13,6 +13,7 @@
 #endif
 #include "std_hdrs.h"
 #include "dealtypes.h"          /* some type defs and struct tags needed below. Will include dealdefs.h also */
+#include "dealer_paths.h"       /* #defines for dealer directories and program names, expressed as strings */
 
 int jgmDPRT = 0 ;				/* cant ifdef it bec some modules may compile with JGMDBG off and some on. */
 int DealMode = DEF_MODE ;  /* 2023-12-10 Re-Org for Bias Deal */
@@ -82,7 +83,7 @@ FILE *fzrdlib;   /* -L zrd Library file. Default is ../rpLib.zrd */
 FILE *flog;      /* -l [Nw:]filename. Save produced deals in Deal52 fmt.Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */ 
 
 
-char zrdlib_default[64] = "../rpLib.zrd"; /* parent dir means works from either Debug or Prod */
+char zrdlib_default[64] = ZRD_LIB; /* /usr/local/games/DealerV2_4/dat/rpLib.zrd or /home/myuser/DealerV2_4/dat/rpLib.zrd */
 int    zrdlib_mode= 0 ;              /* 0= Not using RP Lib file; 1= Using RP Lib file; affects swapping, predeal, seed, */
 int    zrdlib_blksz = ZRD_BLOCKSIZE ; /* will be adjusted based on DB file size */
 int    zrdlib_recs  = ZRD_MAX_LIBRECS; /* will be calculated at run time */
@@ -92,21 +93,22 @@ int    zrd_cnt      = 0 ;
 int    zrdlib_pass_num = 0 ;
 
 /* -U Path name for the UserEval binary. Default is 'DealerServer' in the current directory. Can be set by -U cmd line parm
- * -U ./DealerServer or ../Debug/DealSrvdbg
- * Instead: /usr/local/bin/DealerV2/UserEval/DealerServer  or /home/MyUser/MyDir/MySubDir/MyUserPgm
+ * -U ./DealerServer or ../Prod/DealerServer or ../lib/DealerServer or ../Debug/DealSrvdbg or ../lib/DealerSrvdbg
+ * Instead: /usr/local/games/DealerV2/UserEval/DealerServer  or /home/MyUser/MyDir/MySubDir/MyUserPgm
  */
- char server_pgm[64]   = "DealerServer"; /* In the current directory. or user sets path name via -U switch */
+ char server_pgm[64]   = SERVER_PGM ; /* In the current directory. or user sets path name via -U switch */
 
-// char server_dir[SERVER_PATH_SIZE+1]  = "/usr/local/bin/DealerV2/UserEval";              // The system wide install location
-// char server_path[SERVER_PATH_SIZE+1] = "/usr/local/bin/DealerV2/UserEval/DealerServer"; // The system wide install location
-char server_dir[SERVER_PATH_SIZE+1]  = "/home/greg21/DealerV2_4/UserEval";
-char server_path[SERVER_PATH_SIZE+1]  = "/home/greg21/DealerV2_4/UserEval/DealerServer";
+/* char server_dir[SERVER_PATH_SIZE+1]  = "/usr/local/games/DealerV2_4/bin";  */           
+/* char server_path[SERVER_PATH_SIZE+1] = "/usr/local/games/DealerV2_4/UserEval/DealerServer"; */
+
+char server_dir[SERVER_PATH_SIZE+1]  = UEV_DIR ;     //   /usr/local/games/DealerV2_4/UserEval
+char server_path[SERVER_PATH_SIZE+1] = SERVER_PGM;   //   /usr/local/games/DealerV2_4/bin/DealerServer
 pid_t userserver_pid = 0 ;
 
 /* OPC Related vars. Maybe they don't need to be globals */
-char opc_cmd_buff[128] = "/usr/local/bin/DOP/dop ";
-char opc_pgm_path[32]  = "/usr/local/bin/DOP/dop ";
-int  opc_pgmlen = 23 ;
+char opc_cmd_buff[128] = OPC_PGM; // /usr/local/games/DealerV2_4/bin/dop
+char opc_pgm_path[64]  = OPC_PGM;
+int  opc_pgmlen = 35 ;
 int  opc_dealnum = -1;   /* -1 will force the opc cache to be updated the first time opc() is called */
 struct opc_Vals_st opcRes ;
 /* Exporting hands for future import via -N, -E, -S, -W switches 

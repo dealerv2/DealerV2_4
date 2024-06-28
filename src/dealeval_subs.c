@@ -607,19 +607,19 @@ char *fmt_opc_cmd_buff( char *buff , int side , DEAL52_k  dl ) {
   size_t offset = strlen(buff) ;  /* buff typically initialized with the DOP cmd path at compile time */
   char *bp = buff + offset ;
     // first 23 chars of buff should already be set but maybe for generality we should do it here with a strcpy? */
-    // buff = "/usr/local/bin/DOP/dop"
+    // buff = "/usr/local/games/DOP/dop"
   *bp++ = ' '; *bp++ = ' '; *bp++ = '-'; *bp++ = 'O'; *bp++ = opc_opener ; *bp++ = ' '; *bp = '\0';
 
-	 // at this point: buff = "/usr/local/bin/DOP/dop  -OW "
+	 // at this point: buff = "/usr/local/games/DOP/dop  -OW "
     JGMDPRT(8, "fmt_opc_cmd_buff:[%s]\n", buff ) ;
     DBGDO(9, sr_hand_show(2, dl) );
 
 	// add the hands from the relevant side to the cmdbuff 
    bp = fmtSide_to_cmdbuff(bp, side, dl ) ;
-  // by now buff = "/usr/local/bin/DOP/dop  -OW -E xxxx/xxx/xxx/xxx  -W xx/xxxxx/xxx/xxx"
+  // by now buff = "/usr/local/games/DOP/dop  -OW -E xxxx/xxx/xxx/xxx  -W xx/xxxxx/xxx/xxx"
   // put in a string to tell DOP we want the Terse report */
   *bp++ = '-' ; *bp++ = 'q' ; *bp++ = ' '; *bp = '\0' ;
-  // buff = "/usr/local/bin/DOP/dop  -OW -W xxxx/xxx/xxx/xxx  -E xx/xxxxx/xxx/xxx -q "
+  // buff = "/usr/local/games/DOP/dop  -OW -W xxxx/xxx/xxx/xxx  -E xx/xxxxx/xxx/xxx -q "
 
   JGMDPRT(8, "FMT_OPC_CMD::[%s]\n", buff   ) ;
   JGMDPRT(8, "fmt_cmd_buff bp = %p \n", bp ) ;

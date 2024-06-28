@@ -1,0 +1,58 @@
+   switch (ltc_weight) {  /* we count losers x 100 to avoid decimal places */
+    case 384:  /* ---  3x128         */
+    case 320:  /* A--  64 + 2x128    */
+    case 224:  /* AK-  64 + 32 + 128 */
+    case 112:  /* AKQ  64 + 32 + 16  */
+        {ltc_suit= 0; losers_suit= 0 ; break;}  /* 0 losers for AKQ(112), AK-, A--, --- */
+    case 288:  /* K-- 32 + 2x128    */
+    case 208:  /* AQ- 64 + 16 + 128 */
+    case 104:  /* AKJ 64 + 32 + 8   */
+    case  88:  /* AQJ 64 + 16 + 8   */
+        {ltc_suit= 50;  losers_suit = 1 ; break;} /* 0.5 half a loser for combos like AQJ, AQ-*/
+    case  49:  /* KQx 32 + 16 + 1 */
+    case  52:  /* KQT 32 + 16 + 4 */
+    case  56:  /* KQJ 32 + 16 + 8 */
+    case  81:  /* AQx 64 + 16 + 1 */
+    case  84:  /* AQT 64 + 16 + 4 */
+    case  97:  /* AKx 64 + 32 + 1 */
+    case 100:  /* AKT 64 + 32 + 4 */
+    case 161:  /* Kx- 32 + 1 + 128*/    /* Maybe 0.5 for K and 1 for the x? = 1.5 */
+    case 164:  /* KT- 32 + 4 + 128*/    /* Maybe 0.5 for K and 1 for the T? = 1.5 */
+    case 168:  /* KJ- 32 + 8 + 128*/    /* 0.5 for the K and 0.5 for the J */
+    case 176:  /* KQ- 32 +16 + 128*/
+    case 193:  /* Ax- 64 + 1 + 128*/
+    case 196:  /* AT- 64 + 4 + 128*/
+    case 200:  /* AJ- 64 + 8 + 128*/
+    case 257:  /* x--   1 + 256 */
+    case 260:  /* T--   4 + 256 */
+    case 264:  /* J--   8 + 256 */
+    case 272:  /* Q--  16 + 256 */
+        {ltc_suit = 100; losers_suit = 1; break;} /* one loser */
+    case  44:  /* KJT 32  + 8 + 4 */
+    case  76:  /* AJT 64  + 8 + 4 */
+        {ltc_suit = 150; losers_suit = 2; break;} /* 1.5 losers for KJT and AJT */
+    case  25:  /* QJx 16  + 8 + 1 */
+    case  28:  /* QJT 16  + 8 + 4 */
+    case  34:  /* Kxx 32  + 1 + 1 */
+    case  37:  /* KTx 32  + 4 + 1 */
+    case  41:  /* KJx 32  + 8 + 1 */
+    case  66:  /* Axx 64  + 1 + 1 */
+    case  69:  /* ATx 64  + 4 + 1 */
+    case  73:  /* AJx 64  + 8 + 1 */
+    case 130:  /* xx-  1  + 1 + 128*/
+    case 133:  /* Tx-  4  + 1 + 128*/
+    case 137:  /* Jx-  8  + 1 + 128*/
+    case 140:  /* JT-  8  + 4 + 128*/
+    case 145:  /* Qx- 16  + 1 + 128*/
+    case 148:  /* QT- 16  + 4 + 128*/
+    case 152:  /* QJ- 16  + 8 + 128*/
+        {ltc_suit = 200; losers_suit = 2; break;}  /* Two losers */
+    case  18:  /* Qxx 16  + 1 + 1 */
+    case  21:  /* QTx 16  + 4 + 1 */
+        {ltc_suit = 250; losers_suit = 2; break;}  /* 2.5 losers for Qxx or QTx */
+    case   3:  /* xxx  1  + 1 + 1 */
+    case   6:  /* Txx  4  + 1 + 1 */
+    case  10:  /* Jxx  8  + 1 + 1 */
+    case  13:  /* JTx  8  + 4 + 1 */
+        {ltc_suit = 300; losers_suit = 3; break;} /* 3 losers */
+

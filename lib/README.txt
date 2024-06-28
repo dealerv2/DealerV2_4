@@ -11,8 +11,8 @@ Unpack it, cd to the src/ directory and type make linux to rebuild.
                                              ^^^^^^^^^^
 3) DOP4DealerV2.tar is a tar archive of the Perl code that implements Optimal Point Count evaluation
 The unpacked version of this file is in the DOP directory of the Repo.
-To use this code from within Dealer you will need to run  sudo make install to have it copied to /usr/local/bin/DOP 
-which is where Dealer expects to find it.
+To use this code from within Dealer you will need to run  sudo make install to have it copied to /usr/local/games/DOP 
+which is where DealerV2_4 (2024/06/30) expects to find it.
 
 you can then run the dop executable in this directory with dop -h or dop -H5 for help.
 Or you can browse the usage.txt file.
@@ -30,10 +30,10 @@ You will see what Dealer will see when you put such a shape into your Descr Inpu
 It will help you debug FD shapes.
 
 To use this functionality you will need to do the sudo make install so that Dealer will find these files
-in the /usr/local/bin/DealverV2/lib directory.
+in the /usr/local/games/DealverV2_4/lib directory.
 
 JGM
-2022/03/13
+2024/06/30
 
 
 

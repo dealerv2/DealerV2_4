@@ -1,0 +1,50 @@
+
+Sheinw_calc ( See 5 Weeks to Winning Bridge 1959, 1964 )
+Initial Evaluation -- 
+For each suit:
+1. usual  hcp, hcp_adj for short honors. 
+2. usual short suit pts
+3. subtract half a pt if Qxx(x) or Jxx(x) -- Do not subtract if QJ AQ, AJ, KQ, KJ
+
+  hand as a whole
+4. add 1 for 3+ Aces, subtract 1 for 0 Aces  -- no mention of 4333
+5. Subtract 1 pt if < 2 QT  ; add 1 Pt if > 2.5 QT (i.e. 14 pts and 1 QT will open regardless of Quacks)
+									12 pts and 2QT can open;  11 pts and 3QT can open. 11 pts, 2QT and both Majors can open.
+   Side as a whole
+6. check for trump fit.
+   if Fit:
+	  for each suit:
+		a)	Replace Dummy Dpts with Dfit Pts. Hence 3/2/1 becomes 5/3/1 with 4+ trump, or 4/2/0 with 3 trump or 0/0/0 with fewer than 3.
+		b)	Dummy: count Hf pts for Qx(x), Jx(x) or QJ(x) in the trump suit. 
+      c) Dummy: count HF pts for Qx(x) or QJ(x) opposite pards 4+ side suit.
+	   d) Decl:  count +1 for 5th card in a raised* suit, and +2 for any card over over 5 (might have TWO fits, or a 4-4 and a 5-3)
+      e) Decl:  count +1 for 5th card in SOLID side suit (AQKJx). 
+7. There is no mention of checking for misfits, and deducting shortness pts accordingly.
+He only mentions not to count shortness pts for NT. 
+One presumes that the Hf pts, and the FN pts also apply in NT, but that is not stated,
+he does not consider the case where we elect to play in NT in spite of an 8+ minor suit fit.
+We will add the Hf and FN pts to the NT count as well for this metric.
+
+* He says Raised at one point and 'trump suit' at another point.
+He also refers to Declarer's long suit, but he does not specifically state that Declarer is in a suit contract.
+
+ float_t  AdjBERG  ( HANDSTAT_k *phs, int suit ) ;  /* adjust HCP for short honors */
+ float_t  AdjCPU   ( HANDSTAT_k *phs, int suit ) ;  // A=4.5,K=3,Q=1.5, J=0.75, T=0.25
+
+ float_t  AdjGOREN ( HANDSTAT_k *phs, int suit ) ;
+ float_t  AdjJGM1  ( HANDSTAT_k *phs, int suit ) ;
+ float_t  AdjKARPIN( HANDSTAT_k *phs, int suit ) ;
+ float_t  AdjLAR   ( HANDSTAT_k *phs, int suit ) ;
+ float_t  AdjMORSE ( HANDSTAT_k *phs, int suit ) ;
+ float_t  AdjPAV   ( HANDSTAT_k *phs, int suit ) ;
+
+ float_t  AdjKAPLAN(HANDSTAT_k  *phs, int suit ) ; // Future
+ float_t  AdjNONE(HANDSTAT_k    *phs, int suit ) ; // KnR,
+ float_t  AdjR22(HANDSTAT_k     *phs, int suit ) ; // Future
+ float_t  AdjSHEINW(HANDSTAT_k  *phs, int suit ) ; // Future
+ float_t  AdjZAR(HANDSTAT_k     *phs, int suit ) ; // Future
+
+
+
+
+

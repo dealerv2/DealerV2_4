@@ -90,7 +90,7 @@
 /* Global Vars to launch DealerServer daemon */
 extern char server_dir[] ;    /* Path to the distro version */
 extern char server_pgm[] ;    /* Default DealerServer in the current directory. or user sets path name via -U switch */
-extern char server_path[];    /* Default, or path set by the -U switch. Should begin with a SLASH not a DOT */
+extern char server_path[];    /* Default, or path set by the -U switch. includes the program name and the directory*/
 extern pid_t userserver_pid ;
 
 extern char 	opc_cmd_buff[128];

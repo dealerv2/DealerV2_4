@@ -7,13 +7,11 @@ Debug/dealyacc.tab.c
 Debug/dealyacc.tab.h
 Debug/Scratchpad/*
 Debug/scratchpad/*
-Debug/Trace
 docs/HandEvaluation_Study.pdf
-DOP*
+DOP/*
 DOP_Validate/*
 drafts/*
 *.gch
-Ignore/*
 JUNK
 JUNK/*
 junk/*
@@ -24,12 +22,16 @@ PreProcessor/*
 Prod/dealflex.c
 Prod/dealyacc.tab.c
 prod/dealyacc.tab.h
+Regression/Archive/*
+Regression/Temp/*
+Regression/Test/*
 rpdd_10First.pbn
 rpdd_10First.zrd
 rpdd_10Last.pbn
 rpdd_10Last.zrd
 rpdd.zrd
 rplib.zrd
+rpLib.zrd
 Scratchpad/*
 scratchpad/*
 Simulations/*
@@ -38,4 +40,4 @@ Test/*
 UserEval/Archive/*
 UserEval/scratchpad
 Utils/Testing/*
-Utils/Testing/*
+

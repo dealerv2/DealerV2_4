@@ -81,8 +81,8 @@
  /* Francois vars and functions    */
      /* Francois stuff for processing */
  #define CMDBUFFLEN 254
- char fd_cmd[] = "/usr/local/bin/DealerV2/lib/fdp ' ";  /* Note the single quote. Required because FD shapes contain special shell chars */
- char fd_cmd_buff[256] = "/usr/local/bin/DealerV2/lib/fdp ' ";
+ char fd_cmd[] = FDP_PGM " ' ";  /* Note the single quote. Required because FD shapes contain special shell chars */
+ char fd_cmd_buff[256] = FDP_PGM " ' ";
  char txt_buff[256] ; /*hold a copy of yytext when Francois shapes being done ? */
  char *fdbp ;   /* pointer to next avail byte in fd_cmd_buff */
  struct fd_shape_st fd_shape_buff ; /* 2K buffer to hold results of Francois expansion, and a length */
@@ -467,7 +467,7 @@ trix        return(TRIX);
 
 shape{wsnl}*[{]  { BEGIN(FD1) ;
                      memset(fd_cmd_buff, ' ' , CMDBUFFLEN );
-                     fdbp = fmt_cmd_buff(fd_cmd_buff, fd_cmd ) ; /* /usr/local/bin/DealerV2/lib/fdp ' */
+                     fdbp = fmt_cmd_buff(fd_cmd_buff, fd_cmd ) ; /* /usr/local/games/DealerV2_4/lib/fdp ' */
                      fdbp = fmt_cmd_buff(fdbp , "shape{ " ) ;
                      show_our_state( 3 , buffptr, "In Francois FD1. Still reading File Buff");
                }  /* end BEGIN FD1 */

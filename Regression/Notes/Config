@@ -5,7 +5,7 @@ The primes can be got from the ~/Programming/Perl5/Testing/primes_list.pl
 
 To find out the seeds type the cmd: (which will sort in increasing seed order)
 grep seed *.dli | sort  -k 2.1 -g
-as of 2023/11/25 the highest seed in use is:  #58 prime is = 277
+as of 2024/06/22 the highest seed in use is:  313 which is the 65th prime
 
 
 There is also a script that will check the .out  files in the Regression/Output/ directory vs the .ref files in the Refer sub-directory.

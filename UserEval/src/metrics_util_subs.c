@@ -769,7 +769,7 @@ int SetTrumps(HANDSTAT_k *phs[], TRUMP_SUIT_k *trumps, SIDE_FIT_k *sf ) { /* ret
 		 trumps->t_fitlen = sf->fitlen[0] ;
 		 trumps->t_len[0] = phs[0]->hs_length[fit_suit] ; 
 		 trumps->t_len[1] = phs[1]->hs_length[fit_suit] ;
-		 JGMDPRT(3,"Set Trumps. Only one fit suit. Suit=%c Fitlen=%d [%d : %d] rank=%c \n",
+		 JGMDPRT(8,"Set Trumps. Only one fit suit. Suit=%c Fitlen=%d [%d : %d] rank=%c \n",
 						"CDHS"[fit_suit],trumps->t_fitlen,trumps->t_len[0],trumps->t_len[1],"mM"[trumps->t_rank] );
 		 return fit_suit ;
 	} /* end case there is only one fit suit */
@@ -952,7 +952,7 @@ int Fill_side_fitstat( HANDSTAT_k *phs[] , SIDE_FIT_k *sf ) { /* fill a struct w
 	if(sf->fitlen[0] == sf->fitlen[1] ) {
 		rank_sorted_ids(sf->fitlen, sf->fitids  )  ; /* In case of ties, make slot 0 highest ranking suit */
 	}
-   DBGDO(3, show_sorted_fits( sf ) ); 
+   DBGDO(8, show_sorted_fits( sf ) ); 
 /* save the sorts, in globals for future ref */
 	memcpy(sorted_slen,      sf->sorted_slen, 8*sizeof(int) ) ;
 	memcpy(sorted_slen_idx,  sf->sorted_sids, 8*sizeof(int) ) ;

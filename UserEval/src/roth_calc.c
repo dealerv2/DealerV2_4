@@ -4,14 +4,14 @@
 #include "../include/UserEval_externs.h"
 #include "../include/UserEval_protos.h"
 #include "../include/dbgprt_macros.h"
-
+/*
 static int jgmDPRT = 3 ; 
 extern int jgmDebug ; 
 #undef JGMDPRT
 #define JGMDPRT(l,fmt,...) do {if (jgmDPRT >= (l)) { fprintf(stderr, "%s:%d " fmt, __FILE__,__LINE__,## __VA_ARGS__) ; } } while(0)
 #undef DBGDO
 #define DBGDO(l,...) do { if(jgmDPRT >= (l) ) { (__VA_ARGS__) ; } } while (0)  // call an arbitrary subroutine ...
-
+*/
 #define ISMAJOR(s) ( (s) >= HEARTS  ) ? 1 : 0
 #define ISMINOR(s) ( (s) <= DIAMONDS) ? 1 : 0
 #define WEAKER(x,y) ( (x) < (y) ) ? (x) : (y)
@@ -98,10 +98,10 @@ int roth_calc (int side) {     /* Tag Number: 14 */
    SIDE_FIT_k  side_stat ;
    memset(rhand , 0 , sizeof(rhand) ); 
    memset(rsuit , 0 , sizeof(rsuit) );
-   if (jgmDebug > 1 ) jgmDPRT = jgmDebug ;
-   fprintf(stderr, "%s:%d jgmDPRT=%d from jgmDebug=%d\n",__FILE__,__LINE__,jgmDPRT, jgmDebug );
+ //  if (jgmDebug > 1 ) jgmDPRT = jgmDebug ;
+ //  fprintf(stderr, "%s:%d jgmDPRT=%d from jgmDebug=%d\n",__FILE__,__LINE__,jgmDPRT, jgmDebug );
    prolog( side ) ;  /* zero globals, set the two handstat pointers, the two seats, and the pointer to the usereval results area */
-   JGMDPRT(3 , "++++++++++ roth_calc prolog done for side= %d; compass[0]=%c, compass[1]=%c, phs[0]=%p, phs[1]=%p, hcp[0]=%d, hcp[1]=%d\n",
+   JGMDPRT(7 , "++++++++++ roth_calc prolog done for side= %d; compass[0]=%c, compass[1]=%c, phs[0]=%p, phs[1]=%p, hcp[0]=%d, hcp[1]=%d\n",
                side, compass[0],compass[1],(void *)phs[0], (void *)phs[1], phs[0]->hs_totalpoints, phs[1]->hs_totalpoints ) ;
    for (h = 0 ; h < 2 ; h++) {         /* for each hand */
       p_hs = phs[h] ; /* phs array set by prolog to point to hs[north] and hs[south] OR to hs[east] and hs[west] */
@@ -139,9 +139,9 @@ int roth_calc (int side) {     /* Tag Number: 14 */
       /* We can't total the pts for each hand yet; since we don't know who is Decl and who is Dummy
        * only Decl counts D, L, and FN. Dummy counts Dfit. D and Dfit depend on their being a fit or a RS_RLBL suit
        */
-      JGMDPRT(3,"roth_calc:: Hand=%d, RothPts_suit=%d, RothPtsNT=%d, RothHandType=%d, Bal=%c, Aces=%d\n",
+      JGMDPRT(6,"roth_calc:: Hand=%d, RothPts_suit=%d, RothPtsNT=%d, RothHandType=%d, Bal=%c, Aces=%d\n",
                      h, rhand[h].h_ptsSuit, rhand[h].h_ptsNT, rhand[h].h_type,"NY"[rhand[h].h_bal],rhand[h].h_Aces );
-      JGMDPRT(3,"roth_calc:: Hand=%d, hcp[h]=%d, hcp-adj[h]=%d, Dpts[h]=%d, Lpts[h]=%d,LptsNT[h]=%d\n",
+      JGMDPRT(6,"roth_calc:: Hand=%d, hcp[h]=%d, hcp-adj[h]=%d, Dpts[h]=%d, Lpts[h]=%d,LptsNT[h]=%d\n",
                   h, rhand[h].h_hcp, rhand[h].h_hcp_adj, rhand[h].h_Dpts, rhand[h].h_Lpts, rhand[h].h_LptsNT );
 	}
 	/* end for each hand rhand[] structs filled */
@@ -159,11 +159,11 @@ int roth_calc (int side) {     /* Tag Number: 14 */
 	 Fill_side_fitstat( phs , &side_stat ) ; /* side effect: fill trump_details and find declarer */
 	 cpy_to_trumpfit(&trump, &side_stat) ;  /* for backwards compatibility */
 
-  JGMDPRT(3,"TrumpFitCheck ROTH fit_len=%d  -- ",trump.fit_len) ;
+  JGMDPRT(6,"TrumpFitCheck ROTH fit_len=%d  -- ",trump.fit_len) ;
    if ( trump.fit_len >= 8) {   /* Fit-len might be 7 here which means a 5-2 fit but a supported suit */
       if(seat[0] == trump.dummy) {h_dummy = 0 ; h_decl = 1 ;  }
       else                       {h_dummy = 1 ; h_decl = 0 ;  }
-      JGMDPRT(3," -- TrumpSuit=%d, Decl=%d, Dummy=%d \n", trump.tsuit, h_decl, h_dummy);
+      JGMDPRT(6," -- TrumpSuit=%d, Decl=%d, Dummy=%d \n", trump.tsuit, h_decl, h_dummy);
         /* if there is a trump fit, **Replace** Dummy Dpts with Dfit_pts; Keep all D; promote Stiffs and Voids and One Dblton. 
          *                          **Add** Fn Points to Declarer
          * 									** If 2 or fewer trump in Dummy, deduct all Dpts, even with a fit.
@@ -173,21 +173,21 @@ int roth_calc (int side) {     /* Tag Number: 14 */
       rhand[h_decl].h_FN_pts    = FN_ptsROTH(&side_stat, rsuit ); /* +1 for each trump >4 in longest trump hand */
       FNnt_ptsROTH(rhand,rsuit); /* put up to 1 FN_NTpt into each hand for a GOOD 5 card suit with 'support' */
       rhand[h_decl].h_Dfit_pts  = rhand[h_decl].h_Dpts;     /* Keep Decl Dpts, but simplifies logic to use Dfit_pts in the total at end */
-      JGMDPRT(3,"8+Trump Fit. Dummy=%d, Dfit_Pts=%d, Decl=%d, FN_pts=%d, FN_ptsNT=%d, D_aka_Dfit=%d \n",
+      JGMDPRT(7,"8+Trump Fit. Dummy=%d, Dfit_Pts=%d, Decl=%d, FN_pts=%d, FN_ptsNT=%d, D_aka_Dfit=%d \n",
 								h_dummy,rhand[h_dummy].h_Dfit_pts, h_decl, rhand[h_decl].h_FN_pts, rhand[h_decl].h_FN_ptsNT, rhand[h_decl].h_Dfit_pts);
    } /* End Trump fit>=8 roth_pts all done for this case */
    else {
 		rhand[h_dummy].h_Dfit_pts = 0 ;
 		rhand[h_decl].h_Dfit_pts  = 0 ; /* cant keep Dpts if No 8 fit unless a Reliable Suit*/
       FNnt_ptsROTH(rhand,rsuit); /* put up to 1 FN_NTpt into each hand for a GOOD 5 card suit with 'support' */
-		JGMDPRT(3,"No Trump Fit. Dummy=%d, Dfit_Pts=%d, Decl=%d, FN_pts=%d, FN_ptsNT=%d, D_Dfit=%d \n",
+		JGMDPRT(7,"No Trump Fit. Dummy=%d, Dfit_Pts=%d, Decl=%d, FN_pts=%d, FN_ptsNT=%d, D_Dfit=%d \n",
 				h_dummy,rhand[h_dummy].h_Dfit_pts, h_decl, rhand[h_decl].h_FN_pts, rhand[h_decl].h_FN_ptsNT, rhand[h_decl].h_Dfit_pts);
 	}
    
 	tot_suit_pts(&side_stat, roth_pts   ); /* set roth_pts array; uses global var rhand[]. ignore return value */
 	tot_NT_pts(  &side_stat, roth_NTpts ); /* set roth_NTpts array; uses global var rhand[]. ignore return value */
 
-	JGMDPRT(3,"ROTH Pts NT: %d=%d + %d   Suit: %d = %d + %d \n",
+	JGMDPRT(6,"ROTH Pts NT: %d=%d + %d   Suit: %d = %d + %d \n",
 				roth_NTpts[0]+roth_NTpts[1],roth_NTpts[0],roth_NTpts[1], roth_pts[0]+roth_pts[1], roth_pts[0],roth_pts[1]);
 	
 	/* Save the 6 main results that is the NT pts for the side and each hand and the suit pts for the same.
@@ -200,9 +200,9 @@ int roth_calc (int side) {     /* Tag Number: 14 */
       UEv.hldf_pts_seat[0] = roth_pts[0];
       UEv.hldf_pts_seat[1] = roth_pts[1];
       UEv.hldf_pts_side = UEv.hldf_pts_seat[0] + UEv.hldf_pts_seat[1] ;
-      JGMDPRT(3,"ROTH Eval Done.  Deal=%d,  Decl=%d, End Result for Suit Play:Tot=%d,Hand0=%d,Hand1=%d\n",
+      JGMDPRT(6,"ROTH Eval Done.  Deal=%d,  Decl=%d, End Result for Suit Play:Tot=%d,Hand0=%d,Hand1=%d\n",
                                   gen_num, h_decl, UEv.hldf_pts_side, roth_pts[0], roth_pts[1] );
-      JGMDPRT(3,"ROTH Final NTpts Fn incl. Tot=%d,Hand0=%d,Hand1=%d\n",
+      JGMDPRT(5,"ROTH Final NTpts Fn incl. Tot=%d,Hand0=%d,Hand1=%d\n",
                   UEv.nt_pts_side, UEv.nt_pts_seat[0], UEv.nt_pts_seat[1] ) ;
 /* now some debugging fields */
    UEv.misc_count = 0 ;
@@ -224,9 +224,9 @@ int roth_calc (int side) {     /* Tag Number: 14 */
       UEv.misc_pts[UEv.misc_count++] = rhand[1].h_FN_ptsNT;
       UEv.misc_pts[UEv.misc_count++] = rhand[1].h_Dfit_pts; 
 
-      JGMDPRT(3,"ROTH UEv misc_count=%d,[h0]=%d,%d,%d,%d,%d,%d,%d,%d\n", UEv.misc_count, UEv.misc_pts[0],UEv.misc_pts[1],
+      JGMDPRT(6,"ROTH UEv misc_count=%d,[h0]=%d,%d,%d,%d,%d,%d,%d,%d\n", UEv.misc_count, UEv.misc_pts[0],UEv.misc_pts[1],
                   UEv.misc_pts[2], UEv.misc_pts[3],UEv.misc_pts[4],UEv.misc_pts[5],UEv.misc_pts[6],UEv.misc_pts[7]);
-      JGMDPRT(3,"ROTH UEv misc_count=%d,[h1]=%d,%d,%d,%d,%d,%d,%d,%d\n", UEv.misc_count, UEv.misc_pts[8], UEv.misc_pts[9],
+      JGMDPRT(6,"ROTH UEv misc_count=%d,[h1]=%d,%d,%d,%d,%d,%d,%d,%d\n", UEv.misc_count, UEv.misc_pts[8], UEv.misc_pts[9],
 						UEv.misc_pts[10],UEv.misc_pts[11],UEv.misc_pts[12],UEv.misc_pts[13],UEv.misc_pts[14],UEv.misc_pts[15]);
    SaveUserVals( UEv , p_uservals ) ;
    return ( 6 + UEv.misc_count ) ;
@@ -236,34 +236,34 @@ int roth_calc (int side) {     /* Tag Number: 14 */
 int rothSuitType (	HANDSTAT_k *p_hs , int s ) {
 	int slen = p_hs->hs_length[s] ;
 	if (5 >   slen ) {                                                      // Suits shorter than 5 cards never get Lpts, or FN pts
-		JGMDPRT(5,"Suitlen[%d] < 5. Not special Returning RS_NONE=%d\n", s, RS_NONE);
+		JGMDPRT(7,"Suitlen[%d] < 5. Not special Returning RS_NONE=%d\n", s, RS_NONE);
 		return RS_NONE ;
 	} /* Not special */
    if (5 == slen && 2 <= p_hs->hs_counts[idxTop3][s] ) { return RS_GOOD ; } // a GOOD suit does not automatically get Lpts; Lpts code checks Len also
    if (5 == slen && 2 >  p_hs->hs_counts[idxTop3][s] ) { return RS_NONE ; } // all the non Good 5 card suits. 
 	if (6 ==  slen ) {
 		if(  (4 <= p_hs->hs_counts[idxTop5][s] ) ) { /*Lose at most one: KQJTxx min. AKJxxx? AQJxxx? => || (3<=p_hs->hs_counts[idxTop4][s])? */
-			JGMDPRT(4,"Suit Len[%d] == 6. Top5 Cnt=%d Returning RS_SSS=%d\n", s, p_hs->hs_counts[idxTop5][s], RS_SSS);
+			JGMDPRT(7,"Suit Len[%d] == 6. Top5 Cnt=%d Returning RS_SSS=%d\n", s, p_hs->hs_counts[idxTop5][s], RS_SSS);
 			return RS_SSS ;  /* The max; a SelfSufficientSuit Hand keeps Dpts; Dbls all Lpts */
 		}
 		if( ((52 == p_hs->topcards[s][2]) && p_hs->Has_card[s][Nine_rk]) /* Bit mask for top 3 cards. KQT9xx */
 		 || ((76  < p_hs->topcards[s][2]) && p_hs->Has_card[s][Nine_rk]) /* Bit mask for top 3 cards. AJT9xx or better JGM*/
 		 || (  3 <= p_hs->hs_counts[idxTop4][s])                         /* KQJxxx or better JGM */
 		 ) {
-			JGMDPRT(4,"Suit Len[%d] == 6. Top4 Cnt=%d Topcards Weight=%d, Returning RS_RELBL=%d\n",
+			JGMDPRT(7,"Suit Len[%d] == 6. Top4 Cnt=%d Topcards Weight=%d, Returning RS_RELBL=%d\n",
 								s, p_hs->hs_counts[idxTop4][s],p_hs->topcards[s][2], RS_RELBL);
 			return RS_RELBL ;  /* 2nd Best; Roth Reliable Suit Hand keeps Dpts Gets L pts */
 		}
 		if( 2 <= p_hs->hs_counts[idxTop3][s] ) {
-			JGMDPRT(4,"Suit Len[%d] == 6. Top3 Cnt=%d Returning RS_GOOD=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_GOOD);
+			JGMDPRT(7,"Suit Len[%d] == 6. Top3 Cnt=%d Returning RS_GOOD=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_GOOD);
 			return RS_GOOD ;	/* 2+ of Top3 Good suit; Gets Lpts in NT and suit contracts */
 		}
 		if( ISMAJOR(s) ) 	{
-			JGMDPRT(4,"Suit Len[%d] == 6. Top3 Cnt=%d IS MAJOR=1, Returning RS_WKMAJ=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_WKMAJ);
+			JGMDPRT(7,"Suit Len[%d] == 6. Top3 Cnt=%d IS MAJOR=1, Returning RS_WKMAJ=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_WKMAJ);
 			return RS_WKMAJ;	/* 6 crd M Gets Lpts in suit contract only */
 		} 
 		/* must be 6 card minor without 2 of top 3; it gets zero Lpts */
-		JGMDPRT(4,"Suit Len[%d] == 6. Top3 Cnt=%d IS MAJOR=0, Returning RS_NONE=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_NONE);
+		JGMDPRT(7,"Suit Len[%d] == 6. Top3 Cnt=%d IS MAJOR=0, Returning RS_NONE=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_NONE);
 		return RS_NONE ;
 	} /* end if 6 == slen */
 	
@@ -271,27 +271,27 @@ int rothSuitType (	HANDSTAT_k *p_hs , int s ) {
 	if ( ( 3 <= p_hs->hs_counts[idxTop4][s] )  /* 3 of top 4 or AKTxxxx */
 	 ||  (2 == p_hs->hs_counts[idxTop2][s] && 1 <= p_hs->hs_counts[idxTens][s] ) 	 
 	 ) {
-		JGMDPRT(4,"Suit Len[%d] >= 7. Top4 Cnt=%d Returning RS_SSS=%d\n", s, p_hs->hs_counts[idxTop4][s], RS_SSS);
+		JGMDPRT(7,"Suit Len[%d] >= 7. Top4 Cnt=%d Returning RS_SSS=%d\n", s, p_hs->hs_counts[idxTop4][s], RS_SSS);
 		return RS_SSS ;
 	} /* KQJxxxx (3 of top 4) or better or JGM added AKTxxxx */
 	if( ( 2 <= p_hs->hs_counts[idxTop3][s] ) 							   /* KQxxxxx = Reliable Suit */
 	 || (76 <= p_hs->topcards[s][2] )  										/* Bit mask for top 3 cards. AJTxxxx  or better JGM?? */
 	 ) {
-		 JGMDPRT(4,"Suit Len[%d]>= 7. Top3 Cnt=%d Topcards Weight=%d, Returning RS_RELBL=%d\n",
+		 JGMDPRT(7,"Suit Len[%d]>= 7. Top3 Cnt=%d Topcards Weight=%d, Returning RS_RELBL=%d\n",
 								s, p_hs->hs_counts[idxTop3][s],p_hs->topcards[s][2], RS_RELBL);
 		 return RS_RELBL ;
 	} /* KQxxxxx or better */
 	if( 2 <= p_hs->hs_counts[idxTop3][s] ) {
-		JGMDPRT(4,"Suit Len[%d] >= 7. Top3 Cnt=%d Returning RS_GOOD=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_GOOD);
+		JGMDPRT(7,"Suit Len[%d] >= 7. Top3 Cnt=%d Returning RS_GOOD=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_GOOD);
 		return RS_GOOD ;
 	}
 	if( ISMAJOR(s) ) 	{
-		JGMDPRT(4,"Suit Len[%d] >= 7. Top3 Cnt=%d IS MAJOR=1, Returning RS_WKMAJ=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_WKMAJ);
+		JGMDPRT(7,"Suit Len[%d] >= 7. Top3 Cnt=%d IS MAJOR=1, Returning RS_WKMAJ=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_WKMAJ);
 		return RS_WKMAJ;
 		
 	}		/* This will only apply in a suit contract */
 	/* must be 7+ minor without 2 of top 3; it gets zero Lpts */
-	JGMDPRT(4,"Suit Len[%d] >= 7. Top3 Cnt=%d IS MAJOR=0, Returning RS_NONE=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_NONE);
+	JGMDPRT(7,"Suit Len[%d] >= 7. Top3 Cnt=%d IS MAJOR=0, Returning RS_NONE=%d\n", s, p_hs->hs_counts[idxTop3][s], RS_NONE);
 	return RS_NONE ;
 } /* end rothSuitType */
 
@@ -349,10 +349,10 @@ int DfitROTH (SIDE_FIT_k *psf ) { /* Dfit Pts REPLACE Dummy's Dpts. If Dummy has
 		tmp2 = psf->sorted_slen[du][s] ;
 		if      (2 == psf->sorted_slen[du][s] && (++dbltons < 2) ) { dfpts += 1 ; } /* promote 1st dblton only by 1 pt */
 		else if (2 >  psf->sorted_slen[du][s] )                    { dfpts += inc ; } /* promote stiffs/voids by 1 with 4, 2 with 5+ */
-		JGMDPRT(3, "Roth Dfit Loop dummy_h=%d, suitID=%d, slen=%d, dbltons=%d, start_dfit=%d, inc=%d, dfit=%d\n",
+		JGMDPRT(8, "Roth Dfit Loop dummy_h=%d, suitID=%d, slen=%d, dbltons=%d, start_dfit=%d, inc=%d, dfit=%d\n",
 		                             du,      suit,      tmp2,    dbltons,     tmp1,        inc,    dfpts ) ; 
 	} /* end for s */
-	JGMDPRT(3,"Roth Dfit Pts dummy_h=%d  Dummy_trumps=%d, Start Dpts=%d, Promo Inc=%d, Final Dfit Pts=%d\n",
+	JGMDPRT(7,"Roth Dfit Pts dummy_h=%d  Dummy_trumps=%d, Start Dpts=%d, Promo Inc=%d, Final Dfit Pts=%d\n",
 			du, psf->t_len[du], rhand[du].h_Dpts , inc, dfpts );
 	return dfpts;
 }
@@ -394,9 +394,9 @@ int tot_suit_pts(SIDE_FIT_k *psf, int pts[] ) { /* results in pts[]; uses GLOBAL
 		pts[dc] += rhand[dc].h_Lpts + rhand[dc].h_FN_pts;
 		/* Nothing extra for Dummy in this case */
 	}
-	JGMDPRT(3,"tot_Suit_pts Decl=%d :: type=%d, Tot[%d]=HCP[%d]+Adj[%d]+Aces_pts[%d]+D_pts[%d]+Lpts[%d]+FN_pts[%d]\n", 
+	JGMDPRT(6,"tot_Suit_pts Decl=%d :: type=%d, Tot[%d]=HCP[%d]+Adj[%d]+Aces_pts[%d]+D_pts[%d]+Lpts[%d]+FN_pts[%d]\n", 
 				dc, rhand[dc].h_type, pts[dc],rhand[dc].h_hcp,rhand[dc].h_hcp_adj,rhand[du].h_Aces_pt, rhand[dc].h_Dpts,rhand[dc].h_Lpts,rhand[dc].h_FN_pts); 
-	JGMDPRT(3,"tot_Suit_pts Dmmy=%d :: type=%d, Tot[%d]=HCP[%d]+Adj[%d]+Aces_pts[%d]+Dfit_pts[%d]\n", 		
+	JGMDPRT(6,"tot_Suit_pts Dmmy=%d :: type=%d, Tot[%d]=HCP[%d]+Adj[%d]+Aces_pts[%d]+Dfit_pts[%d]\n", 		
 				du, rhand[du].h_type,pts[du],rhand[du].h_hcp,rhand[du].h_hcp_adj,rhand[du].h_Aces_pt, rhand[du].h_Dfit_pts );
   rhand[dc].h_ptsSuit = pts[dc] ;
   rhand[du].h_ptsSuit = pts[du] ;
@@ -413,7 +413,7 @@ int tot_suit_pts(SIDE_FIT_k *psf, int pts[] ) { /* results in pts[]; uses GLOBAL
 	else                           {pts[0] += rhand[0].h_FN_ptsNT;} /* L + FN pts */
 	if (RS_SSS == rhand[1].h_type) {pts[1] += rhand[1].h_LptsNT ; }
 	else                           {pts[1] += rhand[1].h_FN_ptsNT;}
-	JGMDPRT(3,"tot_NT_pts hand_0:: type=%d,Tot[%d]= HCP[%d]+LptsNT[%d]+FN_NTpts[%d]+Acespt[%d] hand_1:: type=%d,Tot[%d]= HCP[%d]+LptsNT[%d]+FN_NTpts[%d]+Acespt[%d]\n",
+	JGMDPRT(6,"tot_NT_pts hand_0:: type=%d,Tot[%d]= HCP[%d]+LptsNT[%d]+FN_NTpts[%d]+Acespt[%d] hand_1:: type=%d,Tot[%d]= HCP[%d]+LptsNT[%d]+FN_NTpts[%d]+Acespt[%d]\n",
 				rhand[0].h_type,pts[0],rhand[0].h_hcp, rhand[0].h_LptsNT,rhand[0].h_FN_ptsNT,rhand[0].h_Aces_pt,
 				rhand[1].h_type,pts[1],rhand[1].h_hcp, rhand[1].h_LptsNT,rhand[1].h_FN_ptsNT,rhand[1].h_Aces_pt );
   rhand[0].h_ptsNT = pts[0] ;

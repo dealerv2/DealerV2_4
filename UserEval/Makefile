@@ -4,7 +4,7 @@
 # 2022/12/13 --  First Draft
 # 2023/01/26 JGM Added KnR.c and .o
 # 2024/02/26 JGM Added roth_calc.c and .o
-  JGMDBG := 1
+# 2024/06/23 JGM Prep For Upload to github
 
 CC      = gcc
 CFLAGS = -std=gnu17 -mtune=corei7 -flto -fopenmp -pthread -Wall -pedantic  -I../include
@@ -40,6 +40,7 @@ HDR += ./include/Server_protos.h
 
 ${PROGRAM}: ${OBJS}
 	 $(CC) $(CFLAGS) -o $@ ${OBJS} $(LDFLAGS)
+	 @echo Remember to copy this new version of the server to the default location from which DealerV2 will call it.
 
 showme:
 	@echo DestDir = [ $(DESTDIR) ] JGMDBG = [ $(JGMDBG) ] PROGRAM = [ $(PROGRAM) ]

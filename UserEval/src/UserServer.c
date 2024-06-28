@@ -21,26 +21,37 @@
  * This piece looks after the mapping to the shared area, the initializing of the shared semaphores,
  * and the while loop which waits for a semaphore signal from the dealer program.
  *
- * The shared memory area is 4096 bytes. The 'template' provided in the header file is approx 3200 bytes
+ * The shared memory area is 4096 bytes. The 'template' provided in the header file is approx 3900 bytes
  * so there is room at the end for further expansion. But that would require mods to the dealer main.
+ * The mmap hhas room for up to 128 four byte ints for each side. Thre are 15 different metrics defined;
+ * Typically the user will want 6 values from each metric; the individual values for each player and the total for each side.
+ * To get a 6 results for all the defined metrics will require that at least 90 values be returned for each side.
  *
  * The user could also write his external program in another language if such language supports
  * access to a Linux shared memory area.
  *
  */
+
+#ifndef JGMDBG
 #define SERVER_NAME "DealerServer"
-#define SERVER_VERSION "1.5.3"
-#define SERVER_BUILD_DATE "2024/05/14"
+#define SERVER_VERSION "1.5.4"
+ int   jgmDebug = 0 ;  /* value will be passed in from Dealer if Debugging wanted */
+#else
+#define SERVER_NAME "DealerSrvdbg"
+#define SERVER_VERSION "100.5.4"
+ int jgmDebug = 1 ;  /* for Debug Version of Server always have a minimum at least */
+#endif
+#define SERVER_BUILD_DATE "2024/06/30"
 #define SERVER_AUTHOR "JGM"
-int jgmDebug = 0 ;  /* value will be passed in from Dealer if Debugging wanted */
+
 #include "../include/std_hdrs_all.h"
 /* The Interface to Dealer These are symbolic links to the file in the Dealer include directory*/
 #include "../include/dealtypes.h"            /* HANDSTAT_k, deal52_k ... */
 #include "../include/mmap_template.h"        /* THE key struct and typedefs for IPC between query and reply */
 /* The interface to the user supplied calculation routines */
-#include "../include/UserEval_types.h"
-#include "../include/UserEval_protos.h"
-#include "../include/Server_protos.h"
+#include "../include/UserEval_types.h"       /* metric enum, various structs for metrics */
+#include "../include/UserEval_protos.h"      /* factors and other metric calc sub-routines */
+#include "../include/Server_protos.h"        /* metric calculation main routines: goren_calc, roth_calc etc. */
 /* UserServer extras */
 #include "../include/UserServer_globals.c"  /* no separate comp. no extern needed. file incl into UserServer.c source */
 #include "../include/dbgprt_macros.h"
@@ -115,9 +126,6 @@ int main(int argc, char *argv[] ) {
    MMAP_TEMPLATE_k *p_mm_base ;
    DEAL52_k        *pcurdeal;
     my_pid = getpid() ;
-    if (jgmDebug >= 1 ) {   // print to stdout so appears on main pgm screen. stderr has been redirected ... 
-		printf("%s:%d UE::pid=%d, Argc=%d, argv[0]= %s ,  mmap_fd=%s,  jgmDebug=%s \n",__FILE__,__LINE__,my_pid,argc,argv[0],argv[1],argv[2] );
-	 }
     if (argc < 2 )  {die("DealerServer Missing FD arg. Aborting..."); }
     if ( (0 == strcmp(argv[1], "-V")) || (0 == strcmp(argv[1], "-h")) ) {
        printf("%s Version %s for DealerV2.  Author=%s Build Date=%s\n",SERVER_NAME, SERVER_VERSION,SERVER_AUTHOR,SERVER_BUILD_DATE ) ;
@@ -133,16 +141,22 @@ int main(int argc, char *argv[] ) {
     if (argc >= 3 ) {
        jgmDebug = atoi( argv[2] ) ;
     }
-    JGMDPRT(1, "JGMDPRT DEFINED= %d in Serverpid=%d; jgmDebug=%d Server_Version = %s DBG_run=%g\n",
-               JGMDBG, my_pid, jgmDebug,SERVER_VERSION , DBG_run);
+    if (jgmDebug >= 1 ) {   // print to stdout so appears on main pgm screen. stderr has been redirected ... 
+		printf("%s:%d UE::pid=%d, Argc=%d, argv[0]= %s ,  mmap_fd=%s,  jgmDebug=%s \n",__FILE__,__LINE__,my_pid,argc,argv[0],argv[1],argv[2] );
+      /* and some heading lines in the debug / error log file */
+      fprintf(stderr, "%s Version %s for DealerV2.  Author=%s Build Date=%s\n",SERVER_NAME, SERVER_VERSION,SERVER_AUTHOR,SERVER_BUILD_DATE ) ;
+      fprintf(stderr,"%s:%d UE::pid=%d, Argc=%d, argv[0]= %s ,  mmap_fd=%s,  jgmDebug=%s \n",__FILE__,__LINE__,my_pid,argc,argv[0],argv[1],argv[2] ); 
+	 }
 
+    JGMDPRT(1, "JGMDPRT is DEFINED in Serverpid=%d; jgmDebug=%d Server_Version = %s DBG_run=%g\n",
+               my_pid, jgmDebug,SERVER_VERSION , DBG_run);
     mm_fd = atoi(argv[1] );
    /* Initialize IPC mechanisms */
    mm_ptr = link_mmap( mm_fd ) ; /* sets (char *)mm_ptr */
    p_mm_base = (void *)mm_ptr ;
    
-   JGMDPRT(1,"In %s:: link_mmap returns map_ptr=%p p_mm_tmpl=%p\n",SERVER_NAME,(void *)mm_ptr, (void *)p_mm_base ) ;
- printf("UE::In %s:: link_mmap returns map_ptr=%p p_mm_tmpl=%p\n",SERVER_NAME,(void *)mm_ptr, (void *)p_mm_base ) ;
+   JGMDPRT(1,"In %s:: link_mmap returns map_ptr=%p p_mm_tmpl=%p\n",SERVER_NAME,(void *)mm_ptr, (void *)p_mm_base ) ; // to stderr
+ // printf("UE::In %s:: link_mmap returns map_ptr=%p p_mm_tmpl=%p\n",SERVER_NAME,(void *)mm_ptr, (void *)p_mm_base ) ;  // to stdout
    strcpy( (mm_ptr + 4090), "EOF " ); /* so we can see it in a dump of disk file -- Assumes PageSize is 4096*/
    /*
     * Use the data in the mmap_hdr area to find the names and offsets used by the client
@@ -162,8 +176,8 @@ int main(int argc, char *argv[] ) {
     strncpy(query_sema, phdr->q_sema_name, 31 ) ;
     strncpy(reply_sema, phdr->r_sema_name, 31 ) ;
     strncpy(mmap_fname, phdr->map_name,   128 ) ;
-    JGMDPRT(2, "^^^UserEval Local Copy from shared area: map_name=%s, q_sema=%s, r_sema=%s\n",mmap_fname, query_sema,  reply_sema );
- printf("UE::^^^UserEval Local Copy from shared area: map_name=%s, q_sema=%s, r_sema=%s\n",mmap_fname, query_sema,  reply_sema );
+    JGMDPRT(2, "^^^UserEval Local Copy from shared area: map_name=%s, q_sema=%s, r_sema=%s\n",mmap_fname, query_sema,  reply_sema ); // to redirected stderr
+ //printf("UE::^^^UserEval Local Copy from shared area: map_name=%s, q_sema=%s, r_sema=%s\n",mmap_fname, query_sema,  reply_sema ); // to stdout
 
 
     p_qsem = open_semaphore(query_sema) ;
@@ -232,7 +246,7 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
 /*
  * The Query tags in alpha order: The adj_hcp arrays use these values to lookup adjustments.
  *                     0        1       2     3     4      5      6       7    8    9     10     11       12      13      14  15      		20          21
-                    BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, Roth, metricEnd, MixJGM=20, MixMOR,
+                    BERGEN=0, BISSEL,  DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEnd, MixJGM=20, MixMOR,
 // possibly add metrics in the 50 - 79 range to implement different hand factors like quicktricks, or quicklosers, or shortest suit etc.
                     SET=88, SYNTST=99, Quit=-1} ;
 */
@@ -244,23 +258,23 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
       case 'D':
       case  DKP :    dkp_reply(     res_ptr, prt, p_dldat, pqt); break ; /* D Kleinman LJP from NoTrump Zone */
       case 'G':
-      case  GOREN :  goren_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* Goren shortness pts    */
+      case  GOREN :  goren_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* Goren -- shortness pts    */
       case 'J':
       case JGM1:     jgm1_reply(    res_ptr, prt, p_dldat, pqt);  break ; /* JGM1  Karpin with BumWrap points  */
       case 'E': /* for Edgar */
-      case KAPLAN :  kaplan_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Kaplan -- length from 1960's book */
+      case KAPLAN :  kaplan_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Kaplan -- length pts. from 1960's book */
       case 'K':
-      case KARPIN :  karpin_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Karpin - length from Pavlicek     */
+      case KARPIN :  karpin_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Karpin - length pts. Src: Pavlicek website     */
       case 'k':
       case KnR :     knr_reply(     res_ptr, prt, p_dldat, pqt);  break ; /* KnR 4C's with Dfit  */
       case 'L':
-      case LAR :     larsson_reply( res_ptr, prt, p_dldat, pqt);  break ; /* Larsson  */
+      case LAR :     larsson_reply( res_ptr, prt, p_dldat, pqt);  break ; /* Larsson -- mild length pts */
       case 'M':
       case MORSE:    morse_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* Larsson with BumWrap and Dfit mods   */
       case 'P':
-      case PAV :     pav_reply(     res_ptr, prt, p_dldat, pqt);  break ; /* PAV -- from  Website. Like Goren minor mods */
+      case PAV :     pav_reply(     res_ptr, prt, p_dldat, pqt);  break ; /* PAV -- shortness pts. from  Website. Like Goren minor mods */
       case 'R':
-      case ROTH :    roth_reply(    res_ptr, prt, p_dldat, pqt);  break ; /* ROTH -- from 1968 Book. Dpts, Lpts,Dfit,FN */
+      case ROTH :    roth_reply(    res_ptr, prt, p_dldat, pqt);  break ; /* ROTH -- from 1968 Book. Dpts(shortness), Lpts,Dfit,FN */
       case 'S':
       case SHEINW :  sheinw_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Sheinwold from book. Short suits. */
       case 'z':

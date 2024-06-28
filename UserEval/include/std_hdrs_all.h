@@ -22,7 +22,7 @@
 #include <string.h>
 #include <time.h>             /* localtime(), asctime, ctime, gmtime,  */
 #include <unistd.h>           /* fsync, sysconf -- to get Pagesize */
-#include <sys/mman.h>         /* mmap                     */
+#include <sys/mman.h>         /* mmap, munmap                      */
 #include <sys/random.h>       /* for getrandom() */
 #include <sys/stat.h>         /* To define stat struct. used to check existence of files */
 #include <sys/time.h>         /* why do we need both time.h and this one? */

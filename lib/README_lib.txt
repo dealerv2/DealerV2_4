@@ -11,7 +11,7 @@ Unpack it, cd to the src/ directory and type make linux to rebuild.
                                              ^^^^^^^^^^
 3) DOP4DealerV2.tar is a tar archive of the Perl code that implements Optimal Point Count evaluation
 To use the opc functionality of DealerV2
-a) create a new directory /usr/local/bin/DOP
+a) create a new directory /usr/local/games/DOP
 b) unpack the contents of this file into this new directory.
 You will need super user priviledges to do these steps.
 

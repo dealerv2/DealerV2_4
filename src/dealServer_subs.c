@@ -31,7 +31,7 @@
 #include "../include/dealprotos.h"
 #include "../include/dbgprt_macros.h"     /* DBGLOC and DBGPRT */
 #include "../include/mmap_template.h"     /* For easy use of offsets and pointers */
-#include "../include/dealexterns.h"
+
 
 /*
  * Globals -- Used throughout the code in this file
@@ -319,7 +319,7 @@ pid_t create_server(int mm_fd, char *userserver_path) {
 
       /* Some Debugging here */
       if(srvDebug > 0 ) {
-			fprintf(stderr, "++++ CHILD:: POST FORK:: child pid=%d, Pathname To start=%s\n",server_pid, userserver_path ) ;
+			fprintf(stderr, "++++ CHILD:: POST FORK:: child pid=%d, Pathname To start=%s srvDebug=%d\n",server_pid, userserver_path,srvDebug ) ;
          my_logfd=setup_logfile(logpath) ; /* use template for a temp file name. modified by call. stderr will use this tmpfile*/
          printf( "\nServer Logfile Name=%s logfdfd=%d Check Here for Error Messages and Debugging output\n\n",logpath, my_logfd);
          fsync(1);
@@ -335,9 +335,12 @@ pid_t create_server(int mm_fd, char *userserver_path) {
       args[2] = dbgbuff ;
    #endif
       /* end Debugging */
-      snprintf(buff, 5 , "%4d", mm_fd ) ; /* prepare the argv[1] to pass to child. */
+      snprintf(buff,     5, "%4d", mm_fd ) ; /* put the mm_fd into argv[1] to pass to child. */
+      if(srvDebug > 0 ) {snprintf(dbgbuff , 5, "%4d", srvDebug ) ; } /* Pass srvDebug to server if set.  */
       args[0] = userserver_path ;
       args[1] = buff ;  // pass the mmap fd number as an argument to the server process. fd's are preserved.
+      args[2] = dbgbuff ;
+      
 
       /* pass the mmap fd number to the child process on the cmd line; open fd's are preserved but we need to know which one*/
 

@@ -15,7 +15,8 @@
    * 							 Also modify Precedence and Associativity for ?: to fix nesting bug. 
    * 2023/11/10 4.0.1    JGM	 Cleaned up HASKARD, HAS_KARD, HASCARD, HAS_CARD usage and defintions. eliminated unused ones.
    * 2024/01/13 4.1.0    JGM   Renamed the Library funcs and vars from rp* to zrd*. Created zrd vars for writing own Library.
-   * 2024/05/15 4.2.3    JGM   Added roth_calc.c to UserEval req'd some changes to dealdebug.c 
+   * 2024/05/15 4.2.3    JGM   Added roth_calc.c to UserEval req'd some changes to dealdebug.c
+   * 2024/05/15 4.2.4    JGM   Modified directory structure. Cleanup pathnames; Prep for Github upload
    */
 
   /* Make the header file guard .. */
@@ -23,11 +24,11 @@
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
 #endif
-#define BUILD_DATE "2024/05/15"
+#define BUILD_DATE "2024/06/30"
 #ifndef JGMDBG
-  #define VERSION "4.2.3"
+  #define VERSION "4.2.4"
 #else
-  #define VERSION "104.2.3"
+  #define VERSION "104.2.4"
 #endif
 
 #ifndef UNUSED
@@ -55,12 +56,7 @@
  // This swap is not as efficient as t=x;x=y;y=t; but is not type dependent nor need a tmp variable.
 #define SWAP(x,y) { (x) ^= (y) ; (y) ^= (x) ; (x) ^= (y) ; }
 
-/* this next one added because Linux has a BRIDGE utility that refers to ethernet cards */
-/* will have to make sure there is an ln /usr/games/gibcli to /usr/games/bridge which is the real name of the GIB binary*/
-#define DD_PGM "/usr/games/gibcli"
-#define OPC_PGM "/usr/local/bin/DOP/dop"
-// There is a linux utility program 'fdp' in /usr/bin that is related to graphviz
-#define FDP_PGM "/usr/local/bin/DealerV2/fdp"
+#include "../include/dealer_paths.h"
 #define SERVER_PATH_SIZE 255
 #define SUCCESS 1
 #define FAILED  0

@@ -1,0 +1,11 @@
+OPC NS : Mean= 2531.5000, Std Dev=  633.9531, Var=401896.5431, Sample Size=500 
+
+Testing DOP Timing: 1 val in cond, 1 val in action 
+Generated 533 hands
+Produced  500 hands
+Initial random seed 83
+Time needed   19.104 sec
+Tot Calls to DDS =     0, DDS Solve  Calls=     0 DDS_Par Calls=0
+Tot Calls to GIB =     0, GIB Solve  Calls=     0
+Tot Calls to OPC =  1033, OPC Calc   Calls=   533
+Tot Ask Query    =     0, UserServer Calls=     0

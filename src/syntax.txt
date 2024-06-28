@@ -1,0 +1,37 @@
+
+static ZRD_DEAL_k   zrd_dl ; 		/* Struct containing 13 array of struct of 4 bitfields. zrd_dl.cbf[i].cardN */
+static ZRD_TRICKS_k zrd_ddtrix ;	/* Struct containing 5 array of struct of 4 bitfields. zrd_ddtrix.tbf[i].trX */
+static ZRD_REC_k    zrd_rec ;      	/* struct to hold the record on disk */
+												/* syntax zrd_rec.zd.cbf[i].card3 or zrd_rec.zt.tbf[strain].trN */
+static struct zrd_hrec_st zrd_hrec; /* syntax zrd_hrec.seqnum or zrd_hrec.hdrtxt[i] */
+static DL52_TRICKS_k dl52_ddres ;  	/* syntax dl52_ddres[h][s] */
+
+static ZRD_DEAL_k 		*pzrd_dl = &zrd_dl ; 			/* pzrd_dl->cbf[i].cardN */
+static ZRD_TRICKS_k		*pzrd_ddtrix = &zrd_ddtrix ; 	/* pzrd_ddtrix->tbf[i].trX */
+static ZRD_REC_k 			*pzrd_rec = &zrd_rec ; 			/* pzrd_rec->zd.cbf[i].cardN or pzrd_rec->zd.tbf[i].trX */
+static struct zrd_hrec_st *pzrd_hrec = &zrd_hrec ; 	/* syntax pzrd_hrec->seqnum or pzrd_hrec->hdrtxt[i] */
+static DL52_TRICKS_k 	*pdl52_ddres = &dl52_ddres ;	/* syntax dl52_ddres->[h][s] */ 
+
+/* next ones for debugging mostly not really needed since we using bit fields which are easy to print */
+static union cbf_ut zucbf ;   /* syntax zucbf.ucbf.cardN or zucbf.uzp4 */
+static union tbf_ut zutbf ; 	/* syntax zutbf.utbf.trX   or zutbf.uzt4 */
+ 
+ /* check calling syntax for a various types using var and ptr_to_var */
+void tst_array_2D(int trix[4][5] ) {printf("%d, %d\n", trix[0][0], trix[3][4] ) ;}
+void tst_array_type(DL52_TRICKS_k trix ) { printf("%d, %d\n", trix[0][0], trix[3][4] ) ; } 
+void tst_array_ptype(DL52_TRICKS_k *ptrix ) {printf("%d,%d\n", *ptrix[0][0], (*ptrix)[3][4] ) ; }
+void tst_deal_ptype (DEAL52_k *pdeal ) {printf("%02x, %02x\n", (*pdeal)[0], *pdeal[51] ); }
+void tst_deal_type   (DEAL52_k dl )  	{printf("%02x, %02x\n", dl[0], dl[51] ); }
+void tst_zrdl_ptype(ZRD_DEAL_k zdl) 	{printf("%u,%u\n",zdl.cbf[0].card0, zdl.cbf[12].card3 ) ; }
+void tst_zrdl_ptype(ZRD_DEAL_k *pzdl) 	{printf("%u,%u\n",pzdl->cbf[0].card0, pzdl->cbf[12].card3 ) ; }
+void tst_zrdtx_type(ZRD_TRICKS_k ztx) 	{printf("%u,%u\n",ztx.tbf[0].trW, ztx.tbf[4].trS ) ; }
+void tst_zrdtx_ptype(ZRD_TRICKS_k *pztx) {printf("%u,%u\n",pztx->tbf[0].trW, pztx->tbf[4].trS ) ; }
+void tst_zrdrec_type(ZRD_REC_k zr ) 	{printf("%u,%u\n",zr.zd.cbf[12].card3, zr.zt.tbf[4].trW ) ; }
+void tst_zrdrec_ptype(ZRD_REC_k *pzr) 	{printf("%u,%u\n",pzr->zd.cbf[12].card3, pzr->zt.tbf[4].trW ) ; }
+
+/*  Errors that don't work, or give the wrong type 
+ptrix->[0][0], 
+ptrix[0][0],(this has type pointer to int)
+pdeal[0], this has type pointer to char
+pdeal->[0],  syntax error... 
+*/
