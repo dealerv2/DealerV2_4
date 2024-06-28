@@ -79,7 +79,7 @@ char *input_file = '\0';
 FILE *fexp;      /* -X file for exporting to; Normally NOT left as stdout except for testing */
 FILE *fcsv;      /* -C file for csvreport. Open in append mode unless user puts w:filename */
 FILE *fzrd;      /* -Z [Nw:]filename Save produced deals for future use. Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */
-FILE *fzrdlib;   /* -L zrd Library file. Default is ../rpLib.zrd */
+FILE *fzrdlib;   /* -L zrd Library file. Default is ../dat/rpLib.zrd */
 FILE *flog;      /* -l [Nw:]filename. Save produced deals in Deal52 fmt.Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */ 
 
 

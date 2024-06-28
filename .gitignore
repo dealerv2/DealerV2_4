@@ -26,13 +26,6 @@ prod/dealyacc.tab.h
 Regression/Archive/*
 Regression/Temp/*
 Regression/Test/*
-rpdd_10First.pbn
-rpdd_10First.zrd
-rpdd_10Last.pbn
-rpdd_10Last.zrd
-rpdd.zrd
-rplib.zrd
-rpLib.zrd
 Scratchpad/*
 scratchpad/*
 Simulations/*
