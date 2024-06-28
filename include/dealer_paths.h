@@ -7,7 +7,7 @@
 #ifdef SUDO_USER
   #define DEAL_ROOT "/usr/local/games/"
 #else
-   #define DEAL_ROOT "/home/greg21/"
+   #define DEAL_ROOT "/tmp/games"
 #endif
 #define DEAL_VER_DIR "DealerV2_4/"
 
