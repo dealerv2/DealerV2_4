@@ -1,3 +1,4 @@
+.gitignore
 a.out
 Ignore/*
 Archive/*
@@ -34,4 +35,6 @@ Test/*
 UserEval/Archive/*
 UserEval/scratchpad
 Utils/Testing/*
+rpLib.zrd
+PAT.txt
 
