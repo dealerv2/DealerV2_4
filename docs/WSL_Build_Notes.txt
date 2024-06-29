@@ -2,13 +2,44 @@
 I have also successfully built it on WSL (UBuntu)
        ^^^^
 
-I had to install the following after installing WSL on Windows
+I installed a clean WSL2
 
-sudo apt update && sudo apt upgrade
-sudo apt install make
-sudo apt-get install gcc
-sudo apt-get install -y bison
-sudo apt-get install flex
-sudo apt-get install g++
-git clone https://github.com/dealerv2/Dealer-Version-2-.git
+Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.153.1-microsoft-standard-WSL2 x86_64)
+
+and to build dealerv2 I only had to install
+
+bison and flex
+
+then 
+
+git clone https://github.com/dealerv2/DealerV2_4
+
+
+
+JGM adds the following:
+This clone command will create a copy of the repo on github in the sub directory
+DealerV2_4 in your current (probably your home) directory.
+
+If you want to build your own version of dealer, then after installing the 
+necessary tools, (bison, flex, and perhaps m4) then:
+
+a) To build a version with no debugging code installed
+    cd Prod
+    make
+    
+b) To build a version with the Debugging code installed
+    cd Debug
+    make
+    
+Note that these commands will overwrite the current binaries in these 
+directories (Prod, Debug), but there are copies of the binaries in the bin 
+directory that you can use if the new ones you tried to build do not work.
+
+If you intend to make extensive mods to the code then I recommend that
+a) you use "git" to track your changes and manage your revisions.
+b) you execute the file "install_dealer.bash"
+   to create a complete dealerv2 environment in the /usr/local/games
+   portion of the linux filesystem.
+   That way you can use the tools in the Regression directory to see if your
+   modified version of dealerv2 has broken any existing features.
 
