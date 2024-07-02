@@ -96,7 +96,8 @@ int SetDDSmode(int mode) {       /* Default is mode 1; but Par, csv_trix, and th
         return 1 ;
     }
     else  {
-        fprintf(stderr, "SetDDSmode:: dds mode[%d] is INVALID!!. Setting to TableMode with 9 Threads and 1440 MB \n", mode );
+        fprintf(stderr, "SetDDSmode:: dds mode[%d] is INVALID!!. Setting to TableMode with %d Threads \n",
+        mode, TblModeThreads );
         dds_mode = DDS_TABLE_MODE ;
         options.maxRamMB = TblModeThreads*160 ;       
         options.nThreads = TblModeThreads ;
@@ -212,7 +213,7 @@ char *dds_ParContract(char *buff,  int dl52_vul, struct parResultsMaster *sidesR
    JGMDPRT(8,"Vuln = %d, undertricks=%d, ParContract[%s], nch=%d\n",
 				options.par_vuln,sidesRes[0].contracts[0].underTricks, buff, nch ) ;
 	return (nch + buff) ;  /* points to NULL snprintf put in buffer */
-} /* end fmt_ParContract */
+} /* end dds_ParContract */
 	
 DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode should always be DDS_TABLE_MODE here...
     int dds_rc = 1; /* OK*/

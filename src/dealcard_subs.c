@@ -105,6 +105,7 @@ int deal_cards(int dmode, DEAL52_k  d ) {
 	  } /* end swap mode */
 	  case LIB_MODE : {
 		  lib_rc = zrd_getdeal(fzrdlib, &options, d) ; /* sets curdeal and also the dds_res_bin 20 results struct */
+        deal_err = lib_rc ; 
 			return lib_rc ; /* DL_OK or ENOZRD_DL if wrap count exceeded*/
 			break ; 
 	  }

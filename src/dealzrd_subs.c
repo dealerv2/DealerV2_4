@@ -89,7 +89,13 @@ void show_tbf_ut( union tbf_ut ztx , char *msg) {
 						 msg, ztx.uzt4, ztx.utbf.trS, ztx.utbf.trE, ztx.utbf.trN, ztx.utbf.trW ); /* hi to lo to ease hex txlate */
 	return ; 
 }
-
+void show_zrdTricks( ZRD_TRICKS_k  *pzt  ) {
+	int zs;
+	for (zs=0 ; zs<5 ; zs++) { 
+		fprintf(stderr,"%c: W=%d, N=%d, E=%d, S=%d \n","NSHDC"[zs], 
+					pzt->tbf[zs].trW, pzt->tbf[zs].trN, pzt->tbf[zs].trE, pzt->tbf[zs].trS);
+	}
+}
 // pzrd_dl is a pointer to the 'deal' in zrd_fmt which is a 13-array of bit_field structures.
 int dl52card_to_zrd_dl(int p, int s, int r, ZRD_DEAL_k *pzrd_dl) { /* player p, has card SuitRank ; update zrd_deal accordingly */
 	int zr, zs ;
@@ -189,30 +195,33 @@ int zrd_write(FILE *fzrd, int rectyp, DEAL52_k dl ) { /* uses global options str
 			n = 1 ; 
 			k = 0 ;
 			pzrd_hrec->zero28 = 0 ; 
+			JGMDPRT(8,"Writing zrd HDR rec; Title len=%d, segment#=%d, Title pos=%d\n",l, n, k ) ; 
 			while (l > 0 ) {
 				i = (l > ZRD_HDR_SEGSZ ) ? ZRD_HDR_SEGSZ  : l ;
-				strncpy(pzrd_hrec->hdrtxt, &options.title[k] , i ) ; 
-				pzrd_hrec->seqnum = n++ ; 
-				l -= i ; /* chars remaining to be copied */
-				k += i ; /* next position in the buffer title */
+				memset(pzrd_hrec->hdrtxt, '\0', ZRD_HDR_SEGSZ) ; /* to prevent left over chars in last segment */	
+				strncpy(pzrd_hrec->hdrtxt, &options.title[k] , i ) ;
+				pzrd_hrec->seqnum = n++ ;  
+				JGMDPRT(8,"Writing zrd HDR rec; Chars Remaining=%d, segment#=%d, Title pos=%d, char wrote=%d\n",l, n, k, i ) ;
 				rc = fwrite_zrdrec(fzrd, (ZRD_REC_k *)pzrd_hrec) ; 
 				if ( rc < 0 ) {
 					perror("Cant zrd_write Title Segment -- Aborting run .... ");
 					exit(1) ; 
 				}
+				
+				l -= i ; /* chars remaining to be copied */
+				k += i ; /* next position in the buffer title */
 			} /* end while the last segment will have a null somewhere because title has a null*/
 			assert( n < 16 && l==0 && k>=options.title_len ) ; 
 	} /* end header record writing */
    return (0) ; 	
 } /* end zrd_write */
-
  
 int fwrite_zrdrec(FILE *fzrd, ZRD_REC_k *pzrec) { /* low level; write and err check */
 	int cnt ;
 	cnt = fwrite(pzrec, 23, 1 , fzrd) ;  /* *buff, size, nmemb, File* */
 	if ( ferror( fzrd ) ) {
 		perror("zrdrec write error" ) ;
-		fprintf(stderr, "ERR**: Error Writing ZRD Output file.\n");
+		fprintf(stderr, "ERR**: Error Writing ZRD Library file.\n");
 		return EIOZRD ; 
 	}
 	return cnt ; /* should always be 1 unless an error */
@@ -254,11 +263,11 @@ int fread_zrdrec(FILE *fzrd,  union zrd_rec_ut *uzrec_ptr ) {
 /* Uses global variable dds_res_bin[4][5] for tricks portion of zrd_file record also record counts etc. */
 int zrd_getdeal(FILE *fzrd, struct options_st *opts, DEAL52_k dl ) { /* Decodes zrd_deal into DEAL52_k dl */
    union zrd_rec_ut uzrec; 
-   union zrd_rec_ut *uzrec_ptr = &uzrec; /* ptr->zd.cbf[i].cardX   ptr->zh.hdrtxt[]  ptr->zrd_buff[] */
+   union zrd_rec_ut *uzrec_ptr = &uzrec; /* uzptr->zr.zd.cbf[i].cardX uzptr->zr.zt.tbf[i].trX  uzptr->zh.hdrtxt[]  uzptr->zrd_buff[] */
    int zrd_rec_type ; /* ZRD_HDR or ZRD_DEAL */
    int found_hdrs = 0 ; 
    
-   int rc ; 
+   int rc ;   /* returns ENOLIB_DL  or DL_OK */
 
    /* If 1st 14 'cards' are zero it means West has them. Impossible.
     * So RP says it is some sort of separator record. RPLIB has none of these. JGM ZRD files allow for titles etc.
@@ -277,25 +286,28 @@ int zrd_getdeal(FILE *fzrd, struct options_st *opts, DEAL52_k dl ) { /* Decodes 
       else { zrd_rec_type = ZRD_DEAL ; }
    } while ( zrdlib_pass_num < 2 && zrd_rec_type != ZRD_DEAL ) ;
    if ( 1 == found_hdrs ) {
-		opts->title[MAXTITLE] = '\0' ; /* should not be reqd as the last seg of a hdr set should be null termed*/ 
+		opts->title[MAXTITLE+1] = '\0' ; /* should not be reqd as the last seg of a hdr set should be null termed*/ 
 		opts->title_len = strlen(opts->title) ; 
 		title_len = opts->title_len ; 
 		strncpy(title , opts->title, opts->title_len) ;
 	} 
    /* end do-while -- either a valid record or an exceeded wrap count */
-      DBGDO(2,dump_zrdrec(&uzrec_ptr->zr) ); 
-      DBGDO(2,show_zrdrec(&uzrec_ptr->zr) );
+     // DBGDO(9,dump_zrdrec(&uzrec_ptr->zr) ); 
+      DBGDO(9,show_zrdrec(&uzrec_ptr->zr) );
      if(zrdlib_pass_num >= 2 ) {  
-		  return ENOLIB_DL ;  /* ran out of records in the library before producing the required number */
+		  deal_err = ENOLIB_DL ; 
+		  return ENOLIB_DL ;  /* ran out of records in the library before producing the required number */	  
 	 }
 	 zrd_cnt++;   /* the number of valid actual deal records read. (not separators) akin to ngen */
      /* Got a valid zrdLib record. Decode it into deal52 format, and tricks. */ 
     rc = zrd_decode_deal(dl, &uzrec_ptr->zr ) ;  /* will fill dl, and also the global dds_res_bin */
-    return rc ; /* DL_OK */
+    deal_err = rc ;    /* zrd_decode always returns ZRD_DL_OK; no error conditions possible */
+    return rc ; /* ZRD_DL_OK */
     
 } /* end zrd_getdeal */
 
 int zrd_decode_deal( char *dl, ZRD_REC_k *pzrec ) { /* convert zrd cards to dl52 fmt; fill tricks cache also */
+
 	int ddsres[4][5] ; /*[N,E,S,W][C,D,H,S,N] */ 
    int crdpos;
    int npos, epos, spos, wpos ;
@@ -303,7 +315,7 @@ int zrd_decode_deal( char *dl, ZRD_REC_k *pzrec ) { /* convert zrd cards to dl52
    int rank, suit ;
    char kard ;  
    char zrd_deal[52]; 
-   union cbf_ut zucbf ; 
+   union cbf_ut zucbf ;  ; 	/* 4 x 2bit fields zucbf.ucbf.cardX */
    /* A zrdLib record starts with Spade Ace, then Spade King, and so on down to Club Deuce */
       suit = SPADES ;
       rank = Ace_rk ;
@@ -311,17 +323,17 @@ int zrd_decode_deal( char *dl, ZRD_REC_k *pzrec ) { /* convert zrd cards to dl52
       npos = 0; epos=13; spos=26; wpos=39 ; /* The slots in the Deal52 buffer where each hand begins. */
 
       for (crdpos=0 ; crdpos < 13 ; crdpos++ ) {  /* the whole deal is done in 13 bytes 4 cards each byte*/
-         zucbf.ucbf = zrd_dl.cbf[crdpos] ;
+         zucbf.ucbf = pzrec->zd.cbf[crdpos];
          JGMDPRT(9, "Crdpos=%d, cardByte=%02x\n" ,crdpos, zucbf.uzp4) ;
          for (j = 0 ; j<4 ; j++ ) {  /* each byte holds 4 cards */
-            pnum = (zucbf.uzp4 & 0x03 ); /* process the right two bits -- little endian fmt*/
+            pnum = (zucbf.uzp4 & 0x03 ); /* process the right two bits -- little endian fmt zrd player number*/
             zucbf.uzp4  = zucbf.uzp4 >> 2 ;
             kard = MAKECARD(suit, rank ) ; /* set the current card for this crdpos */
             switch (pnum) {                /* put the current card into the designated hand */
-               case WEST : zrd_deal[wpos++] = kard ; break ;
-               case EAST : zrd_deal[epos++] = kard ; break ;
-               case NORTH: zrd_deal[npos++] = kard ; break ;
-               case SOUTH: zrd_deal[spos++] = kard ; break ;
+               case zWEST : zrd_deal[wpos++] = kard ; break ;
+               case zEAST : zrd_deal[epos++] = kard ; break ;
+               case zNORTH: zrd_deal[npos++] = kard ; break ;
+               case zSOUTH: zrd_deal[spos++] = kard ; break ;
                default : printf("[%s:%d]Can't happen in switch pnum = %d \n",__FILE__,__LINE__, pnum ) ;
             }
            JGMDPRT(8, " Card %c%c at pos %d:%d assigned to %c; seatcounts: N=%d,E=%d,S=%d,W=%d \n",
@@ -332,12 +344,12 @@ int zrd_decode_deal( char *dl, ZRD_REC_k *pzrec ) { /* convert zrd cards to dl52
             }
          } /* end for J 0 .. 3 */
       } /* end for crdpos 0 .. 12 -- all 52 cards done*/
-      memcpy(dl, zrd_deal, 52) ;  
-      DBGDO(8, sr_deal_show( (char *)dl ) );
+      memcpy(dl, zrd_deal, 52) ; 
+      DBGDO(8, sr_deal_show( (char *)zrd_deal ) );
 
       memset(ddsres, 0, sizeof(ddsres) );
-		zrdTricks_to_dl52Tricks(&zrd_rec.zt, ddsres ) ; 
-
+		zrdTricks_to_dl52Tricks(&pzrec->zt, ddsres ) ;  
+		DBGDO(8, show_zrdTricks( &pzrec->zt  ) );  
       JGMDPRT(8, " ----- Record %d all done. npos=%d, epos=%d, spos=%d, wpos=%d --------\n",
 										zrdlib_recnum, npos, epos, spos, wpos ) ;
       /* now use the local results to setup the global results area as if we had solved the board in mode 2 */
@@ -346,14 +358,16 @@ int zrd_decode_deal( char *dl, ZRD_REC_k *pzrec ) { /* convert zrd cards to dl52
       dds_res_bin.parScore_NS = 0 ; /* par score will be calculated if input file calls for it. */
       dds_res_bin.CacheStatus = CACHE_OK ;
       dds_dealnum = ngen ;   /* make the cache current */
-      return DL_OK ;
+      deal_err = ZRD_DL_OK;
+      return ZRD_DL_OK ;
 } /* end zrd_decode_deal */
 
 void zrdTricks_to_dl52Tricks( ZRD_TRICKS_k  *pzt, DL52_TRICKS_k dl52_ddres ) { /* convert zrd tricks to dl52 tricks */
 
 	int s, zs; 
+	DBGDO(9,show_zrdTricks( pzt ) );
 	for (s=0; s<5 ; s++ ) {  /* clubs to NT */
-		zs = zstrain[s] ;
+		zs = zstrain[s] ;								
 		dl52_ddres[3][s] = pzt->tbf[zs].trW ;  /* zrd_trix[zstrain].trW to dl52_ddsres[west][strain] */
 	   dl52_ddres[0][s] = pzt->tbf[zs].trN ;
 	   dl52_ddres[1][s] = pzt->tbf[zs].trE ;
@@ -428,7 +442,7 @@ void show_zrdrec(ZRD_REC_k *zrdrec ) { /* decode the bytes in friendly fashion *
 	int p[4] ;
 	int k = 0;
 	int numcards = 0 ; 
-	int zsuit = 0 ;				 /* start with spades */
+	int zsuit = 0 ; /* start with spades */
 	int zrank = 0 ; /* start with the Ace */
 	fprintf(stderr,"-------ZRDREC--------\n");
 	while(numcards < 52 ) {
@@ -442,24 +456,24 @@ void show_zrdrec(ZRD_REC_k *zrdrec ) { /* decode the bytes in friendly fashion *
 			numcards++;
 			zrank++ ; 
 			if (zrank >= 13) {       /* done 13 cards this suit, start new suit */
-				zrank = 0 ; 				/* start new suit with the A */
+				zrank = 0 ; 		 	 /* start new suit with the A */
 				zsuit++ ;
 				if(zsuit == 2) fprintf(stderr, "\n"); /* Start Diamonds on new line */
 			}
 		} /* end for j */
-		JGMDPRT(7,"%s:%d Numcards=%d, slotNum=%d \n",__FILE__,__LINE__,numcards,k);
+		JGMDPRT(9,"Numcards=%d, slotNum=%d \n",numcards,k);
 		assert( k <=13 && numcards <= 52  );
 	} /* end while numcards ; cards all done */
 	fprintf(stderr, "\n ----- Cards Done -------\n");
 
-	fprintf(stderr, "Tricks WNES [");
+	fprintf(stderr, "Tricks WNES");
 	char eos = ']' ;
 	for(k=0; k< 5; k++) { /* show the tricks NT:WNES, S:WNES,H:WNES,D:WNES,C:WNES */ 
 		sep = (k < 4 ) ? ':' : ' ';
-		fprintf(stderr, "%c%c","NSHDC"[k],sep );
+		fprintf(stderr, "[%c%c","NSHDC"[k],sep );
 		fprintf(stderr, "%2d,%2d,%2d,%2d",zrdrec->zt.tbf[k].trW,zrdrec->zt.tbf[k].trN,zrdrec->zt.tbf[k].trE,zrdrec->zt.tbf[k].trS);
 		if ( k== 4 ) eos = ' ';
-		fprintf(stderr, "] %c ", eos);
+		fprintf(stderr, "%c ", eos);
 	} /* end for k < 5 */
 	fprintf(stderr, "\n -----  ZRD REC Done -------\n");
 } /* end show_zrdrec */

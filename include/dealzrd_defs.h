@@ -79,7 +79,7 @@ union zrd_rec_ut {
 #define CBF_CAST_CH(z) ( (unsigned char) ((z).card3<<6 | (z).card2<<4 | (z).card1<<2 | (z).card0) ) // for debug dumping
 #define LOW28BITS 0x0FFFFFFF
 
-enum zrd_seat_ek {KIBTZ=-1, WEST=0, NORTH, EAST, SOUTH } ;         /* ZRD numbering */
+enum zrd_seat_ek {KIBTZ=-1, zWEST=0, zNORTH, zEAST, zSOUTH } ;         /* ZRD numbering */
 enum card_rank_ek {spot=-1, Two_rk=0, Three_rk, Four_rk, Five_rk, Six_rk, Seven_rk, Eight_rk, Nine_rk, Ten_rk, Jack_rk, Queen_rk, King_rk, Ace_rk };
 
 int zrd_write(FILE *fzrd, int rectype, DEAL52_k dl ) ; /* No zrd_read; only zrd_getrec */

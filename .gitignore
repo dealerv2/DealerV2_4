@@ -1,7 +1,7 @@
-.gitignore
 a.out
-Ignore/*
 Archive/*
+Ignore/*
+Ignore
 *bak.ncdb
 DDS_Demo/*
 Debug/dealflex.c
@@ -27,6 +27,9 @@ prod/dealyacc.tab.h
 Regression/Archive/*
 Regression/Temp/*
 Regression/Test/*
+rpdd.zrd
+rplib.zrd
+rpLib.zrd
 Scratchpad/*
 scratchpad/*
 Simulations/*
@@ -35,6 +38,4 @@ Test/*
 UserEval/Archive/*
 UserEval/scratchpad
 Utils/Testing/*
-rpLib.zrd
-PAT.txt
 
