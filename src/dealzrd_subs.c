@@ -286,7 +286,7 @@ int zrd_getdeal(FILE *fzrd, struct options_st *opts, DEAL52_k dl ) { /* Decodes 
       else { zrd_rec_type = ZRD_DEAL ; }
    } while ( zrdlib_pass_num < 2 && zrd_rec_type != ZRD_DEAL ) ;
    if ( 1 == found_hdrs ) {
-		opts->title[MAXTITLE+1] = '\0' ; /* should not be reqd as the last seg of a hdr set should be null termed*/ 
+		opts->title[MAXTITLE] = '\0' ; /* should not be reqd as the last seg of a hdr set should be null termed*/ 
 		opts->title_len = strlen(opts->title) ; 
 		title_len = opts->title_len ; 
 		strncpy(title , opts->title, opts->title_len) ;

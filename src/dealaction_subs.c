@@ -1,4 +1,11 @@
-/* JGM: File dealaction_subs.c 2022-02-18 -- CSVRPT and PRINTRPT  */
+/* File dealaction_subs.c   */
+/* Date      Version Author   Description
+* 1990/12/31 1.0.0   Origin   Original code
+* 2021/12/31 2.0.0   JGM      Modified for DealerV2. Fix Avg; Add bktfreq; etc. 
+* 2022-02-18 2.1.0   JGM      CSVRPT and PRINTRPT
+* 2024/07/03 2.2.0   JGM      Mods to Frequency fmt for bigger numbers, and Pcts for 1D freq.
+* .                  .        .        
+*/ 
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
 #endif
@@ -252,6 +259,7 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
   struct action *acp;
   int player, i, n;
   double d_var, dsum, dsumsq;
+  long int colsum, freqval ;
 
   for (acp = actionlist; acp != 0; acp = acp->ac_next) {
     switch (acp->ac_type) {
@@ -306,26 +314,42 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
          JGMDPRT(4,"Running Totals: avg=%10.4f, sqrt(vary)=%10.4f, vary=%10.4f, count=%ld \n",
               acp->ac_u.acuavg.avg, sqrt(acp->ac_u.acuavg.vary), acp->ac_u.acuavg.vary, acp->ac_u.acuavg.count );
         break;
-      case ACT_FREQUENCY:
-        printf ("Frequency %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
-        if (acp->ac_u.acu_f.acuf_uflow)
-          printf ("Low\t%8ld\n", acp->ac_u.acu_f.acuf_uflow);
-        for (i = acp->ac_u.acu_f.acuf_lowbnd; i <= acp->ac_u.acu_f.acuf_highbnd; i++)
-        printf ("%5d\t%8ld\n", i, acp->ac_u.acu_f.acuf_freqs[i - acp->ac_u.acu_f.acuf_lowbnd]);
-        if (acp->ac_u.acu_f.acuf_oflow)
-          printf ("High\t%8ld\n", acp->ac_u.acu_f.acuf_oflow);
+      case ACT_FREQUENCY: 
+        printf ("Title: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
+        printf ("Value\t   Count\t    Pct.\n");
+        /* create a total */
+        colsum = 0 ;
+        if (acp->ac_u.acu_f.acuf_uflow) { colsum += acp->ac_u.acu_f.acuf_uflow ; }
+        for (i = acp->ac_u.acu_f.acuf_lowbnd; i <= acp->ac_u.acu_f.acuf_highbnd; i++) {
+            colsum += acp->ac_u.acu_f.acuf_freqs[i - acp->ac_u.acu_f.acuf_lowbnd] ;
+        }
+        if (acp->ac_u.acu_f.acuf_oflow) { colsum += acp->ac_u.acu_f.acuf_oflow ; }
+        dsum = (double) colsum /100.0 ; 
+
+        /*Print the table */
+        if (acp->ac_u.acu_f.acuf_uflow) {
+           printf ("Low\t%8ld\t%8.2f\n", acp->ac_u.acu_f.acuf_uflow, (double)acp->ac_u.acu_f.acuf_uflow/dsum );
+        }
+        for (i = acp->ac_u.acu_f.acuf_lowbnd; i <= acp->ac_u.acu_f.acuf_highbnd; i++) {
+            freqval = acp->ac_u.acu_f.acuf_freqs[i - acp->ac_u.acu_f.acuf_lowbnd] ;
+            printf ("%5d\t%8ld\t%8.2f\n", i, freqval, (double)freqval/dsum);
+        }
+        if (acp->ac_u.acu_f.acuf_oflow) {
+           printf ("High\t%8ld\t%8.2f\n", acp->ac_u.acu_f.acuf_oflow, (double)acp->ac_u.acu_f.acuf_oflow/dsum );
+        }
+        printf("    \t--------\nTotal\t%8ld\t%8.2f\n", colsum, 100.0 ) ; 
         break;
       case ACT_FREQUENCY2D: {
         int j, n = 0, low1 = 0, high1 = 0, low2 = 0, high2 = 0, sumrow,
           sumtot, sumcol;
-        printf ("Frequency %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
+        printf ("Title: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
         high1 = acp->ac_u.acu_f2d.acuf_highbnd_expr1;
         high2 = acp->ac_u.acu_f2d.acuf_highbnd_expr2;
         low1 = acp->ac_u.acu_f2d.acuf_lowbnd_expr1;
         low2 = acp->ac_u.acu_f2d.acuf_lowbnd_expr2;
         printf ("        Low");
         for (j = 1; j < (high2 - low2) + 2; j++)
-          printf (" %6d", j + low2 - 1);
+          printf (" %8d", j + low2 - 1);
         printf ("   High    Sum%s", crlf);
         sumtot = 0;
         for (i = 0; i < (high1 - low1) + 3; i++) {
@@ -339,9 +363,9 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
         for (j = 0; j < (high2 - low2) + 3; j++) {
           n = acp->ac_u.acu_f2d.acuf_freqs[(high2 - low2 + 3) * i + j];
           sumrow += n;
-          printf (" %6d", n);
+          printf (" %8d", n);
         }
-        printf (" %6d%s", sumrow, crlf);
+        printf (" %8d%s", sumrow, crlf);
         sumtot += sumrow;
         }
         printf ("Sum ");
@@ -349,9 +373,9 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
         sumcol = 0;
         for (i = 0; i < (high1 - low1) + 3; i++)
           sumcol += acp->ac_u.acu_f2d.acuf_freqs[(high2 - low2 + 3) * i + j];
-        printf (" %6d", sumcol);
+        printf (" %8d", sumcol);
         }
-        printf (" %6d%s%s", sumtot, crlf, crlf);
+        printf (" %8d%s%s", sumtot, crlf, crlf);
         break ;
       } /* end FREQ2D case line 333 */
       case ACT_BKTFREQ:

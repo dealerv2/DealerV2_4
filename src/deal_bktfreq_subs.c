@@ -1,4 +1,8 @@
 /* File bktfreq_subs.c */
+/* Date      Version Author   Description
+* 2022/12/31 1.0.0   JGM      Added bktfreq to Dealerv2 features.
+* 2024/07/03 2.2.0   JGM      Mods to Frequency fmt for bigger numbers, and Pcts for 1D freq.
+*/
 #ifndef GNU_SOURCE
   #define GNU_SOURCE
 #endif
@@ -59,19 +63,42 @@ int show_freq1D (int *freq, char *descr, struct bucket_st *bkt, char direction )
     * freq[0] is uflow, freq[bkt->Num - 1] is for oflow
     * uflow and oflow are not printed if they are zero
     * direction is whether to print the whole freq array on one line ('a' = across ) limited in practice to 21 data buckets,
-    * or print one line per bucket down the page ('d' = down )
+    * or print one line per bucket down the page ('d' = down  Default is down)
     */
         int i ;
+        int colsum;
+        double dsum, pct, cumpct;
         switch (tolower(direction) ) {
         case 'd':
         default :
-            printf ("\nFrequency %s:\n", descr );
-            if (freq[0] > 0 )
-               printf ("Low\t%8d\n", freq[0]);
-            for (i = 1; i < (bkt->Num - 1); i++)
-                  printf ("%5d\t%8d\n", bkt->Names[i], freq[i] );
-            if (freq[bkt->Num - 1] > 0 )
-               printf ( "High\t%8d\n", freq[bkt->Num - 1] );
+        printf ("\nTitle: %s\n", descr);
+        printf ("Value\t   Count\t    Pct.\t  CumPct\n");
+        /* create a total */
+        colsum = 0 ;
+        cumpct =0.0;
+        if (freq[0] > 0 ) colsum += freq[0];
+        for (i = 1; i < (bkt->Num - 1); i++) colsum += freq[i];
+        if (freq[bkt->Num - 1] > 0 ) colsum += freq[bkt->Num - 1];        
+        dsum = (double) colsum/100.0 ; 
+
+        /*Print the table */
+
+            if (freq[0] > 0 ) {
+               pct = (double)freq[0]/dsum ;
+               cumpct += pct ; 
+               printf ("Low\t%8d\t%8.2f\t%8.2f\n", freq[0], pct, cumpct );
+            }
+            for (i = 1; i < (bkt->Num - 1); i++) {
+               pct = (double)freq[i]/dsum ;
+               cumpct += pct ; 
+               printf ("%5d\t%8d\t%8.2f\t%8.2f\n", bkt->Names[i], freq[i],pct, cumpct );
+            }
+            if (freq[bkt->Num - 1] > 0 ) {
+               pct = (double)freq[bkt->Num - 1]/dsum ;
+               cumpct += pct;
+               printf ("High\t%8d\t%8.2f\t%8.2f\n", freq[bkt->Num - 1], pct, cumpct  );
+            }
+            printf("    \t--------\nTotal\t%8d\t%8.2f\n", colsum, 100.0 ) ; 
             break ;
        case 'a' :
           printf ("Frequency %s:\n", descr );
@@ -177,7 +204,7 @@ int show_freq2D(int *freq2D, char *description, struct bucket_st *d_bkt, struct 
    int r, c, oflow_row, oflow_col, row_g_tot, col_g_tot, ctr_val;
    int row_tot, *col_tot ;
    int ctr_offset ;
-   printf("\nShowing 2D freq with Description[ %s ]\n", description ) ;
+   printf("\nTitle: %s \n", description ) ;
 
    oflow_col = a_bkt->Num - 1 ;
    oflow_row = d_bkt->Num - 1 ;
@@ -190,13 +217,13 @@ int show_freq2D(int *freq2D, char *description, struct bucket_st *d_bkt, struct 
 
    // across is the number of columns, down is the number of rows.
    // Print the Heading line         Low      1      2      3     4   High    Sum
-   printf("         Low");  // c == 0
-   for (c = 1 ; c < oflow_col; c++ ) { printf(" %6d", a_bkt->Names[c] ) ; }
-   printf("   High    Sum\n"); // c == oflow_col
+   printf("           Low");  // c == 0
+   for (c = 1 ; c < oflow_col; c++ ) { printf(" %8d", a_bkt->Names[c] ) ; }
+   printf("     High    Sum\n"); // c == oflow_col
    // print the rows of counters starting with the underflow row (0)
    for (r = 0 ; r <= oflow_row ;  r++ ) {
       if (0 == r ) { printf(" Low "); }                     // do the row name.
-      else if ( oflow_row == r ) { printf(" High"); }
+      else if ( oflow_row == r ) { printf("High "); }
       else { printf("%4d ",d_bkt->Names[r] ) ; }
       row_tot = 0;
       ctr_offset = (r * a_bkt->Num);
@@ -206,17 +233,17 @@ int show_freq2D(int *freq2D, char *description, struct bucket_st *d_bkt, struct 
          ctr_offset++ ;
          row_tot    += ctr_val ;
          col_tot[c] += ctr_val ;
-         printf(" %6d",ctr_val ) ;
+         printf(" %8d",ctr_val ) ;
       } // end for c
-      printf(" %6d\n", row_tot ) ;
+      printf(" %8d\n", row_tot ) ;
       row_g_tot +=  row_tot ;
    } // end for r Done all rows except the col total row.
-  printf(" Sum ");
+  printf("Sum  ");
   for (c = 0 ; c <= oflow_col ; c++ ) {
-      printf(" %6d", col_tot[c] ) ;
+      printf(" %8d", col_tot[c] ) ;
       col_g_tot += col_tot[c] ;
    }
-   printf(" %6d\n", col_g_tot );
+   printf(" %8d\n", col_g_tot );
    if (row_g_tot != col_g_tot ) {
       printf("\n** CANT HAPPEN: Row Grand Total[%d] is NOT EQUAL to Col Grand Total[%d] \n", row_g_tot, col_g_tot );
    }
