@@ -71,7 +71,7 @@ int show_freq1D (int *freq, char *descr, struct bucket_st *bkt, char direction )
         switch (tolower(direction) ) {
         case 'd':
         default :
-        printf ("\nTitle: %s\n", descr);
+        printf ("\nDescription: %s\n", descr);
         printf ("Value\t   Count\t    Pct.\t  CumPct\n");
         /* create a total */
         colsum = 0 ;
@@ -83,7 +83,7 @@ int show_freq1D (int *freq, char *descr, struct bucket_st *bkt, char direction )
 
         /*Print the table */
 
-            if (freq[0] > 0 ) {
+            if (freq[0] > 0 ) {   // only print Low if not zero
                pct = (double)freq[0]/dsum ;
                cumpct += pct ; 
                printf ("Low\t%8d\t%8.2f\t%8.2f\n", freq[0], pct, cumpct );
@@ -93,15 +93,15 @@ int show_freq1D (int *freq, char *descr, struct bucket_st *bkt, char direction )
                cumpct += pct ; 
                printf ("%5d\t%8d\t%8.2f\t%8.2f\n", bkt->Names[i], freq[i],pct, cumpct );
             }
-            if (freq[bkt->Num - 1] > 0 ) {
+            if (freq[bkt->Num - 1] > 0 ) {      // only print High if not zero
                pct = (double)freq[bkt->Num - 1]/dsum ;
                cumpct += pct;
                printf ("High\t%8d\t%8.2f\t%8.2f\n", freq[bkt->Num - 1], pct, cumpct  );
             }
             printf("    \t--------\nTotal\t%8d\t%8.2f\n", colsum, 100.0 ) ; 
             break ;
-       case 'a' :
-          printf ("Frequency %s:\n", descr );
+       case 'a' :                               // Never used in code?
+          printf ("Description %s:\n", descr );
           if (freq[0] > 0 ) printf ("|  Low|");
           for (i = 1; i < (bkt->Num - 1); i++) { printf ("%6d ", bkt->Names[i] ); }
           if (freq[(bkt->Num - 1)] > 0 )  printf ("|  High|");
@@ -204,7 +204,7 @@ int show_freq2D(int *freq2D, char *description, struct bucket_st *d_bkt, struct 
    int r, c, oflow_row, oflow_col, row_g_tot, col_g_tot, ctr_val;
    int row_tot, *col_tot ;
    int ctr_offset ;
-   printf("\nTitle: %s \n", description ) ;
+   printf("\nDescription: %s \n", description ) ;
 
    oflow_col = a_bkt->Num - 1 ;
    oflow_row = d_bkt->Num - 1 ;

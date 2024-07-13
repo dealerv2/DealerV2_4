@@ -315,7 +315,7 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
               acp->ac_u.acuavg.avg, sqrt(acp->ac_u.acuavg.vary), acp->ac_u.acuavg.vary, acp->ac_u.acuavg.count );
         break;
       case ACT_FREQUENCY: 
-        printf ("Title: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
+        printf ("Description: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
         printf ("Value\t   Count\t    Pct.\n");
         /* create a total */
         colsum = 0 ;
@@ -339,43 +339,44 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
         }
         printf("    \t--------\nTotal\t%8ld\t%8.2f\n", colsum, 100.0 ) ; 
         break;
-      case ACT_FREQUENCY2D: {
+      case ACT_FREQUENCY2D: {  // Note Freq2D always prints the Low and High Row and Col even if all zeroes
         int j, n = 0, low1 = 0, high1 = 0, low2 = 0, high2 = 0, sumrow,
           sumtot, sumcol;
-        printf ("Title: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
+        printf ("Description: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
         high1 = acp->ac_u.acu_f2d.acuf_highbnd_expr1;
         high2 = acp->ac_u.acu_f2d.acuf_highbnd_expr2;
         low1 = acp->ac_u.acu_f2d.acuf_lowbnd_expr1;
         low2 = acp->ac_u.acu_f2d.acuf_lowbnd_expr2;
+        // print the col headings
         printf ("        Low");
-        for (j = 1; j < (high2 - low2) + 2; j++)
-          printf (" %8d", j + low2 - 1);
+        for (j = 1; j < (high2 - low2) + 2; j++) printf (" %8d", j + low2 - 1);
         printf ("   High    Sum%s", crlf);
         sumtot = 0;
-        for (i = 0; i < (high1 - low1) + 3; i++) {
-        sumrow = 0;
-        if (i == 0)
-          printf ("Low ");
-        else if (i == (high1 - low1 + 2))
-          printf ("High");
-        else
-          printf ("%4d", i + low1 - 1);
-        for (j = 0; j < (high2 - low2) + 3; j++) {
-          n = acp->ac_u.acu_f2d.acuf_freqs[(high2 - low2 + 3) * i + j];
-          sumrow += n;
-          printf (" %8d", n);
-        }
-        printf (" %8d%s", sumrow, crlf);
-        sumtot += sumrow;
-        }
+        for (i = 0; i < (high1 - low1) + 3; i++) {  // process the rows
+            sumrow = 0;
+            // print the row name
+            if (i == 0)                       printf ("Low ");
+            else if (i == (high1 - low1 + 2)) printf ("High");
+            else                              printf ("%4d", i + low1 - 1);
+            // process each col
+            for (j = 0; j < (high2 - low2) + 3; j++) {
+               n = acp->ac_u.acu_f2d.acuf_freqs[(high2 - low2 + 3) * i + j];
+               sumrow += n;
+               printf (" %8d", n);
+            } // end for cols
+            printf (" %8d%s", sumrow, crlf);
+            sumtot += sumrow;
+        } // end for rows
+        // print the total row
         printf ("Sum ");
-        for (j = 0; j < (high2 - low2) + 3; j++) {
-        sumcol = 0;
-        for (i = 0; i < (high1 - low1) + 3; i++)
-          sumcol += acp->ac_u.acu_f2d.acuf_freqs[(high2 - low2 + 3) * i + j];
-        printf (" %8d", sumcol);
-        }
-        printf (" %8d%s%s", sumtot, crlf, crlf);
+        for (j = 0; j < (high2 - low2) + 3; j++) { // for each col
+            sumcol = 0;
+            for (i = 0; i < (high1 - low1) + 3; i++) {  // generate a col total
+               sumcol += acp->ac_u.acu_f2d.acuf_freqs[(high2 - low2 + 3) * i + j];
+            }
+            printf (" %8d", sumcol);
+        } // end for each col
+        printf (" %8d%s%s", sumtot, crlf, crlf);   // print grand total bottom right corner
         break ;
       } /* end FREQ2D case line 333 */
       case ACT_BKTFREQ:
