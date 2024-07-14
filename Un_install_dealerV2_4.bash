@@ -52,4 +52,4 @@ rm -R ${OPCDIR}/*
 rmdir ${OPCDIR}
 
 echo Dealver2 Version ${PGMVER} and the OPC Perl script Un-installed
-echo You might want to modify your $PATH in .bashrc to remove the $RUNDIR but 
+echo You might want to modify your \$PATH in .bashrc to remove the $RUNDIR but you might use it for other things and no harm to leave it.

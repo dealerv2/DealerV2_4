@@ -1,7 +1,5 @@
 a.out
 Archive/*
-Ignore/*
-Ignore
 *bak.ncdb
 DDS_Demo/*
 Debug/dealflex.c
@@ -38,4 +36,5 @@ Test/*
 UserEval/Archive/*
 UserEval/scratchpad
 Utils/Testing/*
-
+*ffs_gui
+Ignore/*
