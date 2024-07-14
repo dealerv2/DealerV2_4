@@ -6,8 +6,10 @@
 #define SUDO_USER
 #ifdef SUDO_USER
   #define DEAL_ROOT "/usr/local/games/"
+#elif defined( MY_USER )
+   #define DEAL_ROOT "/home/" MY_USER        // pass -DMY_USER=\"$USER\"  to gcc on the cmd line 
 #else
-   #define DEAL_ROOT "/tmp/games"
+  #define DEAL_ROOT "/usr/local/games"
 #endif
 #define DEAL_VER_DIR "DealerV2_4/"
 

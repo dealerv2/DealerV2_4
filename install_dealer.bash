@@ -4,16 +4,17 @@
 #set -x
 
 DISTRODIR="$PWD"
-HOMEDIR="/home/${USER}"
+HOMEDIR="${HOME}/"
 ROOTDIR="/usr/local/games/"
 #ROOTDIR="/tmp/games/"
-RUNDIR="/usr/local/bin/"
+RUNDIR="/usr/local/bin/"     # put symlinks to pgms in /usr/local/games/DEALERV2_4/bin here
 #RUNDIR="/tmp/local/bin/"
 PGMVER="DealerV2_4/"
 PGMDIR="${ROOTDIR}${PGMVER}"
 OPCDIR="${ROOTDIR}DOP/"
 EXEDIR="${PGMDIR}bin/"
 LIBDIR="${PGMDIR}lib/"
+DIRLIST="bin dat Debug DebugExamples docs DOP Examples exe include lib Prod Regression src stdlib UserEval"
 SUDO_USER=$USER
 
 #copy the repo files to $PGMDIR
@@ -48,9 +49,9 @@ else
    mkdir -p ${OPCDIR}
 fi
 cd  ${OPCDIR}
-tar -xvf ${PGMDIR}DOP4DealerV2.tar.gz
+tar -xvf ${PGMDIR}DOP_distkit.tar.gz
 chown -R ${SUDO_USER}:${SUDO_USER} ${OPCDIR}/*
-chmod +x ${OPCDIR}dop
+chmod +x ${OPCDIR}dop  ${OPCDIR}*.pl 
 cd -   # back to $DISTRODIR
 pwd
 
@@ -63,6 +64,7 @@ for exe in Prod/dealerv2 Debug/dealdbg UserEval/DealerServer UserEval/DealerSrvd
   chmod +x   ${EXEDIR}${progname}
   ln -s      ${EXEDIR}${progname} ${RUNDIR}${progname}
 done
+# make logical links in RUNDIR and EXEDIR to executables in OPCDIR and LIBDIR
   ln -s ${OPCDIR}/dop         ${RUNDIR}/dop
   ln -s ${LIBDIR}gibcli       ${RUNDIR}/gibcli
   ln -s ${LIBDIR}fdp          ${RUNDIR}/fdp
@@ -79,7 +81,7 @@ else
     append=1
 fi
 if [[ $append -gt 0 ]] ; then
-   echo $append :: Appending[ $PATH ] to ~/.bashrc
+   echo $append :: Appending[ $PATH ] to ${HOMEDIR}/.bashrc
    echo PATH=$PATH >>${HOMEDIR}/.bashrc
 fi
 
