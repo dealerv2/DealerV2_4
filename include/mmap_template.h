@@ -5,6 +5,7 @@
 /* Date      Version  Author  Description
 * 2022/10/22 1.0.0    JGM     Define a memory layout for the shared memory area
 * 2024/02/26 1.1.0    JGM		Increase the results area from 2x64 to 2x128
+* 2024/09/11 1.2.0    JGM     Add the DDS tricks to the dealdata passed to UserServer
 */
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
@@ -32,6 +33,7 @@ typedef struct mmap_hdr_st {     /* some info to share between dealer(client) an
    off_t   user_nsvals_off ;     /* offset to the NS results to be returned to the dealer from the user_eval*/
    off_t   user_ewvals_off ;     /*     ditto for EW results */
    off_t   mm_cache_off    ;     /* offset to the cache that can be updated by either dealer or usereval */
+   int     stderr_fd       ; 
 } mmap_hdr_k;
 /*
  * Let the user write the code to return the results he wants and where he wants them. If he wants NT only write code for that.
@@ -56,7 +58,9 @@ typedef struct deal_data_st {
    HANDSTAT_k hs[4];             /* includes Has_cards[][] */
    DEAL52_k curdeal ;
    SIDESTAT_k ss[2];             /* values per side; mostly opc currently; future dummy suppt pts etc. */
-   /* future might add dds tricks here, or perhaps cccc, etc. */
+   int dds_cache   ;             /* 0 = Stale. 1 = OK; 2=Needs an update */
+   int dds_trix[4][5] ;          /* N:C,D,H,S,NT, E:C,D,H,S,NT, S:C,D,H,S,NT, W:C,D,H,S,NT,  -1 aka INV_TRIX means not present */
+                        /* Future other aspects cccc etc. if needed */
 } DEALDATA_k ;
 
 typedef struct reply_type_st {
@@ -67,22 +71,21 @@ typedef struct reply_type_st {
 #define NUSER_RESULTS 128
 typedef struct user_eval_results_st { // this struct holds the results for one side. the usual case for this kind of query
    union res_u_ut {
-      int res[128] ;             // quick easy access if user can keep track himself.
-											// Was 64; but for set 88 and 15 metrics need at least 90. The detailed break down below I never used so not updated.
-      struct detailed_res_st {  // suggested layout for convenience. will correspond to syntax in dealer input file
-         int side_tot[16] ;        //0-15 16 metrics for side as a whole. Usual case otherwise dealer is adequate.
-         int side_by_suit[4][4] ;  //16-31 4 diff metrics for the side, broken down by suit.[CDHS][wxyz]
-         int hand_tot[2][8];       //32-47 hand results  8 diff metrics total for each hand
-         int hand_suit[2][4][2];   //48-63 results by suit; 2 diff metrics for each hand-suit combo.
+      int res[128] ;             // quick easy access if user can keep track himself. syntax p_ures->u.res[i]
+      struct detailed_res_st {   // suggested layout for convenience. will correspond to syntax in dealer input file
+         int side_tot[32] ;        //0-31 32 metrics for side as a whole. Usual case otherwise dealer is adequate.
+         int side_by_suit[4][8] ;  //32-63  8 diff metrics for the side, broken down by suit.[CDHS][wxyz]
+         int hand_tot[2][16];      //64-95 hand results  16 diff metrics total for each hand
+         int hand_suit[2][4][4];   //96-127 results by suit; 4 diff metrics for each hand-suit combo.
       } dr ;                       // detailed result
-    } u ;                          // Syntax to access the above: uval.u.res[i] or uval.u.dr.ne_suit[s][i]
-} USER_VALUES_k;                   //   -- or -- using a pointer: ptr->u.res[i] or ptr->u.dr.ne_suit[s][i]
+    } u ;                          // Syntax to access the above: uval.u.res[i] or uvalNS.u.dr.hand_suit[h][s][i]
+} USER_VALUES_k;                   //   -- or -- using a pointer: ptr->u.res[i] or ptrEW->u.dr.hand_suit[h][s][i]
 
 typedef struct mmap_template_st {         // how the shared memory is laid out and used.
    struct mmap_hdr_st      mm_hdr_dat   ; // pointers and offsets to the rest of the memory
    struct query_type_st    mm_qtype_dat ; // query tag, side, etc. spec for the UserEval server
    struct reply_type_st    mm_rtype_dat ; // passed back by the Server. currently not used much
-   struct deal_data_st     mm_deal_data ; // the deal itself, and the handstat, and sidestat analysis.
+   struct deal_data_st     mm_deal_data ; // the deal itself, and the handstat, and sidestat analysis, and the DDS tricks if available
    USER_VALUES_k           mm_user_nsvals;// 128 integers to report the Server results for the NS side.
    USER_VALUES_k           mm_user_ewvals;//     ditto for the EW side
    UEVAL_CACHE_k           mm_cache ;     // copy of the Cache in case the Server needs to update it. Not used ?

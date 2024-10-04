@@ -1,0 +1,32 @@
+generate 10000000
+produce 1000
+seed 1000
+
+ // File to generate one, or more, Freq2D tables of Points vs Tricks taken
+ //  The data will be post processed by a perl script to create an Excel/LibreOffice spreadsheet with %'s
+ //  Charts may be added to the spreadsheet manually
+ //  The description field in the bktfreq statement MUST have the correct format for the Perl script to work.
+ 
+ // Description in the Bucket Freq Statements should look like:
+ // Description: Tag 15 Name OPC Strain NT Size 500000 Seed 1000 No Comment
+ // 'Description' , 'Tag','Name','Strain' must be present to name the sheet)
+ 
+ // run with  -L ../dat/rpLib.zrd to save DDS solving time.
+ // Takes approx 19 sec for 500 deals in Lib mode, 32 sec for 500 deals using dds mode.
+ // Saving MUCH greater when using metrics Other than OPC since OPC calc itself is slow-ish
+ 
+title "Optimal Point Count per Side with Tricks in NT  Opener=S"
+
+condition
+    //  "Pavlicek's Spec for hands that might play in NT "
+  
+ shape(south,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+ shape(north,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+   hcp(south)+hcp(north) >= 15
+
+action
+   bktfreq "Tag=15 Name=OPC Strain=NT Size=500000 Seed=1000 :Top=45.00 step=0.5" 
+      (opc(NS,notrump),10.0,45.0,0.5,dds(south,notrump),7,12,1),
+
+
+//   printrpt("hcp(NS)=",hcp(north)+hcp(south), "OPC(NS,NT)=", opc(NS,notrump), "DDS Tricks=", dds(south,notrump), NS )

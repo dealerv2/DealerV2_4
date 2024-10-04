@@ -244,9 +244,9 @@ int fread_zrdrec(FILE *fzrd,  union zrd_rec_ut *uzrec_ptr ) {
 						zrdlib_recnum, zrdlib_pass_num ) ; 
 			exit(-1);
 			break ; 
-		case EOFZRD : /* eof on file. Rewind to start and read again */ 
+		case EOFZRD : /* eof on file. Tell caller (zrd_getrec) who will try rewinding one time */ 
 			if( nprod < options.max_produce) { /* Reached eof before necessary records got */
-				fprintf(stderr, "[%s%d] EOF in Pass Num %d occurred at zrd_cnt=%d, zrdlib_recnum=%d ngen=%d Rewinding File \n",
+				fprintf(stderr, "[%s%d] EOF in Pass Num %d occurred at zrd_cnt=%d, zrdlib_recnum=%d ngen=%d Returning EOFZRD to get_rec \n",
 					__FILE__,__LINE__,zrdlib_pass_num,zrd_cnt,zrdlib_recnum,ngen);
 			}
 			return EOFZRD ; 

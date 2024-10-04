@@ -745,7 +745,6 @@ void insertshape(char s[4], int any, int neg_shape) {
 
 int d2n(char s[4]) { /* distribution (e.g. string "4432" to an integer. Not sure how it handles 55xx */
         static char copys[5];
-
         strncpy(copys, s, 4);
         return atoi(copys);
 } /* end d2n() */
@@ -832,7 +831,7 @@ int bias_totsuit(int suit){
 } /* end bias_totsuit() */
 
  /* routine to handle alternate predeal specs  of form spades(north)==4 */
- /* JGM says: What? it checks for errors but there is no code in the main loop that takes this into account */
+ /* JGM says: bias deal functionality never implemented in original dealer. Finally added by JGM in 2022 */
 void bias_deal(int suit, int compass, int length){
   bias_deal_wanted = 1; /* global var */
   if(bias_suits[compass][suit]!=-1){
@@ -906,7 +905,7 @@ struct tree  *newquery( int tag, int side, int compass, int suit, int idx ) {
    }
    uqc.ucbits.idx = idx ;
    ptree = newtree(TRT_USEREVAL, NIL, NIL, tag, side ) ;
-   ptree->tr_int3 = uqc.coded_all ;   /* only use of tree.tr_int3 in this program */
+   ptree->tr_int3 = uqc.coded_all ;   /* only time tree.tr_int3 is used in this program */
 
    JGMDPRT(4,"NewQuery: Tag=%d, side=%d, compass=%d, suit=%d, idx=%d, coded_all=%08X, QueryTree=%p\n",
                         tag,side,compass,suit,idx, uqc.coded_all, (void*)ptree ) ;

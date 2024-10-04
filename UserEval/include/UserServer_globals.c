@@ -1,6 +1,7 @@
-/* File UserServer_globals.c -- Global Vars -- Stuff used only by the main server not by the calc routines ??
+/* File UserServer_globals.c -- Global Vars -- Setup by Main. Not changed during run.
  *  Version  Date          Comment
  *    0.5    2022-12-14    Split out of UserEval_globals.c as a test -- Include this file into UserServer.c ; no separate compile.
+ *    1.0    2024-08-12    Refactor UE effort.
  */
 #include "../include/std_hdrs_all.h"
 #include "../include/UserEval_types.h"
@@ -26,8 +27,8 @@ char mmap_fname[128];               /* Not really needed ; useful for debugging 
 
 MMAP_TEMPLATE_k      *mm_base_ptr ; /* The pointer that is the base for everything else. set by link_map in UserServer.c  -- not used? outside of him?*/
 DEALDATA_k           *p_dldat ;     /* the deal and handstat area */
-USER_VALUES_k        *p_nsdat ;     /* results for North, South, and NS side */
-USER_VALUES_k        *p_ewdat ;     /* results for East, West, and EW side */
+// Use p_nsres USER_VALUES_k        *p_nsdat ;     /* results for North, South, and NS side */
+// Use p_ewres USER_VALUES_k        *p_ewdat ;     /* results for East, West, and EW side */
 HANDSTAT_k           *hs_ptr[4] ;   /* 4 pointers one to each handstat struct */
 
 /* A definition for the Server Only. --- May not be used */

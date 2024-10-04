@@ -1,0 +1,49 @@
+generate 10000000
+produce 1000000
+seed 1000
+// Version 2024/07/26  - resequence Tag ID's and Altcount Uses
+
+ // run with -L ../dat/rpLib.zrd to save DDS solving time.
+
+title "All known HCP scales in DotNum format vs Tricks in NT 0.50 Steps"
+
+ // File to generate one, or more, Freq2D tables of Points vs Tricks taken
+ //  The data will be post processed by a perl script to create an Excel/LibreOffice spreadsheet with %'s
+ //  Charts may be added to the spreadsheet manually
+ //  The description field in the bktfreq statement MUST have the correct format for the Perl script to work.
+ 
+ // Description in the Bucket Freq Statements should look like:
+ // Description: Tag 15 Name OPC Strain NT Size 500000 Seed 1000 No Comment
+ // 'Description' , 'Tag','Name','Strain' must be present to name the sheet)
+
+altcount 9 6.0 4.0 2.0 1.0         // C13 Burnstein in Dotnum scale           sum=13
+altcount 5 4.0 2.8 1.8 1.0 0.4     // Andrews Fifths                          sum=10
+altcount 4 4.5 3.0 1.75 0.75       // Woolsey HCP                             sum=10
+altcount 3 4.5 3.0 1.5 0.75 0.25   // BumWrap aka Bergen_CPU aka C13*3/4      sum=10
+altcount 2 4.25 3.0 2.0 1.0 0.5    // Work with A=4.25 and T=0.5 Per Andrews  sum=10.75
+altcount 1 4.25 3.0 2.0 1.0        // Work with A=4.25           Per Andrews  sum=10.25
+altcount 0 4.0 3.0 2.0 1.0 0.5     // Work with T=0.5            Per Andrews  sum=10.5
+pointcount 4.0 3.0 2.0 1.0         // Work std in DecNum for same scale       sum=10 
+
+    // title "Pavlicek's Spec for hands that might play in NT "
+condition  
+ shape(south,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+ shape(north,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+   hcp(south)+hcp(north) >= 15.0
+
+
+action
+   bktfreq "Tag 20 Name HCP       Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=1.00" (hcp(south)+hcp(north),15.0,37.0,1.00,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 21 Name Ten050    Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=0.50" (pt0(south)+pt0(north),15.0,37.0,0.50,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 22 Name Ace425    Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=0.50" (pt1(south)+pt1(north),15.0,37.0,0.50,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 23 Name AT475     Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=0.50" (pt2(south)+pt2(north),15.0,37.0,0.50,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 24 Name Bumwrap   Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=0.50" (pt3(south)+pt3(north),15.0,37.0,0.50,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 25 Name Woolsey   Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=0.50" (pt4(south)+pt4(north),15.0,37.0,0.50,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 26 Name Fifths    Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=0.20" (pt5(south)+pt5(north),15.0,37.0,0.20,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 27 Name C13       Strain NoTrump Size 1Million Seed 1000 :Top=48.00 step=1.00" (pt9(south)+pt9(north),15.0,43.0,1.00,  dds(south,notrump),7,12,1),
+   bktfreq "Tag 28 Name CCCC      Strain NoTrump Size 1Million Seed 1000 :Top=37.00 step=0.50" (cccc(south)+cccc(north),15.0,37.0,0.50,dds(south,notrump),7,12,1),   
+
+//printrpt("South HCP",hcp(south),pt0(south),pt1(south),pt2(south),pt3(south),pt4(south),pt5(south),pt6(south),pt9(south), south  )
+
+
+

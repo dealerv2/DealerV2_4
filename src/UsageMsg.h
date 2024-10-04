@@ -7,7 +7,7 @@
 "C={Filename for CSV Report. (Precede with w: to truncate, else opened for append)}\n" \
 "N|E|S|W={Compass predeal holding - override input predeal statement}\n" \
 "O={OPC evaluation Opener(N|S|E|W) Default=[W|S]}\n" \
-"L={Use Path as RP Library source. Default Path = ../rpdd.zrd \n"\
+"L={Use Path as RP Library source. Default Path = $ROOT/dat/rpLib.zrd \n"\
 "M={dds_Mode: 1=single solution, 2=20x solutions}  \nR={Resources/Threads(1..9)}\n" \
 "P={vulnerability for Par computation: 0=NoneVul, 1=NS, 2=EW, 3=Both}\n"  \
 "T={Title in quotes}    \n" \

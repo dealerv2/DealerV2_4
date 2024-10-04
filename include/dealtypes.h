@@ -100,7 +100,7 @@ struct fd_shape_st {
 } ;
 
 	/* structs for usereval queries */
-struct qcoded_st {
+struct qcoded_st {                // bit field struct size of one int.
         unsigned int idx   : 8 ;  // low bits
         unsigned int suit  : 8 ;
         unsigned int hand  : 8 ;
@@ -184,32 +184,25 @@ struct action {
         } ac_u;
 };
 
-/* For cccc and quality --- Does not seem to be used by either deal_knr.c or deal_knr.h*/
-/* might be useful for the upcoming user_eval functionality */
-struct context_st {
-  DEAL52_k *pd ; 					/* pointer to current deal */
-  struct handstat *ps ; 		/* Pointer to stats of current deal */
-};
-
 struct handstat {
-    int hs_seat ;               /* make it easy to deduce the player given the pointer */
-    int hs_length[NSUITS];      /* distribution */
-    int hs_points[NSUITS];      /* 4321 HCP per suit */
-    int hs_totalpoints;         /* Sum of above hs_points[NSUITS]; */
-    int hs_bits;                /* Bitmap to check distribution */
-    int hs_loser[NSUITS];       /* Losers in a suit  simple version of LTC. Does not allow for half losers e.g. AJT etc as def'd by Blue Team*/
-    int hs_totalloser;          /* Losers in the hand */
-    int hs_control[NSUITS];     /* Controls in a suit */
-    int hs_totalcontrol;        /* Controls in the hand */
-    int hs_counts[idxEnd][NSUITS];  /* pt0 thru pt9 & HCP which is a dup of the hs_points array */
-    int hs_totalcounts[idxEnd];     /* pt0 thru pt9 & HCP total of all 4 suits */
+    short hs_seat ;               /* make it easy to deduce the player given the pointer */
+    short hs_length[NSUITS];      /* distribution */
+    short hs_points[NSUITS];      /* 4321 HCP per suit */
+    short hs_totalpoints;         /* Sum of above hs_points[NSUITS]; */
+    short hs_bits;                /* Bitmap to check distribution */
+    short hs_loser[NSUITS];       /* Losers in a suit  simple version of LTC. Does not allow for half losers e.g. AJT etc as def'd by Blue Team*/
+    short hs_totalloser;          /* Losers in the hand */
+    short hs_control[NSUITS];     /* Controls in a suit */
+    short hs_totalcontrol;        /* Controls in the hand */
+    short hs_counts[idxEnd][NSUITS];  /* pt0 thru pt9 & HCP which is a dup of the hs_points array */
+    short hs_totalcounts[idxEnd];     /* pt0 thru pt9 & HCP total of all 4 suits */
 
 /*   Next fields added by JGM .... */
-    int square_hand ;           /* == 1 for 4333 zero otherwise */
-    int hs_ltc[NSUITS];     	  /* Modern  Losing trick count per suit. Counts in half losers. Values x 100 */
-    int hs_totalltc;        	  /* Total ltc in the hand Counts in half losers. Values x 100 */
-    int topcards[NSUITS][3];    /* These are bit masks that allow easy calc of LTC via a switch statement */
-    int Has_card[NSUITS][13];   /* CCCC/KnR uses cards down to the 8; printoneline and others use hascard a lot. */
+    short square_hand ;           /* == 1 for 4333 zero otherwise */
+    short hs_ltc[NSUITS];     	  /* Modern  Losing trick count per suit. Counts in half losers. Values x 100 */
+    short hs_totalltc;        	  /* Total ltc in the hand Counts in half losers. Values x 100 */
+    short topcards[NSUITS][3];    /* These are bit masks that allow easy calc of LTC and short honors adjust via a switch statement */
+    short Has_card[NSUITS][13];   /* CCCC/KnR uses cards down to the 8; printoneline and others use hascard a lot. */
 
 };  /* end struct handstat */
 typedef struct handstat HANDSTAT_k ;

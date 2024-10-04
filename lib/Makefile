@@ -8,7 +8,7 @@ LDFLAGS = -L../lib -lm -ldds -ldealerV2
 
 LIBNAME  = libdealerV2.a
 LIBSRCS  = ../src/deal_conversion_subs.c ../src/dealdebug_subs.c ../src/dealdeck_subs.c 
-LIBSRCS += ../src/deal_knr.c ../src/deal_scorelib.c ../src/dealutil_subs.c 
+LIBSRCS += ../src/deal_knr.c ../src/deal_rounding_subs.c ../src/deal_scorelib.c ../src/dealutil_subs.c 
 LIBOBJS = $(patsubst ../src/%.c,%.o,$(LIBSRCS) ) libVersion.o
 
 LIBHDRS = $(patsubst ../src/%.c,%.h,$(LIBSRCS) )

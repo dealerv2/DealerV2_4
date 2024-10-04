@@ -10,18 +10,24 @@ predeal
    east SJ6,HA982,DQ8754,C86 
 
 
-# ZarBasic is metric 12, ZarFull is metric 13; ZarFull calls ZarBasic; 
+# ZarBasic is metric 12, ZarFull is metric 13; ZarFull calls ZarBasic;
+# Returns the usual 6 values, and also the values for each hand 'scaled' by dividing by 2 and Pav_rounding
+# Details=HCP_Adj, Ctls, Dist, Synergy, Body in East and Next 5 vals in the West
 action
-		   printrpt("Top5 West=[", top5(west, spades), top5(west,hearts),top5(west,diamonds),top5(west,clubs),"] Top5 East=[",
-											top5(east, spades), top5(east,hearts),top5(east,diamonds),top5(east,clubs),"]"),
+		   printrpt(EW,  "Top5 East=[Sp:", top5(east, spades), top5(east,hearts),top5(east,diamonds),top5(east,clubs),
+		               "] Top5 West=[Sp:", top5(west, spades), top5(west,hearts),top5(west,diamonds),top5(west,clubs),"]"),
 #ZarFull ZarBasic(0 .. 13 but 3,4,5 modified) + Fn, Hf, Dfit, x 2
-printrpt (EW,  usereval(13,EW,0), usereval(13,EW,1), usereval(13,EW,2), usereval(13,EW,3), usereval(13,EW,4),
-               usereval(13,EW,5), usereval(13,EW,6), usereval(13,EW,7), usereval(13,EW,8), usereval(13,EW,9),
-               usereval(13,EW,10),usereval(13,EW,11),usereval(13,EW,12),usereval(13,EW,13),usereval(13,EW,14),
- 					usereval(13,EW,15),usereval(13,EW,16),usereval(13,EW,17),usereval(13,EW,18),usereval(13,EW,19)),
+printrpt( EW, "Trump Suit=",usereval(13,EW,126) , "Trump FitLen=",usereval(13,EW,127) ),
+printrpt ("ZARAdv:NTside_E_W=",usereval(13,EW,0), usereval(13,EW,1), usereval(13,EW,2), 
+             "  HLDFside_E_W=",usereval(13,EW,3), usereval(13,EW,4), usereval(13,EW,5),
+             " Scaled NT_E_W=",usereval(13,EW,6), usereval(13,EW,7), " Scaled HLDF_E_W=", usereval(13,EW,8), usereval(13,EW,9), 
+             ":: Details=E",usereval(13,EW,10),usereval(13,EW,11),usereval(13,EW,12),usereval(13,EW,13),usereval(13,EW,14),
+ 			 ":: Details=W",usereval(13,EW,15),usereval(13,EW,16),usereval(13,EW,17),usereval(13,EW,18),usereval(13,EW,19)),
 # ZarBasic
-printrpt (EW,  usereval(12,EW,0), usereval(12,EW,1), usereval(12,EW,2), usereval(12,EW,3), usereval(12,EW,4),
-               usereval(12,EW,5), usereval(12,EW,6), usereval(12,EW,7), usereval(12,EW,8), usereval(12,EW,9),
-               usereval(12,EW,10),usereval(12,EW,11),usereval(12,EW,12),usereval(12,EW,13))
+printrpt ("ZarBas:NTside_E_W=",usereval(12,EW,0), usereval(12,EW,1), usereval(12,EW,2), 
+             "  HLDFside_E_W=",usereval(12,EW,3), usereval(12,EW,4), usereval(12,EW,5),
+             " Scaled NT_E_W=",usereval(12,EW,6), usereval(12,EW,7), " Scaled HLDF_E_W=", usereval(12,EW,8), usereval(12,EW,9), 
+             ":: Details=E",usereval(12,EW,10),usereval(12,EW,11),usereval(12,EW,12),usereval(12,EW,13),usereval(12,EW,14),
+ 		     ":: Details=W",usereval(12,EW,15),usereval(12,EW,16),usereval(12,EW,17),usereval(12,EW,18),usereval(12,EW,19)),
 
 

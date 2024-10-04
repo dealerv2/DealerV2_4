@@ -13,7 +13,8 @@
 #endif
 #include "std_hdrs.h"
 #include "dealtypes.h"          /* some type defs and struct tags needed below. Will include dealdefs.h also */
-#include "dealer_paths.h"       /* #defines for dealer directories and program names, expressed as strings */
+
+// #define SERVER_NAME CONCAT("./"," DealerServer")  /* for some strange reason cant do this in dealer_paths.h */
 
 int jgmDPRT = 0 ;				/* cant ifdef it bec some modules may compile with JGMDBG off and some on. */
 int DealMode = DEF_MODE ;  /* 2023-12-10 Re-Org for Bias Deal */
@@ -92,16 +93,9 @@ int    zrd_max_seed = ZRD_MAX_SEED ;
 int    zrd_cnt      = 0 ;
 int    zrdlib_pass_num = 0 ;
 
-/* -U Path name for the UserEval binary. Default is 'DealerServer' in the current directory. Can be set by -U cmd line parm
- * -U ./DealerServer or ../Prod/DealerServer or ../lib/DealerServer or ../Debug/DealSrvdbg or ../lib/DealerSrvdbg
- * Instead: /usr/local/games/DealerV2/UserEval/DealerServer  or /home/MyUser/MyDir/MySubDir/MyUserPgm
- */
- char server_pgm[64]   = SERVER_PGM ; /* In the current directory. or user sets path name via -U switch */
+/* Default Complete Path name for the UserEval binary.Can be set by -U cmd line parm */
 
-/* char server_dir[SERVER_PATH_SIZE+1]  = "/usr/local/games/DealerV2_4/bin";  */           
-/* char server_path[SERVER_PATH_SIZE+1] = "/usr/local/games/DealerV2_4/UserEval/DealerServer"; */
-
-char server_dir[SERVER_PATH_SIZE+1]  = UEV_DIR ;     //   /usr/local/games/DealerV2_4/UserEval
+char server_dir[SERVER_PATH_SIZE+1]  = UEV_DIR ;     //   /usr/local/games/DealerV2_4/UserEval -- for src code, header files etc.
 char server_path[SERVER_PATH_SIZE+1] = SERVER_PGM;   //   /usr/local/games/DealerV2_4/bin/DealerServer
 pid_t userserver_pid = 0 ;
 
@@ -175,11 +169,11 @@ int pointcount_index;         /* Global var set by yyparse()  to track which ran
 
 /* from deuce to Ace  -- (weight of a void is 128) allows stiffs and dblton honors to all have unique value.*/
 /*                      2, 3, 4, 5, 6, 7, 8, 9, T, J, Q,   K,  A   */
-int ltc_weights[13] = { 1, 1, 1, 1, 1, 1, 1, 1, 4, 8, 16, 32, 64 }; /* may be superceded by CardAttr_RO  below Void=128 */
-int points[13]      = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  2,  3,  4 }; /* Goren HCP values */
+short int ltc_weights[13] = { 1, 1, 1, 1, 1, 1, 1, 1, 4, 8, 16, 32, 64 }; /* may be superceded by CardAttr_RO  below Void=128 */
+short int points[13]      = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  2,  3,  4 }; /* Goren HCP values */
 /* the pointcount array itself */
 
-int tblPointcount [idxEnd][13] = {
+short int tblPointcount [idxEnd][13] = {
     /* tables tens to c13 MUST be in this order to make sense to the user.
      * Put HCP at very end since it has its own routines to handle it.
      * Order of other tables does not matter; they are unlikely to be changed; Controls and LTC weights are pretty fixed
@@ -198,7 +192,7 @@ int tblPointcount [idxEnd][13] = {
  {  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4}, /* HCP idx=(idxEnd - 1); At end since it has its own zero etc rtn*/
 } ; /* End tblPointCount */
 
-int CardAttr_RO [idxEndRO][13] = { /* Values Not changeable by user via altcount or pointcount cmd */
+short int CardAttr_RO [idxEndRO][13] = { /* Values Not changeable by user via altcount or pointcount cmd */
  /* 2  3  4  5  6  7  8  9  T   J   Q   K   A */
  {  0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  1,  2},  /* controls idxControls = 0 */
  {  1, 1, 1, 1, 1, 1, 1, 1, 4,  8, 16, 32, 64},  /* ltc weights. idxLTCwts.  Will ID WHICH of the top cards we have. */

@@ -1,0 +1,52 @@
+generate   10000000
+produce    10
+seed     83
+# Run this with the -L ZRD lib switch to speed it up.
+
+title "Alt HCP Woolsey with stoppers vs Tricks in NT  "
+
+NShcp = usereval(24, NS, 3)  // the Raw x 100 total aka HLDF.side
+EWhcp = usereval(24, EW, 3)
+
+NStrix = (dds(north, notrump) >= dds(south,notrump)) ? dds(north, notrump) : dds(south,notrump)
+EWtrix = (dds(east , notrump) >= dds(west, notrump)) ? dds(east , notrump) : dds(west,notrump)
+trixNT =  NStrix >= EWtrix ? NStrix : EWtrix
+sideHCP=  NStrix >= EWtrix ? NShcp  : EWhcp
+PlayNTNS = shape(north,  any 4333 + any 4432 + any 5332 - any 7xxx - any 1xxx - any 0xxx - 6xxx - x6xx ) and 
+           shape(south,  any 4333 + any 4432 + any 5332 - any 7xxx - any 1xxx - any 0xxx - 6xxx - x6xx ) and 
+           (spades(north)+spades(south)) < 8 and (hearts(north) + hearts(south)) < 8
+PlayNTEW = shape(east,   any 4333 + any 4432 + any 5332 - any 7xxx - any 1xxx - any 0xxx - 6xxx - x6xx ) and
+           shape(west,   any 4333 + any 4432 + any 5332 - any 7xxx - any 1xxx - any 0xxx - 6xxx - x6xx ) and
+           (spades(east)+spades(west)) < 8 and (hearts(east) + hearts(west)) < 8
+           
+
+// Stopper Definitions EW
+// Further refinements: (a)suit(east)+suit(west)>=6 and hcp(east,suit)+hcp(west,suit)>=3 (covers case of Qxx vs Jxx )
+//                      (b)suit(west)>=5 or suit(east)>=5 (condider 5 rags to be a stopper)
+
+Sp_stopE = hascard(east, AS) or (spades(east) >=2 && hascard(east, KS) ) or (spades(east) >=3 && hcp(east,spades) >=3)
+Sp_stopW = hascard(west, AS) or (spades(west) >=2 && hascard(west, KS) ) or (spades(west) >=3 && hcp(west,spades) >=3)
+He_stopE = hascard(east, AH) or (hearts(east) >=2 && hascard(east, KH) ) or (hearts(east) >=3 && hcp(east,hearts) >=3)
+He_stopW = hascard(west, AH) or (hearts(west) >=2 && hascard(west, KH) ) or (hearts(west) >=3 && hcp(west,hearts) >=3)
+Di_stopE = hascard(east, AD) or (diamond(east)>=2 && hascard(east, KD) ) or (diamond(east)>=3 && hcp(east,diamond)>=3)
+Di_stopW = hascard(west, AD) or (diamond(east)>=2 && hascard(west, KD) ) or (diamond(east)>=3 && hcp(west,diamond)>=3)
+Cl_stopE = hascard(east, AC) or (clubs (east) >=2 && hascard(east, KC) ) or (clubs (east) >=3 && hcp(east,clubs ) >=3)
+Cl_stopW = hascard(west, AC) or (clubs (west) >=2 && hascard(west, KC) ) or (clubs (west) >=3 && hcp(west,clubs ) >=3)
+Sp_stopEW = Sp_stopE || Sp_stopW
+He_stopEW = He_stopE || He_stopW
+Di_stopEW = Di_stopE || Di_stopW
+Cl_stopEW = Cl_stopE || Cl_stopW
+
+PlayNTSide =  NStrix >= EWtrix ? PlayNTNS  : PlayNTEW
+DeclSide =  NStrix >= EWtrix ? 0 : 1
+// condition where the hands should be played in NT
+condition PlayNTEW && (Sp_stopE || Sp_stopW) && (He_stopE || He_stopW) && (Di_stopE || Di_stopW) && (Cl_stopE || Cl_stopW) 
+action 
+//    printrpt(deal,dds(west,notrump)),
+
+ //   printrpt( "NS::",usereval(24, NS, 0), usereval(24, NS, 1), usereval(24, NS, 2), usereval(24, NS, 3), usereval(24, NS, 4), usereval(24, NS, 5)), 
+ //   printrpt( "EW::",usereval(24, EW, 0), usereval(24, EW, 1), usereval(24, EW, 2), usereval(24, EW, 3), usereval(24, EW, 4), usereval(24, EW, 5)), 
+                    
+     bktfreq  "Tag 24 Name Woolsey Strain NoTrump Size 500K Seed 000:Top=45" (EWhcp,  1300, 4500, 25, EWtrix, 7, 12, 1 ),
+
+

@@ -89,7 +89,7 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
     opts->maxRamMB = 160 * opts->nThreads ;
     opts->csv_fmode[0] = '\0';        // if null no csvfile specified.
     opts->csv_fname[0] = '\0';
-    opts->userpgm[0]   = '\0';         // None or default path assumed.
+    strcpy(opts->userpgm, server_path) ;  // /usr/local/games/DealerV2_4/DealerServer from globals.c will not be used if no UserEval server wanted.
     opts->ex_fname[0]  = '\0';
     memset(opts->preDeal_len, 0, 4*sizeof(int) ) ; /* preDeal stores the -N,-E,-S,-W opt settings */
     memset(opts->preDeal, '\0' , 128 ) ;
@@ -436,7 +436,7 @@ void show_options ( struct options_st *opts , int v ) {
     fprintf(stderr, "\t %s=[%s]\n", "E:PreDeal", opts->preDeal[1] ) ;
     fprintf(stderr, "\t %s=[%s]\n", "W:PreDeal", opts->preDeal[3] ) ;
     fprintf(stderr, "\t %s=[%s]\n", "X:Fname",   opts->ex_fname   ) ;
-    fprintf(stderr, "\t %s=[%s]\n", "U:Fname",   opts->userpgm    ) ;
+    fprintf(stderr, "\t %s=[%s] %s \n", "U:Fname",   opts->userpgm, (userserver_reqd > 0 ) ? "Will Run" : "Not Needed"  ) ;
     fprintf(stderr, "\t %s=[%s] mode=[%s] DDtricks=%c\n", "Z:Fname", opts->zrd_fname, opts->zrd_fmode,"NY"[opts->zrd_dds]) ;
     fprintf(stderr, "\t %s=[%s] mode=[%s] DDtricks=%c\n", "l:Fname", opts->log_fname, opts->log_fmode,"NY"[opts->log_dds]) ;
    return ;

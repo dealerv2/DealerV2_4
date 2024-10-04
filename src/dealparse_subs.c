@@ -38,7 +38,7 @@ void error (char *s) {
 /* JGM has modified how the altcounts are tracked so that the value cin in the altcount cin statement matches ptn */
 /* Can't really see a need to keep TWO arrays that track std 4-3-2-1 HCP; but kept them both anyway */
 /* so we have points[13] and tblPointCount[idxEnd][13] which both do the same thing. */
-void zerocount (int points[13]) {  /* generic zero out of any pointcount array: HCP or ptn */
+void zerocount (short points[13]) {  /* generic zero out of any pointcount array: HCP or ptn */
   int i;
   for (i = 0; i < 13 ; i++) points[i] = 0; /* JGM change to incr loop */
 }
@@ -50,7 +50,7 @@ void clearpointcount () {   /* zero out the HCP array 'points' and the copy tblP
  }
 
 void clearpointcount_alt (int cin) {
-               /* cin comes from the altcount tblnum <number_list> or from defcount tblnum <decnum_list> statements*/
+               /* cin comes from the altcount tblnum <number_list> statement*/
   JGMDPRT(4,"Clear Alt Count cin=%d\n",cin);  /* as of Sep cin should be 0 .. 10 to allow defcount to set the hcp values to dotnums */
   zerocount (tblPointcount[cin]);
   alt_tbl_idx = cin;                      /* global var alt_tbl_idx keeps track of which pt cnt table we are updating. */

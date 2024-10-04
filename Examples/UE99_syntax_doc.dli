@@ -1,0 +1,137 @@
+generate   10000
+produce    1
+seed 17
+title "UE_test_syntax with Query 99  "
+# 99 is the query-id that asks for syntax testing
+#side[32], sideXsuit[4][8], handtot[2][16],handXsuit[2][4][4],
+
+action
+    printrpt("NS Side X 32 (0 .. 31 )=",
+                            usereval(99, NS, 0),usereval(99, NS, 1),usereval(99, NS, 2),usereval(99, NS, 3),
+                            usereval(99, NS, 4),usereval(99, NS, 5),usereval(99, NS, 6),usereval(99, NS, 7), 
+                            usereval(99, NS, 8),usereval(99, NS, 9),usereval(99, NS,10),usereval(99, NS,11),
+                            usereval(99, NS,12),usereval(99, NS,13),usereval(99, NS,14),usereval(99, NS,15),
+                            usereval(99, NS,16),usereval(99, NS,17),usereval(99, NS,18),usereval(99, NS,19),
+                            usereval(99, NS,20),usereval(99, NS,21),usereval(99, NS,22),usereval(99, NS,23),
+                            usereval(99, NS,24),usereval(99, NS,25),usereval(99, NS,26),usereval(99, NS,28),
+                            usereval(99, NS,28),usereval(99, NS,29),usereval(99, NS,30),usereval(99, NS,31)),                               
+    printrpt("NS Side_Suit 4 X 8 (32 .. 63)=", 
+                            usereval(99, NS, clubs,  0),usereval(99, NS, clubs,  1),usereval(99, NS, clubs,  2),usereval(99, NS, clubs, 3),
+                            usereval(99, NS, clubs,  4),usereval(99, NS, clubs,  5),usereval(99, NS, clubs,  6),usereval(99, NS, clubs, 7),
+                            usereval(99, NS, diamond,0),usereval(99, NS, diamond,1),usereval(99, NS, diamond,2),usereval(99, NS,diamond,3),
+                            usereval(99, NS, diamond,4),usereval(99, NS, diamond,5),usereval(99, NS, diamond,6),usereval(99, NS,diamond,7),
+                            usereval(99, NS, hearts, 0),usereval(99, NS, hearts, 1),usereval(99, NS, hearts, 2),usereval(99, NS, hearts,3),
+                            usereval(99, NS, hearts, 4),usereval(99, NS, hearts, 5),usereval(99, NS, hearts, 6),usereval(99, NS, hearts,7),
+                            usereval(99, NS, spades, 0),usereval(99, NS, spades, 1),usereval(99, NS, spades, 2),usereval(99, NS, spades,3),                           
+                            usereval(99, NS, spades, 4),usereval(99, NS, spades, 5),usereval(99, NS, spades, 6),usereval(99, NS, spades,7)),
+    printrpt("NS Hand 2 X 16 (64 .. 95)=", 
+                            usereval(99, north,  0),usereval(99, north,  1),usereval(99, north,  2),usereval(99, north, 3),
+                            usereval(99, north,  4),usereval(99, north,  5),usereval(99, north,  6),usereval(99, north, 7),
+                            usereval(99, north,  8),usereval(99, north,  9),usereval(99, north, 10),usereval(99, north,11),
+                            usereval(99, north, 12),usereval(99, north, 13),usereval(99, north, 14),usereval(99, north,15),
+                            usereval(99, south,  0),usereval(99, south,  1),usereval(99, south,  2),usereval(99, south, 3),
+                            usereval(99, south,  4),usereval(99, south,  5),usereval(99, south,  6),usereval(99, south, 7),                            
+                            usereval(99, south,  8),usereval(99, south,  9),usereval(99, south, 10),usereval(99, south,11),
+                            usereval(99, south, 12),usereval(99, south, 13),usereval(99, south, 14),usereval(99, south,15)),
+     printrpt("NS Hand_suit 2 X 4 X 4 (96 .. 127)=", 
+                            usereval(99, north,  clubs, 0),usereval(99, north, clubs, 1),usereval(99, north,  clubs, 2),usereval(99, north, clubs, 3),
+                            usereval(99, north, diamond,0),usereval(99, north,diamond,1),usereval(99, north, diamond,2),usereval(99, north,diamond,3),
+                            usereval(99, north,  hearts,0),usereval(99, north, hearts,1),usereval(99, north,  hearts,2),usereval(99, north, hearts,3),
+                            usereval(99, north, spades, 0),usereval(99, north,spades, 1),usereval(99, north, spades, 2),usereval(99, north,spades, 3),
+                            usereval(99, south,  clubs, 0),usereval(99, south, clubs, 1),usereval(99, south,  clubs, 2),usereval(99, south, clubs, 3),
+                            usereval(99, south, diamond,0),usereval(99, south,diamond,1),usereval(99, south, diamond,2),usereval(99, south,diamond,3),
+                            usereval(99, south,  hearts,0),usereval(99, south, hearts,1),usereval(99, south,  hearts,2),usereval(99, south, hearts,3),
+                            usereval(99, south, spades, 0),usereval(99, south,spades, 1),usereval(99, south, spades, 2),usereval(99, south,spades, 3)),
+  // EW Testing                           
+    printrpt("EW Side X 32 (0 .. 31 )=",
+                            usereval(99, EW, 0),usereval(99, EW, 1),usereval(99, EW, 2),usereval(99, EW, 3),
+                            usereval(99, EW, 4),usereval(99, EW, 5),usereval(99, EW, 6),usereval(99, EW, 7), 
+                            usereval(99, EW, 8),usereval(99, EW, 9),usereval(99, EW,10),usereval(99, EW,11),
+                            usereval(99, EW,12),usereval(99, EW,13),usereval(99, EW,14),usereval(99, EW,15),
+                            usereval(99, EW,16),usereval(99, EW,17),usereval(99, EW,18),usereval(99, EW,19),
+                            usereval(99, EW,20),usereval(99, EW,21),usereval(99, EW,22),usereval(99, EW,23),
+                            usereval(99, EW,24),usereval(99, EW,25),usereval(99, EW,26),usereval(99, EW,28),
+                            usereval(99, EW,28),usereval(99, EW,29),usereval(99, EW,30),usereval(99, EW,31)),                               
+    printrpt("EW Side_Suit 4 X 8 (32 .. 63)=", 
+                            usereval(99, EW, clubs,  0),usereval(99, EW, clubs,  1),usereval(99, EW, clubs,  2),usereval(99, EW, clubs, 3),
+                            usereval(99, EW, clubs,  4),usereval(99, EW, clubs,  5),usereval(99, EW, clubs,  6),usereval(99, EW, clubs, 7),
+                            usereval(99, EW, diamond,0),usereval(99, EW, diamond,1),usereval(99, EW, diamond,2),usereval(99, EW,diamond,3),
+                            usereval(99, EW, diamond,4),usereval(99, EW, diamond,5),usereval(99, EW, diamond,6),usereval(99, EW,diamond,7),
+                            usereval(99, EW, hearts, 0),usereval(99, EW, hearts, 1),usereval(99, EW, hearts, 2),usereval(99, EW, hearts,3),
+                            usereval(99, EW, hearts, 4),usereval(99, EW, hearts, 5),usereval(99, EW, hearts, 6),usereval(99, EW, hearts,7),
+                            usereval(99, EW, spades, 0),usereval(99, EW, spades, 1),usereval(99, EW, spades, 2),usereval(99, EW, spades,3),                           
+                            usereval(99, EW, spades, 4),usereval(99, EW, spades, 5),usereval(99, EW, spades, 6),usereval(99, EW, spades,7)),
+    printrpt("EW Hand 2 X 16 (64 .. 95)=", 
+                            usereval(99, east,  0),usereval(99, east,  1),usereval(99, east,  2),usereval(99, east, 3),
+                            usereval(99, east,  4),usereval(99, east,  5),usereval(99, east,  6),usereval(99, east, 7),
+                            usereval(99, east,  8),usereval(99, east,  9),usereval(99, east, 10),usereval(99, east,11),
+                            usereval(99, east, 12),usereval(99, east, 13),usereval(99, east, 14),usereval(99, east,15),
+                            usereval(99, west,  0),usereval(99, west,  1),usereval(99, west,  2),usereval(99, west, 3),
+                            usereval(99, west,  4),usereval(99, west,  5),usereval(99, west,  6),usereval(99, west, 7),                            
+                            usereval(99, west,  8),usereval(99, west,  9),usereval(99, west, 10),usereval(99, west,11),
+                            usereval(99, west, 12),usereval(99, west, 13),usereval(99, west, 14),usereval(99, west,15)),
+     printrpt("EW Hand_suit 2 X 4 X 4 (96 .. 127)=", 
+                            usereval(99, east,  clubs, 0),usereval(99, east, clubs, 1),usereval(99, east,  clubs, 2),usereval(99, east, clubs, 3),
+                            usereval(99, east, diamond,0),usereval(99, east,diamond,1),usereval(99, east, diamond,2),usereval(99, east,diamond,3),
+                            usereval(99, east,  hearts,0),usereval(99, east, hearts,1),usereval(99, east,  hearts,2),usereval(99, east, hearts,3),
+                            usereval(99, east, spades, 0),usereval(99, east,spades, 1),usereval(99, east, spades, 2),usereval(99, east,spades, 3),
+                            usereval(99, west,  clubs, 0),usereval(99, west, clubs, 1),usereval(99, west,  clubs, 2),usereval(99, west, clubs, 3),
+                            usereval(99, west, diamond,0),usereval(99, west,diamond,1),usereval(99, west, diamond,2),usereval(99, west,diamond,3),
+                            usereval(99, west,  hearts,0),usereval(99, west, hearts,1),usereval(99, west,  hearts,2),usereval(99, west, hearts,3),
+                            usereval(99, west, spades, 0),usereval(99, west,spades, 1),usereval(99, west, spades, 2),usereval(99, west,spades, 3)),
+
+ //  99 is a testing metric. It fills the 128 slots result area as follows  //   -1,  -2,  -3,  -4,  -5,  -6,  -7,  -8,  -9, -10, -11, -12, -13, -14, -15, -16
+ //  -17, -18, -19, -20, -21, -22, -23, -24, -25, -26, -27, -28, -29, -30, -31, -32
+ //  100, 101, 102, 103, 104, 105, 106, 107, 200, 201, 202, 203, 204, 205, 206, 207,
+ //  300, 301, 302, 303, 304, 305, 306, 307, 400, 401, 402, 403, 404, 405, 406, 407  // (100 = clubs, 400 = spades)
+ // 1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015 // (1000 = north/east, 2000=south/west)
+ // 2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 
+ // 1100,1101,1102,1103,1200,1201,1202,1203,1300,1301,1302,1303,1400,1401,1402,1403,
+ // 2100,2101,2102,2103,2200,2201,2202,2203,2300,2301,2302,2303,2400,2401,2402,2403, // N=1000,S=2000,C=100,S=400
+
+ // (ignore chars like (ignore any chars like EEEFEEOF  that precede results. They are the result of an unsolved bug relating to the Slash-Asterix comments)
+                         
+    
+   /* The designer of the metric needs to tell the user of the metric which
+      slots the results will be returned in.
+      Each side has its own set of 128 counters to work with. So EW use the same
+      slot numbers that NS do, but in a different set of coutners.
+      
+      The suggested standard is that queries that do not specify a hand 
+      or a suit, but only a side, can put their values in any of the slots
+      0 .. 127. However if the designer of the metric routine wants to allow 
+      for the user to specify hand and / or suit then the following is
+      suggested:
+      slots 0..31 result from statements like
+      usereval(99 , EW, 8 )  which specify only tag  and side.
+      32 values in the first 32 slots, 
+  
+      slots 32 .. 63 results from statements like
+      usereval(99, NS, clubs, 0 ) (slot 31) or usereval(99,NS,spades,7) (slot 63)
+      8 values for each of the 4 suits; the total for side (4 x 8 = 32 )
+      
+      slots 64 .. 95 results from statements like
+      usereval(99,north,0) (slot 64) or usereval(99,south,15) (slot 95)
+      16 values for each of the 2 hands.  (2 x 16 = 32)
+      
+      Finally slots 98 .. 127 results from statemenst like
+      usereval(99,north,clubs,0) (slot 96) or usereval(99,south,spades,3) (slot 127)
+      4 values for each of the 4 suits in each of the 2 hands. (2 x 4 x 4 = 32)
+      
+      The usereval cache (for each side) is updated whenever the deal changes,
+      or whenever the tag changes. Thus the designer of the server code should 
+      fill all the slots that that tag could ask for, on every call.
+      
+      Because if the statement usereval(99,EW,clubs,2) were to only update slot 34,
+      then the next call to 99 e.g. usereval(99, EW, spades, 0) would NOT result
+      in a call to the server, but the 'value' would be returned from the 'cache'
+      and would likely be 'garbage' since that slot in the cache would not have 
+      been updated.
+      
+      For the above reason, it is often just as convenient to use the 
+      usereval(tag, side, index) form and not worry about the other forms.
+      However using the other forms can have the benefit of documenting
+      which values for which hands or which suits, are being analyzed.
+  */
+
+

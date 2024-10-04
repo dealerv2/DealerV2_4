@@ -1,0 +1,26 @@
+generate 10000000
+produce  10000000
+seed 919
+
+title "Test Altcount as counting various types of HCP 1D freq Table" // rerun later to get HCP vs each Alternative?
+altcount 9 6.0 4.0 2.0 1.0         // C13 Burnstein in Dotnum scale           sum=13
+altcount 5 4.0 2.8 1.8 1.0 0.4     // Andrews Fifths                          sum=10
+altcount 4 4.5 3.0 1.75 0.75       // Woolsey HCP                             sum=10
+altcount 3 4.5 3.0 1.5 0.75 0.25   // BumWrap                                 sum=10
+altcount 2 4.25 3.0 2.0 1.0 0.5    // Work with A=4.25 and T=0.5 Per Andrews  sum=10.75
+altcount 1 4.25 3.0 2.0 1.0        // Work with A=4.25           Per Andrews  sum=10.25
+altcount 0 4.0 3.0 2.0 1.0 0.5     // Work with T=0.5                         sum=10.5
+pointcount 4.0 3.0 2.0 1.0         // Work std in DecNum for same scale       sum=10 
+
+
+action
+   bktfreq "HCP      A=4.0  K=3.0 Q=2.0  J=1.0  T=0.0"  (hcp(south), 1.0, 40.0, 1.0 ) , // pointcount deck=40
+   bktfreq "T050     A=4.0  K=3.0 Q=2.0  J=1.0  T=0.5"  (pt0(south), 1.0, 42.0, 0.5 ) , // pt0  Deck = 4x10.5 = 42
+   bktfreq "A425     A=4.25 K=3.0 Q=2.0  J=1.0  T=0.0"  (pt1(south), 1.0, 41.0, 0.25) , // pt1  Deck = 4x10.25 = 41
+   bktfreq "At475    A=4.25 K=3.0 Q=2.0  J=1.0  T=0.5"  (pt2(south), 1.0, 43.0, 0.25) , // pt2  Deck = 4x10.75 = 43
+   bktfreq "Bumwrap  A=4.5  K=3.0 Q=1.5  J=0.75 T=0.25" (pt3(south), 1.0, 40.0, 0.25) , // pt3  Deck = 40 Bumwrap   
+   bktfreq "Woolsey  A=4.5  K=3.0 Q=1.75 J=0.75 T=0.0"  (pt4(south), 1.0, 40.0, 0.25) , // pt4  Deck = 40 Woolsey
+   bktfreq "Fifths   A=4.0  K=2.8 Q=1.8  J=1.0  T=0.4"  (pt5(south), 1.0, 40.0, 0.20) , // pt6  Deck = 40 Fifths
+   bktfreq "C13 Aces A=6.0  K=4.0 Q=2.0  J=1.0  T=0.0"  (pt9(south), 1.0, 52.0, 1.0 ) , // pt9 C13 per suit, 52 per deck
+   bktfreq "Four C's KnR                     "          (cccc(south),1.0, 50.0, 0.20) , // cccc can have more than 40 pts per side   
+

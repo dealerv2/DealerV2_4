@@ -1,0 +1,29 @@
+generate 10000000
+produce  10000000
+seed 919
+
+title "Test Altcount as counting various types of HCP"
+altcount 8 4.25 3.0 1.75 0.75 0.25 // JGM A & T +.25, Q & J -.25              sum=10
+altcount 7 6.0 4.0 2.0 1.0         // C13 Burnstein in Dotnum scale           sum=13
+altcount 6 4.0 2.8 1.8 1.0 0.4     // Andrews Fifths                          sum=10
+altcount 5 4.5 3.0 1.75 0.75       // Woolsey HCP                             sum=10 --- Same as BumWrap
+altcount 4 4.5 3.0 1.5 0.75 0.25   // BumWrap  aka c13 * 3/4                                sum=10
+altcount 3 4.25 3.0 2.0 1.0 0.5    // Work with A=4.25 and T=0.5 Per Andrews  sum=10.75
+altcount 2 4.25 3.0 2.0 1.0        // Work with A=4.25           Per Andrews  sum=10.25
+altcount 1 4.0 3.0 2.0 1.0 0.5     // Work with T=0.5                         sum=10.5
+altcount 0 4.0 3.0 2.0 1.0 0.5     // Work in Dotnum                          sum=10
+
+
+
+action
+   bktfreq "A=4.0  K=3.0 Q=2.0   J=1.0  T=0.0"  (pt0(south), 1.0, 40.0, 1.0 ) , // pt0  HCP in Dotnum deck=40.0
+   bktfreq "A=4.0  K=3.0 Q=2.0   J=1.0  T=0.5"  (pt1(south), 1.0, 42.0, 0.5 ) , // pt1  Deck = 4x10.5 = 42
+   bktfreq "A=4.25 K=3.0 Q=2.0   J=1.0  T=0.0"  (pt2(south), 1.0, 41.0, 0.25) , // pt2  Deck = 4x10.25 = 41
+   bktfreq "A=4.25 K=3.0 Q=2.0   J=1.0  T=0.5"  (pt3(south), 1.0, 43.0, 0.25) , // pt3  Deck = 4x10.75 = 43
+   bktfreq "A=4.5  K=3.0 Q=1.5   J=0.75 T=0.25" (pt4(south),1.0, 40.0, 0.25) ,  // pt4  Deck = 40 Bumwrap   
+   bktfreq "A=4.5  K=3.0 Q=1.75  J=0.75 T=0.0"  (pt5(south), 1.0, 40.0, 0.25) , // pt5  Deck = 40 Woolsey
+   bktfreq "A=4.0  K=2.8 Q=1.8   J=1.0  T=0.4"  (pt6(south), 1.0, 40.0, 0.20) , // pt6  Deck = 40 Fifths
+   bktfreq "A=6.0  K=4.0 Q=2.0   J=1.0  T=0.0"  (pt7(south), 1.0, 52.0, 1.0 ) , // pt7  13 per suit, 52 per deck
+   bktfreq "A=4.25 K=3.0 Q=1.75  J=0.75 T=0.25" (pt8(south), 1.0, 43.0, 0.25) , // pt8  Deck = 40 JGM
+   bktfreq "Four C's KnR                     "  (cccc(south),1.0, 50.0, 0.20) , // cccc can have more than 40 pts per side 
+

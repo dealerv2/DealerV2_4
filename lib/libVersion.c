@@ -8,7 +8,7 @@
 */
 
 #define LIBNAME "libdealerV2.a"
-#define BUILDDATE "2024/06/30"
+#define BUILDDATE "2024/09/20"
 #ifdef JGMDBG
 	#define LIBVERS "Version 101.4"
 #else

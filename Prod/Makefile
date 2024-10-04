@@ -57,10 +57,10 @@ clean:
 	rm -f ${OBJS} ${LOBJ} ${YOBJ} *.gch ../include/*.gch *.o
 
 install:
-	sudo ../install_dealer.bash
+	cd .. ; sudo ./install_dealer.bash
 
 uninstall:
-	sudo ../Un_install_dealer.bash
+	cd .. ; sudo ./Un_install_dealer.bash
 
 showme:
 	@echo DestDir = $(DESTDIR) JGMDBG = [ $(JGMDBG) ] LIBBASE=$(LIBBASE)
@@ -75,7 +75,7 @@ showme:
 	@echo OBJS=$(OBJS)
 	@echo
 	@echo LDFLAGS=$(LDFLAGS)
-	@echo BUILD=$(CXX) CXXFLAGS -o dealerv2 ${OBJS}  LDFLAGS
+	@echo BUILD=$(CXX) $(CXXFLAGS) -o dealerv2 ${OBJS}  $(LDFLAGS)
 	@echo LIBRARY=$(LIBNAME) LIBHDRS=$(LIBHDRS)
 	@echo LIBSRCS=$(LIBSRCS) 
 	@echo LIBHDRS=$(LIBHDRS)

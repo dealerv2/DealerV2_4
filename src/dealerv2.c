@@ -21,7 +21,8 @@
 // 2023/11/03  4.0.1  Implement Library Modules for common functions 
 // 2023/12/10  4.2.0  Implement the bias deal functionality and Par Contract functionality
 // 2023/12/24  4.3.0  Implement save to ZRD file functionality. 
-// 2024/01/13  4.1.1  Renamed the Library funcs and vars from rp* to zrd*. 
+// 2024/01/13  4.1.1  Renamed the Library funcs and vars from rp* to zrd*.
+// 2024/09/21  4.3.0  Modified mmap_template for stderr fd passing
 
 //
 #ifndef _GNU_SOURCE
@@ -232,8 +233,7 @@ int main (int argc, char **argv) {
 			 } /* end log_wanted */
           if (progressmeter) {
             if ((100 * nprod / maxproduce) > 100 * (nprod - 1) / maxproduce)
-              fprintf (stderr, "Calculating... %2d%% complete\r",
-               100 * nprod / maxproduce);
+              fprintf (stderr, "Calculating... %2d%% complete\r",  100 * nprod / maxproduce);
           } /* end progress meter */
       }   /* end keephand */
    #ifdef JGMDBG
@@ -274,7 +274,8 @@ int main (int argc, char **argv) {
   
   } 
   /* end if verbose */
-
+   fsync(1) ;   /* complete our own I/O before allowing the UserServer to write us messages */
+   fsync(2) ; 
    /*
     * If there was a user server started, then
     * unmap the shared region, unlink the semaphores and send quit request to terminate the Server process,
@@ -287,9 +288,18 @@ int main (int argc, char **argv) {
 		/* ?? close fzrd, fcsv, fexp, frplib, finput_file ?*/
   return 0;
 } /* end main */
+
+
 /* write the produced deal to a file in dl52 fmt for future use, mainly by DDS programs
+ * Having a file that already meets certain conditions, will save regenerating them if we need to analyze them in various
+ * contexts. If say our condition is stringent such that we need to generate 1 million hands to get 1000 examples, it might pay to
+ * save the examples and re-import them, although we could do that with zrd fmt also.
+ * 
  * sort of dups the functionality of zrd file, but I did not want to add all the zrd decoding
- * routines to the DDS demo programs. No tricks appended tho; strictly the cards only 
+ * routines to the DDS demo programs. No tricks appended tho; strictly the cards only
+ *
+ * * FUTURE -- To allow loading into a database, prefix the deal with a record number, and terminate it with a termination char
+ * * Possibly allow a more DB import friendly PBN format as well, altho I could just post Process the current PBN fmt with perl.
  */
  int dl52_write(FILE *fdl52, DEAL52_k d ) {
 	int cnt ;

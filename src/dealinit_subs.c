@@ -427,7 +427,7 @@ void init_runtime(struct options_st *opts) {
           perror(" Creating the server process returns failed PID. Aborting... ");
           assert(0) ;
        }
-       JGMDPRT(3,"UserServer daemon started with pid=%d \nfrom path=[%s]\n",userserver_pid,server_path);
+       JGMDPRT(3,"UserServer daemon started with pid=%d ++++++++ from path=[ %s ]++++++++++\n",userserver_pid,server_path);
     } /* user server daemon started */
 
    if (srvDebug > 0 ) {
@@ -485,7 +485,7 @@ int setDealMode( struct options_st *opt_ptr ) {
        memset(opt_ptr->preDeal_len, 0 , sizeof(opt_ptr->preDeal_len) ) ;
 		}
 		if (swapmode > 0 ) {
-			dealerr("setDealMode::Cant have swapping and predealing. Discarding Swapping request") ;
+			dealerr("setDealMode::Cant have swapping and Bias predealing. Discarding Swapping request") ;
 			opt_ptr->swapping = 0 ; 
 		}
 	}  /* end biasmode */
@@ -495,7 +495,7 @@ int setDealMode( struct options_st *opt_ptr ) {
 			dealerr("setDealMode::Cmd Line Predeal Overrides Input File Predeal") ;
         init_cards() ;  
         for (int i =0 ; i < 4 ; i++ ) { /* setup stacked_pack, small_pack; curdeal not setup till deal_cards() */
-           if (opt_ptr->preDeal_len[i] > 0 ) {
+           if (opt_ptr->preDeal_len[i] > 0 ) { /* predealing for this seat ... */
               JGMDPRT(4, "Calling Predeal hand = %c [%s] \n", "NESW"[i], opt_ptr->preDeal[i] );
               predeal_cmdparms(i, opt_ptr->preDeal[i] ) ;  /* sets stacked size,full_size etc. */
            }
@@ -507,7 +507,7 @@ int setDealMode( struct options_st *opt_ptr ) {
 		} /* end if predeal_mode */
 	} /* end cmdparm predeal */
 		
-	else if ( predeal_mode > 0 ) {
+	else if ( predeal_mode > 0 ) { /* predealing from the input file */
 		runmode = PREDEAL_MODE ; 
 		if (swapmode > 0 ) {
 			dealerr("Cant have swapping and predealing. Discarding Swapping request") ;

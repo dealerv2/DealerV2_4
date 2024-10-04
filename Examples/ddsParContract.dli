@@ -1,9 +1,9 @@
 generate   10000
-produce    20
+produce    1000
 seed 919
 title " Checking Par Contract "
 condition hcp(north) + hcp(south) >= 23 
 		// && shape{north, 5+Mxxx}
 action
-      printrpt(par(NS,ns), parcontract(both),parcontract(ew),parcontract(ns),parcontract(none),hcp(north)+hcp(south), NS),
- //   printrpt(NS , par(NS,none),par(NS,ns ),par(NS,ew), par(NS,both), parcontract(both)),
+ //     printrpt(par(NS,ns), parcontract(both),parcontract(ew),parcontract(ns),parcontract(none),hcp(north)+hcp(south), NS),
+    printrpt(NS , par(NS,none),par(NS,ns ),par(NS,ew), par(NS,both), parcontract(both)),

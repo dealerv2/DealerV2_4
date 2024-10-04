@@ -4,6 +4,7 @@
 * 2021/12/31 2.0.0   JGM      Modified for DealerV2. Fix Avg; Add bktfreq; etc. 
 * 2022-02-18 2.1.0   JGM      CSVRPT and PRINTRPT
 * 2024/07/03 2.2.0   JGM      Mods to Frequency fmt for bigger numbers, and Pcts for 1D freq.
+* 2024/09/07 2.2.1   JGM      malloc/calloc BUG workaround.
 * .                  .        .        
 */ 
 #ifndef _GNU_SOURCE
@@ -24,6 +25,7 @@
 #include "../include/deal_conversion_subs.h"
 #include "../include/libdealerV2.h"
 
+extern void rpt_alloc( void ) ;
 /* Code for New Actions by JGM */
 void printside (DEAL52_k d, int side ) ;
 void printhands_pbn(FILE *fp, int mask, DEAL52_k curdeal ) ;
@@ -93,10 +95,11 @@ void setup_action () { /* run once right after the parsing done */
         acp->ac_u.acu_bf.bkt_freqs  = alloc_bkts1D(&acp->ac_u.acu_bf.bkt); /* set bkt.Names ptr as a side effect */
         fill_bkt_names(&acp->ac_u.acu_bf.bkt) ;
         break;
-      case ACT_BKTFREQ2D:  /* next call sest bktd.Names and bkta.Names ptrs as a side effect */
+      case ACT_BKTFREQ2D:  /* next call sets bktd.Names and bkta.Names ptrs as a side effect */
         acp->ac_u.acu_bf2d.bkt_freqs = alloc_bkts2D(&acp->ac_u.acu_bf2d.bktd, &acp->ac_u.acu_bf2d.bkta ) ;
         fill_bkt_names(&acp->ac_u.acu_bf2d.bktd) ;
         fill_bkt_names(&acp->ac_u.acu_bf2d.bkta) ;
+//        if (acp->ac_u.acu_bf2d.bkta.Num > max_bkta_Num ) max_bkta_Num = acp->ac_u.acu_bf2d.bkta.Num  ; /* calloc BUG */
         break;
       } /* end switch acp type */
     } /* end for acp->next action list */
@@ -107,6 +110,7 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
   int expr0, expr1, expr2, val1, val2, high1 = 0, high2 = 0, low1 = 0, low2 = 0;
   // char *expbp = export_buff ;
   double  dcount, dsum, dsqsum ;
+
   int actionitem = 0;  /* Debugging tracer var */
   JGMDPRT(8," .... Just entered Action() actionitem=%d\n",actionitem );
   sortDeal(curdeal) ; /* JGM sort each hand, Spade Ace downto Club deuce. Simplifies many actions. Now uses dsort13 */
@@ -258,8 +262,9 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
 void cleanup_action () {  /* this also does the end-of-run actions like FREQUENCY, AVERAGE, EVALCONTRACT, & PRINT */
   struct action *acp;
   int player, i, n;
-  double d_var, dsum, dsumsq;
+  double d_var, dsum, dsumsq, pct, cumpct;
   long int colsum, freqval ;
+  DBGDO(5, rpt_alloc( ) );
 
   for (acp = actionlist; acp != 0; acp = acp->ac_next) {
     switch (acp->ac_type) {
@@ -315,34 +320,41 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
               acp->ac_u.acuavg.avg, sqrt(acp->ac_u.acuavg.vary), acp->ac_u.acuavg.vary, acp->ac_u.acuavg.count );
         break;
       case ACT_FREQUENCY: 
-        printf ("Description: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
-        printf ("Value\t   Count\t    Pct.\n");
+        printf ("\nDescription: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
+        printf ("Value\t   Count\t   Pct.\t  CumPct\n");
         /* create a total */
         colsum = 0 ;
+        cumpct = 0.0 ;
         if (acp->ac_u.acu_f.acuf_uflow) { colsum += acp->ac_u.acu_f.acuf_uflow ; }
         for (i = acp->ac_u.acu_f.acuf_lowbnd; i <= acp->ac_u.acu_f.acuf_highbnd; i++) {
             colsum += acp->ac_u.acu_f.acuf_freqs[i - acp->ac_u.acu_f.acuf_lowbnd] ;
         }
         if (acp->ac_u.acu_f.acuf_oflow) { colsum += acp->ac_u.acu_f.acuf_oflow ; }
-        dsum = (double) colsum /100.0 ; 
+        dsum = (double) colsum /100.0 ;  // pre-do the *100 once for all rows by dividing by 100 here. better 100.0/colsum then multiply?
 
         /*Print the table */
-        if (acp->ac_u.acu_f.acuf_uflow) {
-           printf ("Low\t%8ld\t%8.2f\n", acp->ac_u.acu_f.acuf_uflow, (double)acp->ac_u.acu_f.acuf_uflow/dsum );
+        if (acp->ac_u.acu_f.acuf_uflow > 0 ) { // only print Low if not zero
+            pct = (double)acp->ac_u.acu_f.acuf_uflow/dsum ;
+            cumpct += pct ; 
+            printf ("Low\t%8ld\t%7.2f\t%7.2f\n", acp->ac_u.acu_f.acuf_uflow, pct, cumpct ); // Mult here?
         }
         for (i = acp->ac_u.acu_f.acuf_lowbnd; i <= acp->ac_u.acu_f.acuf_highbnd; i++) {
             freqval = acp->ac_u.acu_f.acuf_freqs[i - acp->ac_u.acu_f.acuf_lowbnd] ;
-            printf ("%5d\t%8ld\t%8.2f\n", i, freqval, (double)freqval/dsum);
+            pct = (double)freqval/dsum ;
+            cumpct += pct ; 
+            printf ("%5d\t%8ld\t%7.2f\t%7.2f\n", i, freqval, pct, cumpct );
         }
-        if (acp->ac_u.acu_f.acuf_oflow) {
-           printf ("High\t%8ld\t%8.2f\n", acp->ac_u.acu_f.acuf_oflow, (double)acp->ac_u.acu_f.acuf_oflow/dsum );
+        if (acp->ac_u.acu_f.acuf_oflow > 0) {  // only print overflow if not 0
+            pct = (double)acp->ac_u.acu_f.acuf_oflow/dsum ;
+            cumpct += pct ; 
+           printf ("High\t%8ld\t%7.2f\t%7.2f\n", acp->ac_u.acu_f.acuf_oflow, pct, cumpct );
         }
-        printf("    \t--------\nTotal\t%8ld\t%8.2f\n", colsum, 100.0 ) ; 
+        printf("    \t--------\t-------\nTotal\t%8ld\t%7.2f\n", colsum, 100.0 ) ; 
         break;
       case ACT_FREQUENCY2D: {  // Note Freq2D always prints the Low and High Row and Col even if all zeroes
         int j, n = 0, low1 = 0, high1 = 0, low2 = 0, high2 = 0, sumrow,
           sumtot, sumcol;
-        printf ("Description: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
+        printf ("\nDescription: %s:\n", acp->ac_str1 ? acp->ac_str1 : "");
         high1 = acp->ac_u.acu_f2d.acuf_highbnd_expr1;
         high2 = acp->ac_u.acu_f2d.acuf_highbnd_expr2;
         low1 = acp->ac_u.acu_f2d.acuf_lowbnd_expr1;
@@ -350,7 +362,7 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
         // print the col headings
         printf ("        Low");
         for (j = 1; j < (high2 - low2) + 2; j++) printf (" %8d", j + low2 - 1);
-        printf ("   High    Sum%s", crlf);
+        printf ("    High     Sum%s", crlf);
         sumtot = 0;
         for (i = 0; i < (high1 - low1) + 3; i++) {  // process the rows
             sumrow = 0;
@@ -383,11 +395,13 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
         show_freq1D (acp->ac_u.acu_bf.bkt_freqs, acp->ac_str1 ? acp->ac_str1 : "", &acp->ac_u.acu_bf.bkt, 'd' ) ;
         break;
       case ACT_BKTFREQ2D:
+      
         show_freq2D(acp->ac_u.acu_bf2d.bkt_freqs, acp->ac_str1 ? acp->ac_str1 : "",
                       &acp->ac_u.acu_bf2d.bktd, &acp->ac_u.acu_bf2d.bkta ) ;
         break ;
      } /* end switch ( acp->ac_type ) line 270 approx */
   } /* end for acp action list line 269 */
+  DBGDO(3,rpt_alloc( ) ); /* to cover the cases when col_totals calloc'd during cleanup phase */
 } /* end cleanup_action line 264 */
 
 /* Has_card array mow makes this simpler */
@@ -635,10 +649,10 @@ void showevalcontract (struct action *acp, int nh) {
   dbl  = acp->ac_u.acucontract.dbl ;
   coded= acp->ac_u.acucontract.coded;
   ac_cp = &acp->ac_u.acucontract ;
-  if      (s > SPADES )   {game_lvl = 3  ; } /* must be NT */
+  if      (s > SPADES )   {game_lvl = 3 ; } /* must be NT */
   else if (s > DIAMONDS ) {game_lvl = 4 ; } /* must be a Major */
   else                    {game_lvl = 5 ; }
-  missed_games = 0 ;
+  missed_games  = 0 ;
   missed_G_imps = 0 ;
   missed_S_imps = 0 ;
       /* -- check to see if there was a missed game or slam */
@@ -660,9 +674,9 @@ void showevalcontract (struct action *acp, int nh) {
                         (void *)acp, (void *)ac_cp, ac_cp->trix[8], missed_games );
   // fmt_contract_str(acp->ac_u.acucontract.c_str, l,s,dbl,v);  now done in the yacc file. can be used for dbg
         // Total score in this contract over the course of the run.
-        score_tot = 0 ;
+        score_tot   = 0 ;
         success_cnt = 0 ;
-        fail_cnt = 0 ;
+        fail_cnt    = 0 ;
         JGMDPRT(4, "Contract=::[%s] NumberOfHands=%d, Level=%d,Suit=%d,Vul=%d , Dbl=%d ..\n",
             acp->ac_u.acucontract.c_str, nh, l, s, v, dbl );
     if (0 == dbl ) {
@@ -699,9 +713,9 @@ void showevalcontract (struct action *acp, int nh) {
         G_imps_per_board = ((double)missed_G_imps)/nh;
         S_imps_per_board = ((double)missed_S_imps)/nh;
 
-        printf("\nContract %6s by %3s Average Result = % 8.2f, Made pct= % 7.2f, Fail pct= % 7.2f\n",
+        printf("\nContract %6s by %2s Avg Result =% 8.2f, Made pct=% 7.2f, Fail pct=% 7.2f\n",
                 acp->ac_u.acucontract.c_str, side_str[side], avg_score, success_pct, fail_pct );
-        printf("Missed Game_pct= % 7.2f, Missed Slam_pct=% 7.2f, Missed Game Imps/board=% 7.2f, Missed Slam Imps/board=% 7.2f\n",
+        printf("Missed Game_pct=% 7.2f, Missed Slam_pct=% 7.2f, Missed Game Imps/board=% 7.2f, Missed Slam Imps/board=% 7.2f\n",
         missed_game_pct, missed_slam_pct,  G_imps_per_board, S_imps_per_board );
 }
 /* end showevalcontract */

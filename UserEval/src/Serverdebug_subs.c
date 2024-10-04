@@ -13,10 +13,14 @@
 #include "../include/dealtypes.h"
 #include "../include/UserEval_types.h"
 #include "../include/dbgprt_macros.h"
+#include "../include/Serverdbg_subs.h"
+
+typedef char      CARD52_k ;       /* Dealerv2 card normal char with special type  */          
+typedef CARD52_k  DEAL52_k[52] ;
 
 extern int hascard(char deal[], int p,  char card ) ;
 extern int jgmDebug ;
-void dump_curdeal(deal d) { /* ouput deal in easy to read, verbose fmt */
+void show_curdeal(DEAL52_k d) { /* ouput deal in easy to read, verbose fmt; does not rely on deal being analyzed or sorted */
     int  pnum , cardcount;
     char *pname="NESW";
     char *sname="CDHS";
@@ -58,9 +62,9 @@ void dump_curdeal(deal d) { /* ouput deal in easy to read, verbose fmt */
   } /* end for player */
   fprintf(stderr, "----------------dump curr deal done ----------------\n");
   fsync(2) ;
-} /* end dump curr deal */
+} /* end show curr deal */
 
-void hexdeal_show(deal dl ) { /* one line output of the coded cards in hex */
+void hexdeal_show(DEAL52_k dl ) { /* one line output of the coded cards in hex */
     int i ;
     i = 0;
     fprintf (stderr, " dl=[");
@@ -71,7 +75,7 @@ void hexdeal_show(deal dl ) { /* one line output of the coded cards in hex */
     fsync(2);
 } /* end hexdeal_show */
 
-void sr_deal_show(deal dl ) { /* two line output of the cards in SuitRank */
+void sr_deal_show(DEAL52_k dl ) { /* two line output of the cards in SuitRank */
     char rns[] = "23456789TJQKA-";
     char sns[] ="CDHS";
     char rn, sn , sp;
@@ -94,7 +98,7 @@ void sr_deal_show(deal dl ) { /* two line output of the cards in SuitRank */
     fsync(2);
 } /* end sr_deal_show */
 
-void sr_hand_show(int p, deal dl ) {  /* two line output of the cards in SuitRank */
+void sr_hand_show(int p, DEAL52_k dl ) {  /* two line output of the cards in SuitRank */
     char rns[] = "23456789TJQKA";
     char sns[] ="CDHS";
     char rn, sn ;
@@ -112,52 +116,7 @@ void sr_hand_show(int p, deal dl ) {  /* two line output of the cards in SuitRan
     fsync(2);
 } /* end sr_hand_show */
 
-char *Hand52_to_pbnbuff (int p, char *dl, char *buff ) {  //pbn fmt suit sep is dot, hand sep is space. voids are deduced from that.
-/* hand sorted. dl[p*13+0] = Highest Spade; dl[p*13+12] = lowest club. */
-   char r_ids[] = "23456789TJQKA";
-   int curr_suit, card_rank, card_suit;
-   int di, count;
-   char *bp ;
-   unsigned char kard ;
-   char suit_sep = '.';
-   di = p*13 ;
-   bp = buff ;
-   count = 0 ;
-   curr_suit = 3 ; // spades
-   while (count < 13 ) {  // a hand ALWAYS has exactly 13 cards
-       kard = dl[di] ; card_suit = C_SUIT(kard); card_rank = C_RANK(kard) ;
-       while( curr_suit != card_suit ) { /* write a suit separator for missing suits spades downto first one*/
-            *bp++ = suit_sep;
-            JGMDPRT(6, "Wrote Void for suit %d \n",curr_suit ) ;
-            curr_suit-- ;
-        } /* end while curr_suit != card_suit */
-        assert(card_suit == curr_suit) ;
-        while ( (curr_suit == card_suit) && (count < 13) ) { /* write the cards in this suit */
-            kard = dl[di]; card_suit = C_SUIT(kard); card_rank = C_RANK(kard) ;
-            if (curr_suit != card_suit ) break;
-           *bp++ = r_ids[card_rank];
-           count++; di++;
-           JGMDPRT(7," Num[%d]=%c%c ", count, "CDHS"[curr_suit], *(bp-1) ) ;
-        } // end while curr_suit
-        JGMDPRT(7,"\n");
-       *bp++ = suit_sep;
-        curr_suit-- ; /* Move to next suit */
-    } /* end while count < 13*/
-    assert(count == 13 ) ;
-    // Normal case curr_suit is -1; void clubs curr_suit = 0, void clubs, diamonds, and hearts curr_suit = 2
-    // In case there were voids at the end of 13 cards
-        while ( curr_suit >= 0 ) { /* write a suit separator for missing suits after the last one downto clubs*/
-            *bp++ = suit_sep ;
-            curr_suit-- ;
-        }
-        /* the last char is the suit separator which we don't need after the club suit, so replace it with a space */
-        if ( *(bp-1) == suit_sep ) { *(bp-1) = ' ' ; }
-        else { fprintf(stderr, "CANT HAPPEN in Hand52_to_Buff, last char is not a suit_separator %c \n", *(bp-1) ); }
-        *bp = '\0' ; // terminate the buffer as a string
-        return bp  ; /* return pointer to null byte in case we want to append another hand to the buffer */
-} /* end Hand52_to_pbnbuff */
-
-void show_query_type( struct query_type_st *pqt) {
+void show_query_type( struct query_type_st *pqt) {  /* call with DBGDO(n, .... ) */
  #ifdef JGMDBG
    DBGLOC( "Query Type:: Descr[%s], Tag=[%i]: [", pqt->query_descr, pqt->query_tag);
    for (int v=0 ; v<8; v++) {fprintf(stderr,"%d,", pqt->q_vals[v] ) ;  }
@@ -165,9 +124,16 @@ void show_query_type( struct query_type_st *pqt) {
  #endif
    return ;
 }
+void show_reply_type(struct reply_type_st *prt) {
+ #ifdef JGMDBG
+   DBGLOC( "^^^Server SHOWReply_type:: Descr[%s], Tag=[%d]: Values[", prt->reply_descr, prt->reply_tag);
+   for (int v=0 ; v<8; v++) {fprintf(stderr,"%d, ", prt->r_vals[v] );  }
+   fprintf(stderr, "]\n");
+ #endif
+   return ;
+}
 
 int show_mmap(char *mm_ptr, int len ) {            /* verbose debug */
-
    char cbuff[128], xbuff[128];
    char *cptr=cbuff;
    char *xptr=xbuff;
@@ -207,38 +173,66 @@ int show_mmap(char *mm_ptr, int len ) {            /* verbose debug */
   return (i) ;
 }
 
-#if 0
- Server Base Pointer: 0x7f5bba7e9000
-        header_ptr  = 0x7f5bba7e9000
-        query_ptr   = 0x7f5bba7e9090
-        reply_ptr   = 0x7f5bba7e90ec
-        dldata_ptr  = 0x7f5bba7e9130
-        nsres_ptr   = 0x7f5bba7e9ac4
-        ewres_ptr   = 0x7f5bba7e9bc4
-        cache_ptr   = 0x7f5bba7e9cc4
-        ptrs.phs[0] = 0x7f5bba7e9138
-        ptrs.phs[1] = 0x7f5bba7e937c
-        ptrs.phs[2] = 0x7f5bba7e95c0
-        ptrs.phs[3] = 0x7f5bba7e9804
- header_off  = 0
- query_off   = 144
- reply_off   = 236
- dl_data_off = 304
- nsres_off   = 2756
- ewres_off   = 3012
- cache_off   = 3268
- Handstat_off= 312
-Size of map_template_k 3296  <=======
-Size of mmap_hdr_k     144
-Size of query_data_k   92
-Size of reply_data_k   68
-Size of DEALDATA_k     2452
-Size of USER_VALUES_k  256
-Size of UEVAL_CACHE_k  24
-Size of HANDSTAT_k     580, 0x244
-#endif
+void show1D_arr( int *arr, int NC ) {
+			for (int nc=0; nc< NC; nc++ ) {
+			fprintf(stderr,"%d ", arr[nc] );
+		}
+		fprintf(stderr,"\n");
+	}
+   
+void show2D_arr( int *arr, int NR, int NC ) {
+	int nr, nc ; 
+	for (nr=0 ; nr< NR ; nr++ ) {
+		fprintf(stderr,"NR=%d: ",nr);
+		for (nc=0; nc< NC; nc++ ) {
+			fprintf(stderr,"%d ", *(arr + nr*NC + nc) );
+		}
+		fprintf(stderr,"\n");
+	} 
+   return;
+}	
 
+void show_mmap_offs( struct mmap_off_st *offs) {
+   fprintf(stderr," header_off  = %zd\n", offs->header  ) ;
+   fprintf(stderr," query_off   = %zd\n", offs->query   ) ;
+   fprintf(stderr," reply_off   = %zd\n", offs->reply   ) ;
+   fprintf(stderr," dl_data_off = %zd\n", offs->dldata  ) ;
+   fprintf(stderr," nsres_off   = %zd\n", offs->nsres   ) ;
+   fprintf(stderr," ewres_off   = %zd\n", offs->ewres   ) ;
+   fprintf(stderr," cache_off   = %zd\n", offs->cache   ) ;
+}
 
+void show_mmap_sizes( void ) {
+   fprintf(stderr,"Size of map_template_k %zd\n", sizeof(MMAP_TEMPLATE_k  ));
+   fprintf(stderr,"Size of mmap_hdr_k     %zd\n", sizeof(mmap_hdr_k       ));
+   fprintf(stderr,"Size of query_data_k   %zd\n", sizeof(query_type_k     ));
+   fprintf(stderr,"Size of reply_data_k   %zd\n", sizeof(reply_type_k     ));
+   fprintf(stderr,"Size of USER_VALUES_k  %zd\n", sizeof(USER_VALUES_k    ));
+   fprintf(stderr,"Size of UEVAL_CACHE_k  %zd\n", sizeof(UEVAL_CACHE_k    ));
+   fprintf(stderr,"Size of DEALDATA_k     %zd\n", sizeof(DEALDATA_k       ));
+   fprintf(stderr,"\tSize of Handstat_k   %zd\n", sizeof(HANDSTAT_k       ));
+   fprintf(stderr,"\tSize of Sidestat_k   %zd\n", sizeof(SIDESTAT_k       ));
+   
+   return ;
+}
+void show_mmap_ptrs(char *p_mm, struct mmap_ptrs_st *ptrs ) {
+   fprintf(stderr, "%s.%d show_mmap_ptrs\n",__FILE__,__LINE__ ) ;
+   fprintf(stderr," Server Base Pointer: %p \n", (void *)p_mm    ) ;
+   fprintf(stderr," \theader_ptr  = %p\n", (void *)ptrs->header  ) ;
+   fprintf(stderr," \tquery_ptr   = %p\n", (void *)ptrs->query   ) ;
+   fprintf(stderr," \treply_ptr   = %p\n", (void *)ptrs->reply   ) ;
+   fprintf(stderr," \tdldata_ptr  = %p\n", (void *)ptrs->dldata  ) ;
+   fprintf(stderr," \tnsres_ptr   = %p\n", (void *)ptrs->nsres   ) ;
+   fprintf(stderr," \tewres_ptr   = %p\n", (void *)ptrs->ewres   ) ;
+   fprintf(stderr," \tcache_ptr   = %p\n", (void *)ptrs->cache   ) ;
+   fprintf(stderr," \tptrs.phs[0] = %p\n", (void *)ptrs->phs[0]  ) ;
+   fprintf(stderr," \tptrs.phs[1] = %p\n", (void *)ptrs->phs[1]  ) ;
+   fprintf(stderr," \tptrs.phs[2] = %p\n", (void *)ptrs->phs[2]  ) ;
+   fprintf(stderr," \tptrs.phs[3] = %p\n", (void *)ptrs->phs[3]  ) ;
+   fprintf(stderr," \tptrs.p_deal = %p\n", (void *)ptrs->p_deal  ) ;
+   return ;
+
+} /* end show_mmap_ptrs */
 
 
 

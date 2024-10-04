@@ -1,4 +1,4 @@
-/* File dealsort_subs.c
+/* File dealutil_subs.c
  * several hand optimized sort routines for sorting hands, suits, and values 
  * Date        Version  Author   Comment
  * 2023/10/29     1.0   JGM   Created as part of bias_deal effort

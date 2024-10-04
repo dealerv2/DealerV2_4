@@ -25,13 +25,12 @@
  * other headers that are used elsewhere in dealer
  * stddef.h, time.h, random.h,
  */
-#include "../include/dealdefs.h"
 #include "../include/dealtypes.h"
+#include "../include/dealdefs.h"
 #include "../include/dealexterns.h"
 #include "../include/dealprotos.h"
 #include "../include/dbgprt_macros.h"     /* DBGLOC and DBGPRT */
 #include "../include/mmap_template.h"     /* For easy use of offsets and pointers */
-
 
 /*
  * Globals -- Used throughout the code in this file
@@ -59,6 +58,7 @@ query_type_k    *pqt;
 reply_type_k    *prt;
 DEALDATA_k      *p_dldata;
 USER_VALUES_k   *p_mm_nsvals, *p_mm_ewvals;
+USER_VALUES_k   *p_uservals[2] ;
 UEVAL_CACHE_k   *p_mm_cache ;
 // local mm_data until the map is assigned.
 mmap_hdr_k      mm_hdr_data ;
@@ -66,6 +66,8 @@ query_type_k    qt_data;
 reply_type_k    rt_data;
 struct mmap_ptrs_st mmap_pointers ;
 struct mmap_off_st  mmap_offsets  ;
+
+int saverr_fd ; /* passed to child so he can talk to us */
 
 /*
  * Functions prototypes
@@ -97,7 +99,8 @@ int  show_mmap(char *mm_ptr, int len ) ;         /* verbose debug */
 void show_mmap_sizes( void ) ;
 void show_mmap_offs( struct mmap_off_st *offs) ;
 void show_mmap_ptrs(char *mm_ptr , struct mmap_ptrs_st *ptrs) ;
-// if JGMDBG is defined then DBGLOC is a macro defined in ../include/dbgprt_macros.h
+void show_user_res(char *caller, USER_VALUES_k *p_results, int first, int last ) ;
+// if JGMDBG is defined then DBGDO and JGMDPRT are macros defined in ../include/dbgprt_macros.h
 
 /*
  *  Setup the user server by:
@@ -110,16 +113,17 @@ void show_mmap_ptrs(char *mm_ptr , struct mmap_ptrs_st *ptrs) ;
  *       and the mmap fd may not always be the same number.
  */
 pid_t setup_userserver( char *pathname ) {
+   int dupfd2 ; 
    userserver_path = pathname ;
    /* Initialize IPC mechanisms */
    mm_ptr = create_mmap(&mm_fd , mmap_fname) ; /* sets (char *)mm_ptr and (int )mm_fd */
    p_mm_base = (void *)mm_ptr ;                /* cast (char *) to (MMAP_TEMPLATE_k *) */
    p_qsem = open_semaphore(query_pfx, query_sema) ; /* create unique semaphores for this process */
    p_rsem = open_semaphore(reply_pfx, reply_sema) ;
-   if (jgmDebug >= 3) {
-         DBGLOC("Addr of reply mutex=%p Addr of query mutex=%p\n",(void *)p_rsem, (void *)p_qsem  ) ;
-         DBGLOC("Create_mmap returns fd=%d, map_ptr=%p \n",mm_fd, mm_ptr ) ;
-   }
+
+   JGMDPRT(3,"Addr of reply mutex=%p Addr of query mutex=%p\n",(void *)p_rsem, (void *)p_qsem  ) ;
+   JGMDPRT(3,"Create_mmap returns fd=%d, map_ptr=%p \n",mm_fd, mm_ptr ) ;
+
    // Initialize mmap header portion
    mmap_hdr_k *p_loc_hdr = &mm_hdr_data;
    calc_ptrs(mm_ptr, &mmap_pointers, &mmap_offsets) ; // basic copies all in one place. Not used? Cleanup?
@@ -127,24 +131,18 @@ pid_t setup_userserver( char *pathname ) {
    strncpy(p_loc_hdr->map_name,    mmap_fname, 31 ) ;   /* Server proc will access these via mm_fd to establish communication */
    strncpy(p_loc_hdr->q_sema_name, query_sema, 31 ) ;
    strncpy(p_loc_hdr->r_sema_name, reply_sema, 31 ) ;
-   #ifdef JGMDBG
-      if(jgmDebug >=3 ) {
-         DBGLOC("q_off=%#lx, r_off=%#lx,  p_loc_hdr = %p\n",
-            p_loc_hdr->q_type_off, p_loc_hdr->r_type_off, (void *)p_loc_hdr );
-         show_mmap_ptrs(mm_ptr, &mmap_pointers ) ;
-         if(jgmDebug >=8) {
-            show_mmap_offs(&mmap_offsets) ;
-            show_mmap_sizes( ) ;
-            show_mm_header(p_loc_hdr) ;
-         }
-      }
-   #endif
+   dupfd2 = dup(2) ; /* dup the stderr path for use by the Server */
+   p_loc_hdr->stderr_fd = dupfd2 ;   /* put the fd that is a dup of stderr where Server can find it */
+   JGMDPRT(3, "stderr_fd=%d, q_off=%#lx, r_off=%#lx,  p_loc_hdr = %p\n",
+            p_loc_hdr->stderr_fd, p_loc_hdr->q_type_off, p_loc_hdr->r_type_off, (void *)p_loc_hdr );
+
+
    /* local copy of mm_hdr built. Now copy it to the mmap shared area and flush it, so server can see it. */
    memcpy(mm_ptr , p_loc_hdr, sizeof(mmap_hdr_k) );
-   if(jgmDebug >=3 ) {
-       DBGLOC("mmap->q_off=%#lx, mmap->r_off=%#lx,  \n",
-               p_mm_base->mm_hdr_dat.q_type_off, p_mm_base->mm_hdr_dat.r_type_off  );
-   }
+
+   JGMDPRT(3,"ON MMAP Page: stderr_fd=%d, mmap->q_off=%#lx, mmap->r_off=%#lx,  \n",
+               p_mm_base->mm_hdr_dat.stderr_fd, p_mm_base->mm_hdr_dat.q_type_off, p_mm_base->mm_hdr_dat.r_type_off  );
+
    /* now that mmap has the data, make pointers to it so we can write to the shared area */
    p_mm_hdr = (void *) mm_ptr ;
    pqt = (void *)(mm_ptr + p_mm_hdr->q_type_off) ;
@@ -160,10 +158,10 @@ pid_t setup_userserver( char *pathname ) {
     p_mm_cache->dealnum[0] = -1 ;         p_mm_cache->dealnum[1] = -1 ;
     p_mm_cache->qtag[0] = -1 ;            p_mm_cache->qtag[1] = -1 ;
     p_mm_cache->state[0] = CACHE_STALE;   p_mm_cache->state[1] = CACHE_STALE;
-    if(jgmDebug >=3 ) {
-       DBGLOC("Pointers using mmap shared area. q_off=%ld, pqt=%p, r_off=%ld,  prt=%p \n",
+
+    JGMDPRT(3,"Pointers using mmap shared area. q_off=%ld, pqt=%p, r_off=%ld,  prt=%p \n",
             p_mm_hdr->q_type_off, (void *)pqt, p_mm_hdr->r_type_off, (void *)prt );
-    }
+
    msync(mm_ptr, PageSize, MS_SYNC) ;  /* flush the changes to the shared area so they are visible to others. */
 
    // fork a child; child will execve server; server will then init his own mmap and semaphores.
@@ -195,9 +193,9 @@ int kill_userserver( pid_t server_pid ) {
    strcpy(pqt->query_descr, "NORMAL EOJ For Server");
    msync(mm_ptr, PageSize, MS_SYNC) ;
    sem_post(p_qsem) ;
-   if(jgmDebug >=3 ) {   DBGLOC("Waiting for server pid=%d to exit \n", server_pid); }
+   JGMDPRT(3,"Waiting for server pid=%d to exit \n", server_pid); 
    exit_status = waitfor_server(server_pid) ;
-   if(jgmDebug >=3 ) {   DBGLOC("server pid=%d exit status = %d \n", server_pid, exit_status); }
+   JGMDPRT(3,"server pid=%d exit status = %d \n", server_pid, exit_status); 
   return (exit_status) ;
 } /* end kill_userserver */
 
@@ -209,6 +207,7 @@ char *create_mmap(int *fd , char *mmap_fname) {
    size_t bytesWritten ;
    char *mm_ptr ;
    int mm_fd ;
+   char eofmsg[6];
    oldmask = umask(0) ;
    mm_fd = mkostemp(mmap_fname,  (O_CREAT | O_TRUNC | O_RDWR) );
    umask(oldmask);
@@ -216,15 +215,17 @@ char *create_mmap(int *fd , char *mmap_fname) {
    /*
     * Now extend the file to one PageSize
     */
-      char eofmsg[8]="EOF";
+      
       PageSize = (int)sysconf(_SC_PAGESIZE);
       if ( PageSize < 0) { die("Cant sysconf PageSize"); }
-      off_t lastoffset = lseek( mm_fd, PageSize-3, SEEK_SET);
+      off_t lastoffset = lseek( mm_fd, PageSize-6, SEEK_SET);
       if (lastoffset < 0 ) { die("Cant lseek on mm_fd. "); }
-      else {      bytesWritten = write(mm_fd, eofmsg, 3);  } /* grow file1 to 1 page. Dont need the \0 null term here.*/
-      if(jgmDebug >=3 ) {
-            DBGLOC(" created mm_fd[%d] and wrote %zd bytes to it\n", mm_fd, bytesWritten );
-      }
+      
+      else {
+         snprintf(eofmsg,6, "%2dEOF",jgmDebug ) ; /*Terminating Null byte written also */
+         bytesWritten = write(mm_fd, eofmsg, 6);  } /* grow file1 to 1 page. put our dbg level there */
+
+         JGMDPRT(3, " created mm_fd[%d] and wrote msg=%s of %zd bytes to it\n", mm_fd, eofmsg, bytesWritten );
 /*
  * Now mmap the file we created and extended using the mm_fd
  */
@@ -238,11 +239,12 @@ char *create_mmap(int *fd , char *mmap_fname) {
                       mm_fd,                       /* The related fd. Will be of no further use in the parent proc */
                       offset );                    /* We want to start at zero */
       if (mm_ptr == MAP_FAILED ) {die(" mmap of mm_fd failed"); }
-      if(jgmDebug >=3 ) {
-         DBGLOC("\nCREATEMAP_END:: File %s is using fd[%d] and the map_ptr = %p\n",
+
+         JGMDPRT(3,"\n DealerMain:: CREATEMAP_END:: File %s is using fd[%d] and the map_ptr = %p\n",
                   mmap_fname, mm_fd, (void *) mm_ptr );
-      }
+
    *fd = mm_fd ;   /* set the global fd so we can pass to the child */
+  
    return (mm_ptr) ;
 } /* end create_mmap line 1207*/
 
@@ -262,10 +264,10 @@ void calc_mmap_offsets(mmap_hdr_k *mm_hdr) {  /* store offsets to mmap template 
    mm_hdr->user_nsvals_off = user_nsvals_off ;
    mm_hdr->user_ewvals_off = user_ewvals_off ;
    mm_hdr->mm_cache_off  = cache_off ;
-   if(jgmDebug >=3 ) {
-      DBGLOC( "mmap_hdr Offsets: Q=%ld, R=%ld, D=%ld, UNS=%ld, UEW=%ld \n",
+
+   JGMDPRT(3,"mmap_hdr Offsets: Q=%ld, R=%ld, D=%ld, UNS=%ld, UEW=%ld \n",
                q_off, r_off, dldata_off, user_nsvals_off, user_ewvals_off );
-   }
+
    return ;
 } /* end calc_mmap_offsets */
 
@@ -286,6 +288,11 @@ void calc_ptrs (char *p_mm, struct mmap_ptrs_st *p_pst, struct mmap_off_st *p_os
    p_pst->nsres       = (void *) (p_mm + p_ost->nsres  ) ;
    p_pst->ewres       = (void *) (p_mm + p_ost->ewres  ) ;
    p_pst->cache       = (void *) (p_mm + p_ost->cache  ) ;
+   p_uservals[0]      = p_pst->nsres ;
+   p_uservals[1]      = p_pst->ewres ;
+   DBGDO(5, show_mmap_ptrs(p_mm, p_pst)  );
+   DBGDO(5, show_mmap_offs(p_ost) );
+   DBGDO(5, show_mmap_sizes( ) );
    return ;
 }  /* end calc_ptrs */
 
@@ -319,33 +326,30 @@ pid_t create_server(int mm_fd, char *userserver_path) {
 
       /* Some Debugging here */
       if(srvDebug > 0 ) {
-			fprintf(stderr, "++++ CHILD:: POST FORK:: child pid=%d, Pathname To start=%s srvDebug=%d\n",server_pid, userserver_path,srvDebug ) ;
+			fprintf(stderr, "%s::%d ++++ in mainCHILD:: POST FORK:: child pid=%d, Pathname To start=%s srvDebug=%d\n",
+               __FILE__, __LINE__, server_pid, userserver_path,srvDebug ) ;
          my_logfd=setup_logfile(logpath) ; /* use template for a temp file name. modified by call. stderr will use this tmpfile*/
          printf( "\nServer Logfile Name=%s logfdfd=%d Check Here for Error Messages and Debugging output\n\n",logpath, my_logfd);
          fsync(1);
          /* if debugging then send Child/UserServer debug output to different location. we can tail -f that file in another terminal */
-         DBGLOC("++++ CHILD:: After stderr Reopen. Preparing to execve the server. \n" ) ;
-         DBGLOC("++++ CHILD:: PID=%d using mm_fd=%d\n",server_pid, mm_fd ) ;
-         DBGLOC("++++ CHILD:: Sees mm_ptr=%p, p_mm_hdr=%p\n", (void *)mm_ptr, (void *)p_mm_hdr );
-         DBGLOC("++++ CHILD:: Accessing MapName from Child shared area %s \n",p_mm_hdr->map_name ) ;
+         DBGLOC("++++ in mainCHILD:: After stderr Reopen. Preparing to execve the server. \n" ) ;
+         DBGLOC("++++ in mainCHILD:: PID=%d using mm_fd=%d\n",server_pid, mm_fd ) ;
+         DBGLOC("++++ in mainCHILD:: Sees mm_ptr=%p, p_mm_hdr=%p\n", (void *)mm_ptr, (void *)p_mm_hdr );
+         DBGLOC("++++ in mainCHILD:: Accessing MapName from Child shared area %s \n",p_mm_hdr->map_name ) ;
          fsync(2); /* force DBGLOC printout */
       }
-   #ifdef JGMDBG
-      snprintf(dbgbuff , 5, "%4d", srvDebug ) ; /* if Debugging; Debug Server also */
-      args[2] = dbgbuff ;
-   #endif
       /* end Debugging */
       snprintf(buff,     5, "%4d", mm_fd ) ; /* put the mm_fd into argv[1] to pass to child. */
       if(srvDebug > 0 ) {snprintf(dbgbuff , 5, "%4d", srvDebug ) ; } /* Pass srvDebug to server if set.  */
       args[0] = userserver_path ;
       args[1] = buff ;  // pass the mmap fd number as an argument to the server process. fd's are preserved.
-      args[2] = dbgbuff ;
+      args[2] = dbgbuff ; // pass the debugging level for the server as an argument in the call
       
 
       /* pass the mmap fd number to the child process on the cmd line; open fd's are preserved but we need to know which one*/
 
-         JGMDPRT(3,"++++ CHILD :: Argv[0]=%s, Argv[1]=%s \n",args[0],args[1] ) ;
-         JGMDPRT(3,"++++ CHILD ::  Child PID=%d calling execve with argv[1]=[%s]\n", server_pid, args[1]  ) ;
+         JGMDPRT(3,"++++ in mainCHILD :: Argv[0]=%s, Argv[1]=%s \n",args[0],args[1] ) ;
+         JGMDPRT(3,"++++ in mainCHILD ::  Child PID=%d calling execve with argv[1]=[%s]\n", server_pid, args[1]  ) ;
 
       int exe_rc = execve( userserver_path, args, NULL ) ;  /* Start the server */
                            /* Not Reached if execve is successful */
@@ -360,12 +364,12 @@ pid_t create_server(int mm_fd, char *userserver_path) {
     } /* end in child server_pid == 0 */
    /* in parent; server started, resume our own work */
    if(jgmDebug >=3 ) {
-      JGMDPRT(3,"After Fork; In Parent Create Child; Server_pid=%d;  Server Log=%s\n",server_pid, logpath);
+      JGMDPRT(3,"After Fork; In Parent. Created Child: Server_pid=%d;  Server Log PathTemplate=%s\n",server_pid, logpath);
       fsync(2);
    }
    if (srvDebug > 0 ) { sleep (1) ; } /* give Server time to setup its logfile and issue startup message */
    return (server_pid) ;
-} /* end create server line 307 */
+} /* end create server line 315 */
 
 int waitfor_server(pid_t pid) {
    int wstatus ;
@@ -404,9 +408,9 @@ int setup_logfile(char *template) {
    int log_fd ;
    fclose(stderr) ;
    log_fd = mkstemps(template, 4) ; /* template should be modified by this */
-   JGMDPRT(3, "SETUP Logfile[%s] templated returns log_fd=%d \n",template, log_fd);
    if (log_fd < 0 ) {die("Open log_fd for tempfile Failed: "); }
    stderr = fdopen(log_fd, "w+") ;
+   JGMDPRT(3, "SETUP Logfile[%s] templated returns log_fd=%d \n",template, log_fd);
    return log_fd ;
 } /* end setup log file */
 
@@ -444,11 +448,15 @@ void true_ask_query(int qtag, int side, int qcoded, query_type_k *pqt ) {
       memcpy(p_dldata->curdeal, curdeal, sizeof(DEAL52_k) ) ;
       memcpy(p_dldata->hs, hs, sizeof(HANDSTAT_k)*4 );
       memcpy(p_dldata->ss, ss, sizeof(SIDESTAT_k)*2 );
+      if ( dds_res_bin.CacheStatus == CACHE_OK ) {
+         memcpy(p_dldata->dds_trix, dds_res_bin.tricks, sizeof(dds_res_bin.tricks) ); /*1. should memset the invalid tricks to -1; should set the valid_dds_flag to 1 */ 
+         p_dldata->dds_cache = dds_res_bin.CacheStatus ;
+      }
       p_dldata->curr_gen = ngen ;        /* for debugging */
       p_dldata->curr_prod = nprod ;      /* for debugging */
       msync(mm_ptr, PageSize, MS_SYNC) ;
       sem_post(p_qsem) ;   // ask the server for results
-      JGMDPRT(6,"memcpy x3 done. Post Sem Done. Waiting for Server Reply \n");
+      JGMDPRT(6,"memcpy x4 done. Post Sem Done. Waiting for Server Reply \n");
       sem_wait(p_rsem) ;   // wait till we get them.
       dbg_userserver_extcalls++ ;
       /* server has answered our query .. by filling in the results fields in the mmap*/
@@ -458,6 +466,9 @@ void true_ask_query(int qtag, int side, int qcoded, query_type_k *pqt ) {
        * The server has filled the mmap area with results, as coded by the user.
        * It is up to the user to know which results he wants at this point.
        */
+       JGMDPRT(3, "Showing Results from True Ask Query\n" );
+       DBGDO(3, show_user_res("dealServer_subs;474", p_uservals[side], 0, 29 ) );
+       
       return ;
 } /* end true ask query line 412 */
 
@@ -478,36 +489,38 @@ int ask_query (int qtag, int side, int qcoded) {
    /* The user results area is current; either cached or just updated by true_ask_query*/
     /*
      * The user has four different ways of asking for the usereval results.
-     * The simplest is just to specify the side and a result index from 0-63
-     * But we also allow him to specify side-suit-index[4], hand-index[8], and hand-suit-index[2] combinations
-     * However this is only for his convenience. He can always just use the 64 result array however he likes.
+     * The simplest is just to specify the side and a result index from 0-127
+     * But we also allow him to specify side-suit-index[8], hand-index[16], and hand-suit-index[4] combinations
+     * However this is only for his convenience. He can always just use the 128 result array however he likes.
     */
     JGMDPRT(5,"****AskQ, Cache OK:side=%d,  hflg=%d, hand=%d, sflag=%d, suit=%d, qc.idx=%d qc.coded=%08X\n",
             side, qc.ucbits.hflag, qc.ucbits.hand, qc.ucbits.sflag, qc.ucbits.suit, qc.ucbits.idx, qc.coded_all) ;
     if (side == 0 ) { res_ptr = p_mm_nsvals ; }
     else            { res_ptr = p_mm_ewvals ; }
     int hidx = 0 ;
-    JGMDPRT(5,"****AskQ:: Side=%d :: Results  [0..5] %d, %d, %d, %d, %d, %d \n", side,
+    JGMDPRT(5,"****AskQ:: qcoded=%08X Side=%d :: Results  [0..5] %d, %d, %d, %d, %d, %d \n", qc.coded_all, side,
          res_ptr->u.res[0],res_ptr->u.res[1],res_ptr->u.res[2],res_ptr->u.res[3],res_ptr->u.res[4],res_ptr->u.res[5]);
+   JGMDPRT(5,"****AskQ: Results  [10..15] %d, %d, %d, %d, %d, %d \n", 
+         res_ptr->u.res[10],res_ptr->u.res[11],res_ptr->u.res[12],res_ptr->u.res[13],res_ptr->u.res[14],res_ptr->u.res[15]);
    /*
-    * Each of the 4 cases a) to d) can hold 16 results.
-    * But the way we have implemented case (a) here we can use it to access all 64 results
+    * Each of the 4 cases a) to d) can hold 32 results.
+    * But the way we have implemented case (a) here we can use it to access all 128 results
     */
    if ( qc.ucbits.hflag == 0 ) {          // side not hand
-      if (qc.ucbits.sflag == 0 )   {      // case a: usereval(tag, side, idx) /* idx in theory 0 .. 15 in practice 0 .. 63 */
+      if (qc.ucbits.sflag == 0 )   {      // case a: usereval(tag, side, idx) /* idx in theory 0 .. 31 in practice 0 .. 127 */
             return ( res_ptr->u.res[qc.ucbits.idx] ) ;
       }
       else {                              // case b: usereval(side, suit, idx )
-            return (res_ptr->u.dr.side_by_suit[qc.ucbits.suit][qc.ucbits.idx] ) ; /* idx should be 0 .. 3 */
+            return (res_ptr->u.dr.side_by_suit[qc.ucbits.suit][qc.ucbits.idx] ) ; /* suit=0..3, idx=0 .. 7 */
       }
    } /* end side not hand */
-   else {                                 // hand not side
-      if (qc.ucbits.hand == 2 || qc.ucbits.hand == 3 ) { hidx = 1 ; }
-      if (qc.ucbits.sflag == 0 ) {      // case c: usereval(compass, idx)
-            return (res_ptr->u.dr.hand_tot[hidx][qc.ucbits.idx ] ) ; /* idx should be 0 .. 7 here */
+   else {                                 // .hflag != 0 so hand not side
+      if (qc.ucbits.hand == 2 || qc.ucbits.hand == 3 ) { hidx = 1 ; }  // South or West
+      if (qc.ucbits.sflag == 0 ) {      // case c: usereval(tag,compass, idx)
+            return (res_ptr->u.dr.hand_tot[hidx][qc.ucbits.idx ] ) ; /* hidx=0..1 idx=0 .. 15 here */
       }
       else {                            // case d: usereval(compass, suit, idx)
-          return (res_ptr->u.dr.hand_suit[hidx][qc.ucbits.suit][qc.ucbits.idx] ); /* idx should be 0 or 1 */
+          return (res_ptr->u.dr.hand_suit[hidx][qc.ucbits.suit][qc.ucbits.idx] ); /* idx should be 0 .. 3 */
       }
    } /* end hand not side */
 } /* end ask query line 390 */
@@ -605,6 +618,16 @@ void show_mm_header (mmap_hdr_k *phdr) {
    DBGLOC("\tq_type_off=%ld, r_type_off=%ld, deal_data_off=%ld, user_nsvals_off=%ld, user_ewvals_off=%ld cache_off=%ld\n",
       phdr->q_type_off, phdr->q_type_off, phdr->deal_data_off, phdr->user_nsvals_off, phdr->user_ewvals_off, phdr->mm_cache_off );
 }
+void show_user_res(char *caller, USER_VALUES_k *p_results, int first, int last ) {
+   int r ;
+   fprintf(stderr, "SHOWING USER RESULTS from caller[%s] at %p from %d to %d \n", caller, (void *) p_results, first, last ) ; 
+   for ( r = first; r <= last ; r++ ) {
+      fprintf(stderr, "[%d]=%d%c", r, p_results->u.res[r], ( ((r +1) % 10) == 0 ) ? '\n' : ' ' );
+   }
+   fprintf(stderr, "\n");
+   return ;
+}
+
  /* end dealServer_subs.c File */
 
 

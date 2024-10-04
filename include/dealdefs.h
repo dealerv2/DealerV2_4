@@ -17,6 +17,8 @@
    * 2024/01/13 4.1.0    JGM   Renamed the Library funcs and vars from rp* to zrd*. Created zrd vars for writing own Library.
    * 2024/05/15 4.2.3    JGM   Added roth_calc.c to UserEval req'd some changes to dealdebug.c
    * 2024/05/15 4.2.4    JGM   Modified directory structure. Cleanup pathnames; Prep for Github upload
+   * 2024/08/05 4.2.5    JGM   Minor mods to work with modified UserEval  Dealer Server
+   * 2024/09/21 4.3.0    JGM   Minor mod to mmap_template
    */
 
   /* Make the header file guard .. */
@@ -24,11 +26,11 @@
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
 #endif
-#define BUILD_DATE "2024/06/30"
+#define BUILD_DATE "2024/09/21"
 #ifndef JGMDBG
-  #define VERSION "4.2.4"
+  #define VERSION "4.3.0"
 #else
-  #define VERSION "104.2.4"
+  #define VERSION "104.3.0"
 #endif
 
 #ifndef UNUSED
@@ -50,13 +52,48 @@
 	#define FALSE 0
 #endif
 
-#define ARRAY_SIZE(arr) (sizeof( (arr) ) / sizeof( (arr)[0] )
-#define MIN(x,y)    ( (x) < (y) ) ? (x) : (y)
-#define MAX(x,y)    ( (x) > (y) ) ? (x) : (y)
+#define ARRAY_SIZE(arr) ( (sizeof( (arr) ) / sizeof( (arr)[0] ) )
+#define MIN(x,y)    ( ( (x) < (y) ) ? (x) : (y) )
+#define MAX(x,y)    ( ( (x) > (y) ) ? (x) : (y) )
  // This swap is not as efficient as t=x;x=y;y=t; but is not type dependent nor need a tmp variable.
 #define SWAP(x,y) { (x) ^= (y) ; (y) ^= (x) ; (x) ^= (y) ; }
+#define CONCAT(p1 , p2) p1 p2
 
-#include "../include/dealer_paths.h"
+#ifndef DEALER_PATHS_H
+#define DEALER_PATHS_H 1
+#define SUDO_USER
+#ifdef SUDO_USER
+  #define DEAL_ROOT "/usr/local/games/"
+#elif defined( MY_USER )
+   #define DEAL_ROOT "/home/" MY_USER        // pass -DMY_USER=\"$USER\"  to gcc on the cmd line 
+#else
+  #define DEAL_ROOT "/usr/local/games"
+#endif
+#define DEAL_VER_DIR "DealerV2_4/"
+
+
+#define DEAL_DIR   CONCAT(DEAL_ROOT , DEAL_VER_DIR)
+#define DAT_DIR    CONCAT( DEAL_DIR , "dat/")
+#define EXE_DIR    CONCAT( DEAL_DIR , "bin/")   
+#define LIB_DIR    CONCAT( DEAL_DIR , "lib/")
+#define SRC_DIR    CONCAT( DEAL_DIR , "src/")
+#define HDR_DIR    CONCAT( DEAL_DIR , "include/")
+#define DBG_DIR    CONCAT( DEAL_DIR , "Debug")
+#define PROD_DIR   CONCAT( DEAL_DIR , "Prod")
+#define UEV_DIR    CONCAT( DEAL_DIR , "UserEval")
+// no reason yet to define Examples, DebugExamples, Regression
+// stdlib is special; it contains copies of standard Linux DLLs (.so) that might be Linux version dependant
+
+#define SERVER_PGM CONCAT(EXE_DIR, "DealerServer" ) // Note we use the Prod version of UserEval server even for DBG version of Dealerv2
+#define OPC_PGM    CONCAT(EXE_DIR, "dop" )    // ln -s DEAL_ROOT/DOP/dop
+#define FDP_PGM    CONCAT(EXE_DIR, "fdp")     // ln -s LIB_DIR/fdp // In /usr/bin linux utility 'fdp' is related to graphviz
+#define ZRD_LIB    CONCAT(DAT_DIR, "rpdd_Lib.zrd") // was ../rplib.zrd ; now defaults to a 20 deal mini lib because of Github
+/* this next one added because Linux has a BRIDGE utility that refers to ethernet cards */
+/* will have to make sure there is an ln /usr/games/gibcli to /usr/games/bridge which is the real name of the GIB binary*/
+#define DD_PGM "/usr/games/gibcli"
+#endif  /* DEALER_PATHS_H*/
+
+
 #define SERVER_PATH_SIZE 255
 #define SUCCESS 1
 #define FAILED  0

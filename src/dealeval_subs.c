@@ -55,7 +55,7 @@ int hascard (DEAL52_k  d, int player, CARD52_k  thiscard) {
 }
 
 // The 'tops' functions are related to the new modern ltc that calculates in half-losers by JGM
-void dbgtops(int topcards[NSUITS][3]) {
+void dbgtops(short topcards[NSUITS][3]) {
   int s;
   for (s=0; s<4; s++) {
     fprintf(stderr, "topcards-suit#%i: %i  %i  %i\n",s, topcards[s][0], topcards[s][1], topcards[s][2]   );
@@ -78,7 +78,7 @@ void upd_topcards(struct handstat *hs, int suit,int  rank) {
   assert(rank<13);
   weight = CardAttr_RO[idxLTCwts][rank];
 
- JGMDPRT(9,  "debug: upd_topcards:: suit=%i  rank=%i  weight=%i  \n", suit, rank, weight);
+ JGMDPRT(3,  "debug: upd_topcards:: player=%d, suit=%i  rank=%i  weight=%i  \n", hs->hs_seat, suit, rank, weight);
 
   if      (hs->topcards[suit][0] == LTC_VOID_WEIGHT) {hs->topcards[suit][0] = weight;}
   else if (hs->topcards[suit][0] < weight) {  /* latest card has higher rank than previous highest move them all down */
@@ -92,7 +92,7 @@ void upd_topcards(struct handstat *hs, int suit,int  rank) {
   else if (hs->topcards[suit][2] == LTC_VOID_WEIGHT) {hs->topcards[suit][2] = weight;}
   else if (hs->topcards[suit][2] < weight) {hs->topcards[suit][2]= weight; }
 
-  JGMDPRT(9, "Top Cards Weights=%d, %d, %d\n",hs->topcards[suit][0],hs->topcards[suit][1],hs->topcards[suit][2]);
+  JGMDPRT(3, "Top Cards Weights=%d, %d, %d\n",hs->topcards[suit][0],hs->topcards[suit][1],hs->topcards[suit][2]);
 
   return ;
 } /* end upd top cards */
@@ -249,7 +249,7 @@ void analyze (DEAL52_k  d, struct handstat *hsbase) {
         #endif /* JGMDBG */
         JGMDPRT(8,"Skipping Unused player=%d in analyze after memset stuff\n", player);
         continue;  /* skip the rest of the "for player" loop lines 470 - 550 */
-    } /* end if use_compass */
+    } /* end if use_compass[player] == 0 */
 
     hs = hsbase + player;  /* player is of interest here. */
     JGMDPRT(7,"hs base=%p, player=%d, hs=%p sizeof_hs=%lx\n",(void *)hsbase, player, (void *) hs, sizeof(struct handstat) ) ;
@@ -487,7 +487,7 @@ int evaltree (struct tree *t) {                 /* walk thru the user's request 
     case TRT_IMPS:
       return imps (evaltree (t->tr_leaf1));
     case TRT_RND:
-      if ( t->tr_leaf1 == 0 ) return (nprod) ; // Hack rnd(0) makes no sense. Use it to get curr value of nprod 
+      if ( evaltree(t->tr_leaf1) == 0 ) return (nprod) ; // Hack:: rnd(0) makes no sense. Use it to get curr value of nprod 
       return (int) (  RANDOM( (double)evaltree (t->tr_leaf1) ) ); /* ret rand int between 0 .. (expr in leaf1) */
                                                     /* JGM redefined RANDOM to use std lib call drand48 */
     case TRT_DECNUM:
@@ -513,7 +513,7 @@ int evaltree (struct tree *t) {                 /* walk thru the user's request 
     case TRT_USEREVAL :
            JGMDPRT(6, "evaltree.USEREVAL call ask_query for TRT=%d, tr_int1=%d, tr_int2=%d, tr_int3=x%08x \n",
                t->tr_type, t->tr_int1, t->tr_int2, t->tr_int3 ) ;
-         return ask_query(t->tr_int1, t->tr_int2 , t->tr_int3 ); //qtag, side, qcoded
+         return ask_query(t->tr_int1, t->tr_int2 , t->tr_int3 ); //qtag, side, qcoded idx, suit, hand, flags
   } /* end switch t->tr_type starts at line 371 */
 
 } /* end evaltree() Starts around line 330 */

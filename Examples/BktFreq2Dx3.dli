@@ -1,0 +1,14 @@
+generate   100000
+produce    5000
+title " Checking KnR vs HcP  "
+seed 223
+KnR_N = cccc(north)
+HCP_N = hcp(north)
+altcount 8 4.25 3.0 1.75 0.75 0.25
+condition KnR_N >= 6.0 and KnR_N < 24.0
+
+action  bktfreq "KnR North" (cccc(north), 5.00, 22.00, 0.50 ),
+        bktfreq "KnR(down) Vs HCP " (cccc(north), 5.00, 22.00, 0.50 , hcp(north),5,22,1 ),
+        bktfreq "KnR(down) Vs C13 " (cccc(north), 5.00, 22.00, 0.50 , pt9(north),5,22,1 ),
+        bktfreq "KnR(down) Vs JGM " (cccc(north), 5.00, 22.00, 0.50 , pt8(north),5.0,22.0,.25 )
+

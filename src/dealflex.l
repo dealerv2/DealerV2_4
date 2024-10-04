@@ -199,9 +199,6 @@ dotnum    \.[0-9]{1,2}
 decnum    [0-9]{1,2}\.[0-9]{0,2}
 scriptvar [$][0-9]
 
- /* descriptive tags for the UserEval Statements. Also allowed numbers */
- /*   uevtag   [~][A-Za-z] */
-
   /* stuff for Francois Shapes  */
 FTERM  [}]
 FCOMPASS (north|east|south|west){ws}*[,]
@@ -242,6 +239,7 @@ not             return(NOT);
 "?"             return(QUERY);
 ":"             return(COLON);
 "//".*\n        ;                       /* do nothing if C style one line comment */
+^\#.*\n         { ; }                   /* # in col1 is a comment. Do nothing. flex will track yylineno */
 "/*"            BEGIN(COMMENT);        // slash star comments cannot contain greater than, less than or eof in caps
 
 <COMMENT>[^*\n<<EOF>>]*     ;          /*In Comment State:  eat up non-star, non EOL and non EOF .. */
@@ -530,7 +528,7 @@ shape{wsnl}*[{]  { BEGIN(FD1) ;
 \\n             { yylval.y_str = mystrcpy("\n"); return STRING; }  /* need this one for printes LF */
 [ \t]           { ; }
 \r*\n           { ; }                 /* do nothing if {nl} found. flex will track yylineno */
-^\#.*\n         { ; }                 /* # in col1 is a comment. Do nothing. flex will track yylineno */
+
 .               { return(yytext[0]); }   /* unknown char; handles stuff like , ; may trigger error in yyparse if unexpected */
 
 %%

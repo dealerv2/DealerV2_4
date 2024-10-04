@@ -74,7 +74,7 @@ showme:
 	@echo OBJS=$(OBJS)
 	@echo
 	@echo LDFLAGS=$(LDFLAGS)
-	@echo BUILD=$(CXX) CXXFLAGS -o dealdbg ${OBJS} LDFLAGS
+	@echo BUILD=$(CXX) $(CXXFLAGS) -o dealdbg ${OBJS} $(LDFLAGS)
 	@echo LIBRARY=$(LIBNAME) LIBHDRS=$(LIBHDRS)
 	@echo LIBSRCS=$(LIBSRCS) 
 	@echo LIBHDRS=$(LIBHDRS)

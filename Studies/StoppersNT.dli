@@ -1,0 +1,36 @@
+generate 100000000
+produce 20			// since this file does several DD calcs don't ask for more than 5000 results
+seed 901
+
+// Stopper Definitions EW
+Sp_stopE = hascard(east, AS) or (spades(east) >=2 && hascard(east, KS) ) or (spades(east) >=3 && hcp(east,spades) >=3)
+Sp_stopW = hascard(west, AS) or (spades(west) >=2 && hascard(west, KS) ) or (spades(west) >=3 && hcp(west,spades) >=3)
+He_stopE = hascard(east, AH) or (hearts(east) >=2 && hascard(east, KH) ) or (hearts(east) >=3 && hcp(east,hearts) >=3)
+He_stopW = hascard(west, AH) or (hearts(west) >=2 && hascard(west, KH) ) or (hearts(west) >=3 && hcp(west,hearts) >=3)
+Di_stopE = hascard(east, AD) or (diamond(east)>=2 && hascard(east, KD) ) or (diamond(east)>=3 && hcp(east,diamond)>=3)
+Di_stopW = hascard(west, AD) or (diamond(east)>=2 && hascard(west, KD) ) or (diamond(east)>=3 && hcp(west,diamond)>=3)
+Cl_stopE = hascard(east, AC) or (clubs (east) >=2 && hascard(east, KC) ) or (clubs (east) >=3 && hcp(east,clubs ) >=3)
+Cl_stopW = hascard(west, AC) or (clubs (west) >=2 && hascard(west, KC) ) or (clubs (west) >=3 && hcp(west,clubs ) >=3)
+Sp_stopEW = Sp_stopE || Sp_stopW
+He_stopEW = He_stopE || He_stopW
+Di_stopEW = Di_stopE || Di_stopW
+Cl_stopEW = Cl_stopE || Cl_stopW
+
+// Stopper Definitions NS
+Sp_stopN = hascard(north, AS) or (spades(north) >=2 && hascard(north, KS) ) or (spades(north) >=3 && hcp(north,spades) >=3)
+Sp_stopS = hascard(south, AS) or (spades(south) >=2 && hascard(south, KS) ) or (spades(south) >=3 && hcp(south,spades) >=3)
+He_stopN = hascard(north, AH) or (hearts(north) >=2 && hascard(north, KH) ) or (hearts(north) >=3 && hcp(north,hearts) >=3)
+He_stopS = hascard(south, AH) or (hearts(south) >=2 && hascard(south, KH) ) or (hearts(south) >=3 && hcp(south,hearts) >=3)
+Di_stopN = hascard(north, AD) or (diamond(north)>=2 && hascard(north, KD) ) or (diamond(north)>=3 && hcp(north,diamond)>=3)
+Di_stopS = hascard(south, AD) or (diamond(north)>=2 && hascard(south, KD) ) or (diamond(north)>=3 && hcp(south,diamond)>=3)
+Cl_stopN = hascard(north, AC) or (clubs (north) >=2 && hascard(north, KC) ) or (clubs (north) >=3 && hcp(north,clubs ) >=3)
+Cl_stopS = hascard(south, AC) or (clubs (south) >=2 && hascard(south, KC) ) or (clubs (south) >=3 && hcp(south,clubs ) >=3)
+Sp_stopNS = Sp_stopN || Sp_stopS
+He_stopNS = He_stopN || He_stopS
+Di_stopNS = Di_stopN || Di_stopS
+Cl_stopNS = Cl_stopN || Cl_stopS
+
+condition (Sp_stopEW && He_stopEW && Di_stopEW && Cl_stopEW) || (Sp_stopNS && He_stopNS && Di_stopNS && Cl_stopNS)
+
+action
+printoneline (hcp(south))

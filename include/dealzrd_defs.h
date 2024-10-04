@@ -22,7 +22,7 @@ typedef char DEAL52_k[52] ;
 typedef int  DL52_TRICKS_k[4][5] ;
 
 struct cbf_st {  /* Use chars to avoid spurious alignment gaps */
-		 unsigned char card0 : 2 ;
+		 unsigned char card0 : 2 ;  /* card bit field; 2 bits per card give its seat/compass location */
 		 unsigned char card1 : 2 ;
 		 unsigned char card2 : 2 ;
 		 unsigned char card3 : 2 ;
@@ -30,7 +30,7 @@ struct cbf_st {  /* Use chars to avoid spurious alignment gaps */
 struct zpos_st { struct cbf_st cbf[13] ;} ; /* 13 bytes of four 2-bit fields each makes up a 'deal' */
 typedef struct zpos_st ZRD_DEAL_k ;    /* syntax:  zdl.cbf[i].cardX */
 
-struct tbf_st {   /* Must use chars else the zrdrec_st wont be 23 bytes per RP spec*/
+struct tbf_st {   /* Tricks Bit Field; 4 bits per value. Must use chars else the zrdrec_st wont be 23 bytes per RP spec*/
 		 unsigned char trW : 4 ;  /* W tricks */
 		 unsigned char trN : 4 ;  /* N tricks */
 		 unsigned char trE : 4 ;  /* E tricks */
