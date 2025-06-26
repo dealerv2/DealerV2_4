@@ -1,7 +1,7 @@
 generate 100000000
 produce 4			
 seed 901
-title "Show printoneline and printcompact with the optional expression '
+title "Show printoneline and printcompact with the optional expression "
 
 
 condition hcp(south) > 9
