@@ -60,6 +60,7 @@
  extern long    seed, seed_provided ;
  extern int     verbose ; 
  extern int     swapping, swapindex ;
+
  
  extern int     errflg ;
  extern int     jgmDebug ;          /* cmd line as opposed to #define Debug flag. 0 = None. 9=verbose */
@@ -72,6 +73,8 @@
  extern char    title[MAXTITLE+1] ;   /* set from cmd line or from input file directly from dealflex.l */
  extern int     title_len;  /*  >0 valid title;  <0 no title specified =0 suppress zrdhdr record(s) even if title in dli file*/
  
+ extern int     boardoffset ;  /* 2025-07-01 used by print actions with board numbers */
+ 
  extern char   *input_file;
  extern FILE   *fexp ;
  extern FILE   *fcsv ;
@@ -79,6 +82,8 @@
  extern FILE   *fzrdlib ;
  extern FILE   *flog;     
  
+ extern char    biglib[64] ;
+ extern char    tinylib[64] ;
  extern char    zrdlib_default[64] ;  /* path name of the default location for the RP Library file */
  extern int     zrdlib_mode ;
  extern int     zrdlib_blksz ;

@@ -1,0 +1,28 @@
+generate   100000
+produce    1          // make 10,000 in production
+seed 17                // make $0 in production
+
+title "Test Alt_HCP_Count Metrics Cmd Line Parm -0 is the metric to test"
+ // Cannot redefine the altcounts when using usereval; the usereval code relies on things like Top2, top5 etc.
+//predeal north SAKQ2,HJT92,DK,CJ
+//predeal north SAKJT9,CKJT9,DQT4,HA
+//predeal south SQ
+predeal north SAK,HKQ,DQJ,C9876543
+//predeal south SQJ2,HAJ,CKJ
+seed 113
+// condition shape(north, 2227) and shape(south, 3262)
+action 
+    printrpt(    deal ),          
+                     // All metrics have fractions. Two sets of results rounded (per Pavlicek) and raw *100
+    printrpt(     "Rounded_NS= ",
+                     usereval($0,NS, 0),usereval($0,NS, 1),usereval($0,NS, 2),
+                  "Raw*100 NS= ",
+                     usereval($0,NS, 3), usereval($0,NS, 4), usereval($0,NS, 5),
+                  "North By Suit= ",usereval($0,NS, 6),usereval($0,NS, 7),usereval($0,NS, 8),usereval($0,NS, 9),
+                  "South By Suit= ",usereval($0,NS,10),usereval($0,NS,11),usereval($0,NS,12),usereval($0,NS,13)),
+   printrpt(      "Rounded_EW= ",
+                     usereval($0,EW, 0),usereval($0,EW, 1),usereval($0,EW, 2),
+                  "Raw*100 EW= ",
+                     usereval($0,EW, 3), usereval($0,EW, 4), usereval($0,EW, 5),
+                  "East By Suit= ",usereval($0,EW, 6),usereval($0,EW, 7),usereval($0,EW, 8),usereval($0,EW, 9),
+                  "West By Suit= ",usereval($0,EW,10),usereval($0,EW,11),usereval($0,EW,12),usereval($0,EW,13)),                                     

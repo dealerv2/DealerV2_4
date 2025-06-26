@@ -1,0 +1,45 @@
+generate   10000
+produce    10
+seed 17  
+title "UE_Set42_test.dli "
+# 42 is the query-id that asks for testing all metrics implemented plus a few extra RAW values. Very similar to set88 which does not have the RAW and may be removed in Fut
+condition 1
+
+  // Note set42 returns 2 vals for each metric.  BestFit side, NT-side Plus two extra values for each of the metrics,6,7,9(RAW) and 12,13(Scaled) and BFSuit, BFfitlen in 126,127
+  //    0        1       2     3      4      5        6      7    8    9     10     11       12      13     14     
+  // BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH,
+
+action
+printrpt(NS, " BF_Suit=", usereval(42,NS,126),"  BF FitLen=",usereval(42,NS,127) ),
+   printrpt ("Bergen BF=",usereval(42,NS, 0),"Bissel BF=",usereval(42,NS, 1),"DKP    BF=",usereval(42,NS, 2),"Goren  BF=",usereval(42,NS, 3), 
+             "Kaplan BF=",usereval(42,NS, 4),"Karpin BF=",usereval(42,NS, 5),"Karp_B BF=",usereval(42,NS, 6),"Knr    BF=",usereval(42,NS, 7)),
+   printrpt ("Bergen NT=",usereval(42,NS,15),"Bissel NT=",usereval(42,NS,16),"DKP    NT=",usereval(42,NS,17),"Goren  NT=",usereval(42,NS,18),
+             "Kaplan NT=",usereval(42,NS,19),"Karpin NT=",usereval(42,NS,20),"Karp_B NT=",usereval(42,NS,21),"Knr    NT=",usereval(42,NS,22)),
+             
+              
+   printrpt ("Larssn BF=",usereval(42,NS, 8),"Lars_B BF=",usereval(42,NS, 9),"Pavlck BF=",usereval(42,NS,10),"Sheinw BF=",usereval(42,NS,11), 
+             "ZarBas BF=",usereval(42,NS,12),"ZarAdv BF=",usereval(42,NS,13),"Roth   BF=",usereval(42,NS,14)),          
+   printrpt ("Larssn NT=",usereval(42,NS,23),"Lars_B NT=",usereval(42,NS,24),"Pavlck NT=",usereval(42,NS,25),"Sheinw NT=",usereval(42,NS,26), 
+             "ZarBas NT=",usereval(42,NS,27),"ZarAdv NT=",usereval(42,NS,28),"Roth   NT=",usereval(42,NS,29)
+            ),
+            
+  printrpt ("BF:: KarpB_RAW=",usereval(42,NS,30), "  KnR_RAW=",usereval(42,NS,31), " LarB_RAW=",usereval(42,NS,32), "ZarBas_Cooked",usereval(42,NS,33),"ZarAdv_Cooked",usereval(42,NS,34),  
+            "NT:: KarpB_RAW=",usereval(42,NS,35), "  KnR_RAW=",usereval(42,NS,36), " LarB_RAW=",usereval(42,NS,37), "ZarBas_Cooked",usereval(42,NS,38),"ZarAdv_Cooked",usereval(42,NS,39)
+            ),
+printrpt(" ---- "),
+printrpt(EW, " BF_Suit=", usereval(42,EW,126),"  BF FitLen=",usereval(42,EW,127) ),
+   printrpt ("Bergen BF=",usereval(42,EW, 0),"Bissel BF=",usereval(42,EW, 1),"DKP    BF=",usereval(42,EW, 2),"Goren  BF=",usereval(42,EW, 3), 
+             "Kaplan BF=",usereval(42,EW, 4),"Karpin BF=",usereval(42,EW, 5),"Karp_B BF=",usereval(42,EW, 6),"Knr    BF=",usereval(42,EW, 7)),
+   printrpt ("Bergen NT=",usereval(42,EW,15),"Bissel NT=",usereval(42,EW,16),"DKP    NT=",usereval(42,EW,17),"Goren  NT=",usereval(42,EW,18),
+             "Kaplan NT=",usereval(42,EW,19),"Karpin NT=",usereval(42,EW,20),"Karp_B NT=",usereval(42,EW,21),"Knr    NT=",usereval(42,EW,22)),
+             
+              
+   printrpt ("Larssn BF=",usereval(42,EW, 8),"Lars_B BF=",usereval(42,EW, 9),"Pavlck BF=",usereval(42,EW,10),"Sheinw BF=",usereval(42,EW,11), 
+             "ZarBas BF=",usereval(42,EW,12),"ZarAdv BF=",usereval(42,EW,13),"Roth   BF=",usereval(42,EW,14)),          
+   printrpt ("Larssn NT=",usereval(42,EW,23),"Lars_B NT=",usereval(42,EW,24),"Pavlck NT=",usereval(42,EW,25),"Sheinw NT=",usereval(42,EW,26), 
+             "ZarBas NT=",usereval(42,EW,27),"ZarAdv NT=",usereval(42,EW,28),"Roth   NT=",usereval(42,EW,29)
+            ),
+            
+  printrpt ("BF:: KarpB_RAW=",usereval(42,EW,30), "  KnR_RAW=",usereval(42,EW,31), " LarB_RAW=",usereval(42,EW,32), "ZarBas_Cooked",usereval(42,EW,33),"ZarAdv_Cooked",usereval(42,EW,34),  
+            "NT:: KarpB_RAW=",usereval(42,EW,35), "  KnR_RAW=",usereval(42,EW,36), " LarB_RAW=",usereval(42,EW,37), "ZarBas_Cooked",usereval(42,EW,38),"ZarAdv_Cooked",usereval(42,EW,39)
+            ),         

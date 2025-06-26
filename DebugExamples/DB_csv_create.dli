@@ -1,0 +1,37 @@
+generate   100000
+produce    100000
+seed 0
+title "Create DB Import CSV files from RPlib "
+altcount 9 6.0 4.0 2.0 1.0         // C13 count in Dotnum
+altcount 7 4.0 3.0 2.0 1.0         // Work std in DotNum for same scale; dont redefine hcp breaks too many things in UserServer
+altcount 6 4.25 3.0 1.75 0.75 0.25 // JGM: Mix of BumWrap, Woolsey, and Andrews
+altcount 5 4.0 2.8 1.8 1.0 0.4     // Andrews Fifths
+altcount 4 4.5 3.0 1.75 0.75       // Woolsey HCP
+altcount 3 4.5 3.0 1.5 0.75 0.25   // BumWrap
+altcount 2 4.25 3.0 2.0 1.0 0.5    // Work with A=4.25 and T=0.5 Per Andrews
+altcount 1 4.25 3.0 2.0 1.0        // Work with A=4.25           Per Andrews
+altcount 0 4.0 3.0 2.0 1.0 0.5     // Work with T=0.5            Per Andrews
+
+action 
+    printrpt( rnd(0), north, east, south, west, trix(deal) ),
+    printrpt( rnd(0),pt7(north)+pt7(south),pt0(north)+pt0(south),pt1(north)+pt1(south),pt2(north)+pt2(south),pt3(north)+pt3(south),
+                     pt4(north)+pt4(south),pt5(north)+pt5(south),pt6(north)+pt6(south),pt9(north)+pt9(south),cccc(north)+cccc(south),
+                     pt7(east )+pt7(west ),pt0(east )+pt0(west ),pt1(east )+pt1(west ),pt2(east )+pt2(west ),pt3(east )+pt3(west ),
+                     pt4(east )+pt4(west ),pt5(east )+pt5(west ),pt6(east )+pt6(west ),pt9(east )+pt9(west ),cccc(north)+cccc(west ),               
+                     // HLDF values for metrics 0 .. 14
+                     usereval(88,NS, 0),usereval(88,NS, 1),usereval(88,NS, 2),usereval(88,NS, 3),usereval(88,NS, 4),
+                     usereval(88,NS, 5),usereval(88,NS, 6),usereval(88,NS, 7),usereval(88,NS, 8),usereval(88,NS, 9),
+                     usereval(88,NS,10),usereval(88,NS,11),usereval(88,NS,12),usereval(88,NS,13),usereval(88,NS,14),
+                     // NT values for metrics 0 .. 14
+                     usereval(88,NS,15),usereval(88,NS,16),usereval(88,NS,17),usereval(88,NS,18),usereval(88,NS,19),
+                     usereval(88,NS,20),usereval(88,NS,21),usereval(88,NS,22),usereval(88,NS,23),usereval(88,NS,24),
+                     usereval(88,NS,25),usereval(88,NS,26),usereval(88,NS,27),usereval(88,NS,28),usereval(88,NS,29),
+                     // HLDF values for metrics 0 .. 14
+                     usereval(88,EW, 0),usereval(88,EW, 1),usereval(88,EW, 2),usereval(88,EW, 3),usereval(88,EW, 4),
+                     usereval(88,EW, 5),usereval(88,EW, 6),usereval(88,EW, 7),usereval(88,EW, 8),usereval(88,EW, 9),
+                     usereval(88,EW,10),usereval(88,EW,11),usereval(88,EW,12),usereval(88,EW,13),usereval(88,EW,14),
+                     // NT values for metrics 0 .. 14
+                     usereval(88,EW,15),usereval(88,EW,16),usereval(88,EW,17),usereval(88,EW,18),usereval(88,EW,19),
+                     usereval(88,EW,20),usereval(88,EW,21),usereval(88,EW,22),usereval(88,EW,23),usereval(88,EW,24),
+                     usereval(88,EW,25),usereval(88,EW,26),usereval(88,EW,27),usereval(88,EW,28),usereval(88,EW,29), 
+                     opc(NS),opc(NS,notrump),opc(EW),opc(EW,notrump))                                         

@@ -164,7 +164,7 @@ void action () {            /* For each 'Interesting' deal, Walk the action_list
         break;
       case ACT_PRINTPBN:
         if (! quiet)
-          printpbn (nprod, curdeal);
+          printpbn (nprod + boardoffset, curdeal);
         break;
       case ACT_PRINT:
         memcpy (&deallist[nprod-1], curdeal, sizeof (DEAL52_k));  /*save sorted curdeal in malloc'ed area for later printing */
@@ -298,7 +298,7 @@ void cleanup_action () {  /* this also does the end-of-run actions like FREQUENC
           if (title_len > 0 ) { printf("%s\n", title ) ; }
           printf ("\n%s hands:\n\n", player_name[player]);
           for (i = 0; i < nprod; i += 4)  /* print hands 4 across at a time. */
-                printhands (i, deallist+i, player, nprod - i > 4 ? 4 : nprod - i);
+                printhands (i+boardoffset, deallist+i, player, nprod - i > 4 ? 4 : nprod - i);
           printf ("\f"); /* end each player with a form feed */
         }  /* end for player */
         break;
@@ -429,7 +429,7 @@ void printdeal (DEAL52_k d) {   /* the PRINTALL action. Print All 4 hands on the
       printf("%18s[%s]\n"," ",title);
       do_title = 0;
   }
-  printf ("%4d. North              East                South               West \n", (nprod) );
+  printf ("%4d. North              East                South               West \n", (nprod + boardoffset) );
 
   for (suit = SUIT_SPADE; suit >= SUIT_CLUB; suit--) {
     printf("     "); /* indent on page to allow room for board number */
@@ -509,7 +509,7 @@ void printside (DEAL52_k d, int side ) {  /* JGM Replacement for printew to allo
       printf("%18s[%s]\n"," ",title);
       do_title = 0;
   }
-  printf ("%4d. %-5s              %-5s\n", (nprod), player_name[players[0]], player_name[players[1]] );
+  printf ("%4d. %-5s              %-5s\n", (nprod + boardoffset), player_name[players[0]], player_name[players[1]] );
   JGMDPRT(7,"Printing parnership side [%d] players=[%s , %s]\n",
                                      side, player_name[players[0]], player_name[players[1]]);
   for (suit = SUIT_SPADE; suit >= SUIT_CLUB; suit--) {
@@ -559,8 +559,7 @@ int printpbn (int board, DEAL52_k d) {  /* Rudimentary PBN report primarily to e
   int player, suit, rank;
   int board_idx  = board - 1 ; /* offset into the VUL and Dealer name arrays */ 
 
-  printf ("[Event \"Hand simulated by dealer with file %s, seed %lu\"]\n",
-  input_file, seed);
+  printf ("[Event \"Hand simulated by dealer with file %s, seed %lu\"]\n",  input_file, seed);
   printf ("[Site \"-\"]\n");
   /* next two optional tags, not part of PBN Minimal Tag Set -- , added by JGM */
   if (strlen(title) > 0 ) { printf("[Description \"%s\"]\n", title); }

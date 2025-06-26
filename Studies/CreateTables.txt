@@ -1,0 +1,130 @@
+
+  /* will need to use perl/awk script to make sure values are in the right places for bulk load data statement */
+create table README (Author varchar(30), LastUpdate date, Description varchar(500) ) ;  
+  
+create table Cards ( DealID int primary key, North char(18) not null, South char(18) not null, East char(18) not null, West char(18) not null ) ;
+
+create table NS_Tricks( DealID int primary key, 
+        ClubsN tinyint unsigned not null , DiamsN   tinyint unsigned not null, HeartsN tinyint unsigned not null , 
+        SpadesN tinyint unsigned not null, NotrumpN tinyint unsigned not null, 
+        ClubsS  tinyint unsigned not null, DiamsS   tinyint unsigned not null, HeartsS  tinyint unsigned not null , 
+        SpadesS tinyint unsigned not null, NotrumpS tinyint unsigned not null, 
+        Max_trx tinyint unsigned not null, Max_str  tinyint unsigned not null, Max_seat tinyint unsigned not null          
+      );
+ 
+# Fut create a table for best score, par score etc.                
+          
+create table NS_HCPmetrics( DealID int primary key, HCP tinyint unsigned not null, AltT050 real unsigned not null,  AltA425 real unsigned not null, 
+       AltAT475 real unsigned not null, And5ths real unsigned not null, CCCC real unsigned not null,
+       Bumwrap  real unsigned not null, Woolsey real unsigned not null,
+       BWjgm    real unsigned not null, OPCjgm  real unsigned not null ) ;
+
+       
+create table NS_Metrics( DealID int primary key, 
+       Bergen_hldf          smallint unsigned not null, 
+       Bissel_hldf          smallint unsigned not null, 
+       DKP_hldf             smallint unsigned not null, 
+       Goren_hldf           smallint unsigned not null, 
+       Kaplan_hldf          smallint unsigned not null, 
+       Karpin_hldf          smallint unsigned not null, 
+       Karp_jgm_hldf        smallint unsigned not null, 
+       KnR_hldf             smallint unsigned not null, 
+       Larsson_hldf         smallint unsigned not null,
+       Lar_jgm_hldf         smallint unsigned not null,
+       Pav_hldf             smallint unsigned not null, 
+       Roth_hldf            smallint unsigned not null, 
+       Shein_hldf           smallint unsigned not null, 
+       ZarBas_hldf          smallint unsigned not null, 
+       ZarAdv_hldf          smallint unsigned not null, 
+       OPC_hldf             smallint unsigned not null,
+        Bergen_nt           smallint unsigned not null,
+        Bissel_nt           smallint unsigned not null, 
+        DKP_nt              smallint unsigned not null,
+        Goren_nt            smallint unsigned not null,
+        Kaplan_nt           smallint unsigned not null,
+        Karpin_nt           smallint unsigned not null, 
+        Karp_jgm_nt         smallint unsigned not null, 
+        KnR_nt              smallint unsigned not null, 
+        Larsson_nt          smallint unsigned not null, 
+        Lar_jgm_nt          smallint unsigned not null, 
+        Pav_nt              smallint unsigned not null, 
+        Roth_nt             smallint unsigned not null, 
+        Shein_nt            smallint unsigned not null, 
+        ZarBas_nt           smallint unsigned not null, 
+        ZarAdv_nt           smallint unsigned not null,
+        OPC_nt              smallint unsigned not null,
+        Karp_jgm_hldf_raw   real unsigned not null,
+        KnR_hldf_raw        real unsigned not null,
+        Lar_jgm_hldf_raw    real unsigned not null,
+        ZarBas_hldf_scaled  smallint  unsigned not null, /* scaled zars fraction part is always .5 or 0 and rounded per Pav. */
+        ZarAdv_hldf_scaled  smallint  unsigned not null, /* Since Scaling by design wants ZARs to look like std HCP don't take xtra effort to keep fraction */
+        OPC_hldf_raw        real unsigned not null,
+        Karp_jgm_nt_raw     real unsigned not null,
+        KnR_nt_raw          real unsigned not null,
+        Lar_jgm_nt_raw      real unsigned not null,
+        ZarBas_nt_scaled    smallint  unsigned not null,
+        ZarAdv_nt_scaled    smallint unsigned not null,
+        OPC_nt_raw          real unsigned not null        
+ ); 
+             
+create table EW_Tricks( DealID int primary key, 
+        ClubsE  tinyint unsigned not null, DiamsE   tinyint unsigned not null, HeartsE  tinyint unsigned not null, 
+        SpadesE tinyint unsigned not null, NotrumpE tinyint unsigned not null,
+        ClubsW  tinyint unsigned not null, DiamsW   tinyint unsigned not null, HeartsW  tinyint unsigned not null, 
+        SpadesW tinyint unsigned not null, NotrumpW tinyint unsigned not null,
+        Max_trx tinyint unsigned not null, Max_str  tinyint unsigned not null, Max_seat tinyint unsigned not null           
+      );
+ 
+create table EW_HCPmetrics( DealID int primary key, HCP tinyint unsigned not null, AltT050 real unsigned not null,  AltA425 real unsigned not null, 
+       AltAT475 real unsigned not null, And5ths real unsigned not null, CCCC real unsigned not null,
+       Bumwrap  real unsigned not null, Woolsey  real unsigned not null,
+       BWjgm    real unsigned not null, OPCjgm   real unsigned not null ) ;
+
+create table EW_Metrics( DealID int primary key, 
+       Bergen_hldf          smallint unsigned not null, 
+       Bissel_hldf          smallint unsigned not null, 
+       DKP_hldf             smallint unsigned not null, 
+       Goren_hldf           smallint unsigned not null, 
+       Kaplan_hldf          smallint unsigned not null, 
+       Karpin_hldf          smallint unsigned not null, 
+       Karp_jgm_hldf        smallint unsigned not null, 
+       KnR_hldf             smallint unsigned not null, 
+       Larsson_hldf         smallint unsigned not null,
+       Lar_jgm_hldf         smallint unsigned not null,
+       Pav_hldf             smallint unsigned not null, 
+       Roth_hldf            smallint unsigned not null, 
+       Shein_hldf           smallint unsigned not null, 
+       ZarBas_hldf          smallint unsigned not null, 
+       ZarAdv_hldf          smallint unsigned not null, 
+       OPC_hldf             smallint unsigned not null,
+        Bergen_nt           smallint unsigned not null,
+        Bissel_nt           smallint unsigned not null, 
+        DKP_nt              smallint unsigned not null,
+        Goren_nt            smallint unsigned not null,
+        Kaplan_nt           smallint unsigned not null,
+        Karpin_nt           smallint unsigned not null, 
+        Karp_jgm_nt         smallint unsigned not null, 
+        KnR_nt              smallint unsigned not null, 
+        Larsson_nt          smallint unsigned not null, 
+        Lar_jgm_nt          smallint unsigned not null, 
+        Pav_nt              smallint unsigned not null, 
+        Roth_nt             smallint unsigned not null, 
+        Shein_nt            smallint unsigned not null, 
+        ZarBas_nt           smallint unsigned not null, 
+        ZarAdv_nt           smallint unsigned not null,
+        OPC_nt              smallint unsigned not null,
+        Karp_jgm_hldf_raw   real unsigned not null,
+        KnR_hldf_raw        real unsigned not null,
+        Lar_jgm_hldf_raw    real unsigned not null,
+        ZarBas_hldf_scaled  smallint  unsigned not null, /* scaled zars fraction part is always .5 or 0 and rounded per Pav. */
+        ZarAdv_hldf_scaled  smallint  unsigned not null, /* Since Scaling by design wants ZARs to look like std HCP don't take xtra effort to keep fraction */
+        OPC_hldf_raw        real unsigned not null,
+        Karp_jgm_nt_raw     real unsigned not null,
+        KnR_nt_raw          real unsigned not null,
+        Lar_jgm_nt_raw      real unsigned not null,
+        ZarBas_nt_scaled    smallint unsigned not null,
+        ZarAdv_nt_scaled    smallint unsigned not null,
+        OPC_nt_raw          real unsigned not null  
+);     
+          
+ 

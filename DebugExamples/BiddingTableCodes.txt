@@ -1,0 +1,201 @@
+#Version 1.0  2024-04-14
+
+// Note: All comments or titles must have # in Col 1 or // at start of the comment/title 
+#Common Defs
+# Hand Features
+Balnorth = shape(north, any 4333 + any 4432 + any 5332)
+UBalnorth= shape(north, any 4441 + any 4450 + any 6xxx + any 7xxx + any 8xxx + any 9xxx )
+Balsouth = shape(south, any 4333 + any 4432 + any 5332)
+HasMajsouth = hearts(south) >= 4 or spades(south) >= 4
+HasMajnorth = hearts(north) >= 4 or spades(north) >= 4
+WkResp     =  5 <= hcp(south) and hcp(south) <= 9
+InvResp    = 10 <= hcp(south) and hcp(south) <= 12
+GFResp     = 13 <= hcp(south) and hcp(south) < 16
+SlamInvRsp = 16 >= hcp(south) 
+#NonForcing Free Bids
+NFB2C = 5 <= hcp(south) and hcp(south) <= 7  and clubs(south)    >= 5 
+NFB2D = 5 <= hcp(south) and hcp(south) <= 7  and diamonds(south) >= 5
+NFB2H = 5 <= hcp(south) and hcp(south) <= 7  and hearts(south)   >= 5
+NFB2S = 5 <= hcp(south) and hcp(south) <= 7  and spades(south)   >= 5
+NFB3C = 5 <= hcp(south) and hcp(south) <= 10 and clubs(south)    >= 5
+NFB3D = 5 <= hcp(south) and hcp(south) <= 10 and diamonds(south) >= 5
+# Openers
+open1C = (18 <= hcp(north) and Balnorth)  or (16 <= hcp(north) and !Balnorth)
+open1D = hearts(north) < 5 and spades(north) < 5 and diamonds(north) >= 2 and clubs(north) < 6 and 11 <= hcp(north) and hcp(north) <= 15 and not (hcp(north) == 15 and Balnorth ) 
+open1H = 11 <= hcp(north) and hcp(north) <= 15 and hearts(north) >= 5 and spades(north) < hearts(north)
+open1S = 11 <= hcp(north) and hcp(north) <= 15 and spades(north) >= 5 and spades(north) >= hearts(north)
+open1N = 15 <= hcp(north) and hcp(north) <= 17 and shape(north, any 4333 + any 4432 + 3352 + 3253 + 2353 + 3325 + 3235 + 2335 )
+
+open2C = 11 <= hcp(north) and hcp(north) <= 15 and hearts(north) < 5 and spades(north) < 5 and diamonds(north) < 6 and clubs(north) >= 6
+open2D = 11 <= hcp(north) and hcp(north) <= 15 and shape(north, 4414 + 4405 + 4315 + 3415 )
+open2H =  5 <= hcp(north) and hcp(north) <= 10 and hearts(north) == 6 and spades(north) < 4 and diamonds(north) >= 1 and clubs(north) >= 1 and top5(north,hearts)>2
+open2S =  5 <= hcp(north) and hcp(north) <= 10 and spades(north) == 6 and hearts(north) < 4 and diamonds(north) >= 1 and clubs(north) >= 1 and top5(north,spades)>2
+open2N =  4 <= hcp(north, clubs) and 4 <= hcp(north, diamonds) and hcp(north) < 11 and top5(north,clubs)>=3 and top5(north,diamond)>=3
+          and clubs(north) >=5 and diamonds(north) >= 5
+#Major Suit Auctions
+# Dfit Points aka Ruffing Value 
+# Count shortness in only ONE suit. With 3 card suppt V=3, S=2, D=1 ; with 4+ suppt V=4, S=3, D=2
+DfitPts3V = shape(south, any 0xxx) ? 3 : 0                        
+DfitPts3S = shape(south, any 1xxx - any 0xxx) ? 2 : 0              
+DfitPts3D = shape(south, any 2xxx - any 1xxx - any 0xxx) ? 1 : 0    
+DfitPts3  = DfitPts3V + DfitPts3S + DfitPts3D                       
+
+DfitPts4V = shape(south, any 0xxx) ? 4 : 0                          
+DfitPts4S = shape(south, any 1xxx - any 0xxx) ? 3 : 0               
+DfitPts4D = shape(south, any 2xxx - any 1xxx - any 0xxx) ? 1 : 0
+DfitPts4  = DfitPts4V + DfitPts4S + DfitPts4D 
+HeDfit = (hearts(south) >= 4 ) ? DfitPts4 : ((hearts(south)==3) ? DfitPts3 : 0 )
+SpDfit = (spades(south) >= 4 ) ? DfitPts4 : ((spades(south)==3) ? DfitPts3 : 0 )
+HeSuppt = hcp(south) + HeDfit
+SpSuppt = hcp(south) + SpDfit
+# Major Suit Raises
+HeLR   = open1H  and hearts(south) >= 4 and 10 <= HeSuppt  and HeSuppt <= 12 and losers(south) < 9
+SpLR   = open1S  and spades(south) >= 4 and 10 <= SpSuppt  and SpSuppt <= 12 and losers(south) < 9
+HeRoth = open1H  and hearts(south) == 3 and 10 <= HeSuppt  and HeSuppt <= 12
+SpRoth = open1S  and spades(south) == 3 and 10 <= SpSuppt  and SpSuppt <= 12
+HeMix  = open1H  and hearts(south) >= 4 and  7 <= HeSuppt  and HeSuppt <=  9
+SpMix  = open1S  and spades(south) >= 4 and  7 <= SpSuppt  and SpSuppt <=  9
+
+He3C   = open1H  and hearts(south) >= 4 and 10 <= HeSuppt  and HeSuppt <= 12 and shape(south, xxxx - any 0xxx - any 1xxx)
+Sp3C   = open1S  and spades(south) >= 4 and 10 <= SpSuppt  and SpSuppt <= 12 and shape(south, xxxx - any 0xxx - any 1xxx)
+He3D   = open1H  and hearts(south) >= 4 and 10 <= HeSuppt  and HeSuppt <= 12 and shape(south, any 0xxx + any 1xxx)
+Sp3D   = open1S  and spades(south) >= 4 and 10 <= SpSuppt  and SpSuppt <= 12 and shape(south, any 0xxx + any 1xxx)
+He2N   = open1H  and hearts(south) >= 4 and hcp(south) >= 13 and HeSuppt >= 16
+Sp2N   = open1S  and spades(south) >= 4 and hcp(south) >= 13 and SpSuppt >= 16
+He4H   = open1H  and ((hearts(south) >= 3 and HeSuppt >= 13 and HeSuppt <16) or (hearts(south) >= 4 and hcp(south) < 7 ) ) 
+Sp4S   = open1S  and ((spades(south) >= 3 and SpSuppt >= 13 and SpSuppt <16) or (spades(south) >= 4 and hcp(south) < 7 ) ) 
+
+HePref = open1H  and (
+        (hearts(south) >= 4 and hcp(south) < 5 ) or    //  very wk hands need 4+ trump to bid 1N(forc) then 2M
+        (hearts(south) == 4 and 6 <= hcp(south) and hcp(south) <=  7) or  // 4 trump and  8 - 11 is 3H mixed 
+        (hearts(south) == 3 and 5 <= hcp(south) and hcp(south) <=  9) or  // 3 trump and 10 - 12 is 2H Roth 
+        (hearts(south) == 2 and 10<= hcp(south) and hcp(south) <= 12))     // 2 card pref has 10 hcp or so; just pass with 2 cards and 5-9 
+SpPref = open1S  and (
+        (spades(south) >=  4 and hcp(south) < 5 ) or  
+        (spades(south) == 4 and 6 <= hcp(south) and hcp(south) <=  7) or   
+        (spades(south) == 3 and 5 <= hcp(south) and hcp(south) <=  9) or  
+        (spades(south) == 2 and 10<= hcp(south) and hcp(south) <= 12))
+
+
+#Open 2C ; 2D ask 
+op2Crp2D = 8 <= hcp(south) 
+op2C4cMaj = open2C and HasMajnorth
+rb2Hrp2Dop2C = op2Crp2D and hearts(north) >= 4
+rb2Srp2Dop2C = op2Crp2D and spade(north) >= 4
+rb2Nrp2Dop2C = op2Crp2D and 14 <= hcp(north) and hcp(north) <= 15 and !HasMajnorth
+rb3Crp2Dop2C = op2Crp2D and 14 <= hcp(north) and hcp(north) <= 13 and !HasMajnorth
+rb3Drp2Dop2C = op2Crp2D and diamond(north) >= 4
+rb3Hrp2Dop2C = op2Crp2D and hearts(north) >= 4 and clubs(north) >= 7
+rb3Srp2Dop2C = op2Crp2D and spade(north) >= 4 and clubs(north) >= 7
+rb3Nrp2Dop2C = op2Crp2D and hcp(north,clubs)>=9 and !HasMajnorth
+# open1D Auctions
+op1D4cMaj = open1D and HasMajnorth 
+rp1Hop1D = hcp(south) >= 5 and (spades(south) < 5 and hearts(south) >= 4)
+rp1Sop1D = hcp(south) >= 5 and (spades(south) > hearts(south) and spades(south) >= 4)
+
+# 1D Opener Rebids over 1M
+op1DraiseH = open1D and rp1Hop1D and ( hearts(north) == 4 or (hearts(north) == 3 and (spades(north) < 2 or clubs(north) < 2 ) ))
+op1DraiseS = open1D and rp1Sop1D and ( spades(north) == 4 or (spades(north) == 3 and (hearts(north) < 2 or clubs(north) < 2 ) ))
+op1Drb1N   = open1D and Balnorth and ( (rp1Sop1D and !op1DraiseS) or (rp1Hop1D and !op1DraiseH and spades(north) < 4 ) )
+op1Drb1S   = open1D and rp1Hop1D and hearts(north) < 4 and spades(north) >= 4
+# Spiral
+Spiral2H = op1DraiseH and (InvResp or GFResp)
+Spiral2S = op1DraiseS and (InvResp or GFResp)
+
+#1D - 1M ; 1N -- TWCS
+
+TWCSinvH = op1Drb1N and hearts(south) == 5 and InvResp  
+TWCSgfH  = op1Drb1N and hearts(south) == 5 and GFResp  
+TWCSinvS = op1Drb1N and spades(south) == 5 and InvResp  
+TWCSgfS  = op1Drb1N and spades(south) == 5 and GFResp  
+TWCSwk2D = op1Drb1N and hcp(south) < 9 and diamond(south) >= 5 and hearts(south) < 5 and spades(south) < 5
+TWCSwk2H = op1Drb1N and WkResp and hearts(south) >= 5  
+TWCSwk2S = op1Drb1N and WkResp and spades(south) >= 5
+TWCSslammish = op1Drb1N and hcp(south) >= 16
+
+XYZinv   = open1D and rp1Hop1D and spades(north) == 4 and hearts(north) < 4 and InvResp 
+XYZgf    = open1D and rp1Hop1D and spades(north) == 4 and hearts(north) < 4 and GFResp 
+XYZslam  = open1D and rp1Hop1D and spades(north) == 4 and hearts(north) < 4 and hcp(south) >= 16
+# 1D - 2C Auctions        
+rp2Cop1D = open1D and hcp(south) >= 13 and (  
+                 hearts(south)==4 or spades(south) == 4 or 
+                (clubs(south)  >= 5 and spades(south) < 5 and hearts(south) < 5) or
+                (spades(south) >= 5 and hearts(south)==4) or 
+                (spades(south)==4 and hearts(south) >= 5) 
+        )
+      
+op1Drp2Crb2D = open1D and rp2Cop1D and hearts(north) == 4 and spades(north) <  4
+op1Drp2Crb2H = open1D and rp2Cop1D and hearts(north) <  4 and spades(north) == 4
+op1Drp2Crb2S = open1D and rp2Cop1D and hearts(north) <  4 and spades(north) <  4 and clubs(north) < 5 and diamonds(north) < 5
+op1Drp2Crb2N = open1D and rp2Cop1D and hearts(north) == 4 and spades(north) == 4
+op1Drp2Crb3C = open1D and rp2Cop1D and hearts(north) <  4 and spades(north) <  4 and clubs(north)    == 5 
+op1Drp2Crb3D = open1D and rp2Cop1D and hearts(north) <  4 and spades(north) <  4 and diamonds(north) >= 5
+# 1D - 2D Auctions 
+rp2Dop1D = hcp(south) >= 10 and diamond(south) >= 5 and hearts(south) < 4 and spades(south) < 4
+rp3Hop1D = 13 <= hcp(south) and diamonds(south) >= 5 and hearts(south) <= 1 and spades(south) <  4
+rp3Sop1D = 13 <= hcp(south) and diamonds(south) >= 5 and hearts(south) <  4 and spades(south) <= 1
+rp4Cop1D = 13 <= hcp(south) and diamonds(south) >= 5 and hearts(south) <  4 and spades(south) < 4 and clubs(south) <= 1
+
+rp3Hop2D = open2D and  GFResp and hearts(south) >= 5 and spades(south) <  5
+rp3Sop2D = open2D and  GFResp and spades(south) >= 5 and hearts(south) <  5
+rp3Dop2D = open2D and  GFResp and hearts(south) >= 5 and spades(south) >= 5
+rp2Nop2D = open2D and (GFResp or (InvResp and HasMajsouth ) ) 
+# Open 1N Auctions
+rp2Sop1N = open1N and (Balsouth and 8 <= hcp(south) and hcp(south) <= 10) and hearts(south)<4 and spades(south)<4 or (shape(south, xx55 + xx65 + xx56) )
+rp2Nop1N = open1N and clubs(south)  >=6 and diamond(south)< 5  // 6C & 4cM when look for  the M?
+rp3Cop1N = open1N and diamond(south)>=6 and clubs(south)  < 5
+rp3Dop1N = open1N and shape(south, 55xx + 65xx + 56xx) and 7 <= hcp(south)
+rp3Hop1N = open1N and shape(south, 1354 + 1345 + 0364 + 0346 ) and hcp(north) >= 10
+rp3Sop1N = open1N and shape(south, 3154 + 3145 + 3064 + 3046 ) and hcp(north) >= 10
+rb2Nrp2Sop1N = rp2Sop1N and hcp(north) < 16 
+rb3Crp2Sop1N = rp2Sop1N and hcp(north) >= 16 and clubs(north) >= diamond(north)
+rb3Drp2Sop1N = rp2Sop1N and hcp(north) >= 16 and clubs(north)  < diamond(north)
+
+
+# They DBL 1D : Rodwell
+eastDbl1D = (shape(east, 4414 + 4405 ) and hcp(east) >= 10) or
+            ( shape(east, any 5431 + any 4432) and diamond(east)<3 and hcp(east) >= 12) or
+            ( shape(east, 3325) and hcp(east) >= 13) 
+RwPass = (open1D and eastDbl1D) and ((diamonds(south) >= 4 and hearts(south) < 4 and spades(south) < 4 and hcp(south) < 13 ))
+RwRDBL = (open1D and eastDbl1D) and ((hearts(south) == 4 and spades(south) <5 ) or (hearts(south) > 4 and spades(south) < 5 and hcp(south) < 13 ))
+Rw1H   = (open1D and eastDbl1D) and ((spades(south) == 4 and hearts(south) < 4 ) or (spades(south) > 4 and hearts(south) <= spades(south) and hcp(south) < 13 ))
+Rw1S   = (open1D and eastDbl1D) and 6 <= hcp(south) and hcp(south) <= 10 and hcp(south, hearts) >= 3 and hcp(south, spades) >= 3 and hearts(south) < 4 and spades(south) < 4
+Rw1N   = (open1D and eastDbl1D) and clubs(south) >= 5 and  hearts(south) < 4 and spades(south) < 4
+
+Rw2C   = (open1D and eastDbl1D) and 10 <= hcp(south) and diamonds(south) >= 4 and  hearts(south) < 4 and spades(south) < 4
+Rw2D   = (open1D and eastDbl1D) and  6 <= hcp(south) and hcp(south) <= 10 and diamonds(south) >= 5 and hearts(south) < 4 and spades(south) < 4
+Rw2H   = (open1D and eastDbl1D) and 10 <= hcp(south) and hearts(south) >= 5
+Rw2S   = (open1D and eastDbl1D) and 10 <= hcp(south) and spades(south) >= 5
+Rw3N   = (open1D and eastDbl1D) and 13 <= hcp(south) and hcp(south, hearts) >= 3 and hcp(south, spades) >= 3 and hcp(south,clubs) >= 3 and hearts(south) < 4 and spades(south) < 4
+Rw3C   = (open1D and eastDbl1D) and hcp(south) <= 10 and clubs(south) >= 6 and hearts(south) < 4 and spades(south) < 4
+Rw3H   = (open1D and eastDbl1D) and rp3Hop1D  // splinter for diamonds
+Rw3S   = (open1D and eastDbl1D) and rp3Sop1D  // ditto
+Rw4C   = (open1D and eastDbl1D) and rp4Cop1D  // ditto
+Rodwell= open1D and eastDbl1D
+
+# They DBL 1M : CAP/1MX
+eastDbl1H = (shape(east, 4144 + 4045 + 4054) and hcp(east) >= 10) or 
+            ( shape(east, any 5431 + any 4432)     and hearts(east)<3 and hcp(east) >= 12) or
+            ( shape(east, 3253 + 3235)             and hearts(east)<3 and hcp(east) >= 14) 
+eastDbl1S = (shape(east, 1444 +  0544 + 0454 + 0445) and hcp(east) >= 10) or 
+            ( shape(east, any 5431 + any 4432)     and spades(east)<3 and hcp(east) >= 12) or
+            ( shape(east, 2353 + 2335)             and spades(east)<3 and hcp(east) >= 14)
+Cap1Hx1S  = open1H and eastDbl1H and !HeLR and hcp(south) >= 4 and spades(south) >= 4 and hearts(south) <  3
+Cap1Hx1N  = open1H and eastDbl1H and !HeLR and hcp(south) >= 6 and clubs(south)  >= 5 
+Cap1Hx2C  = open1H and eastDbl1H and !HeLR and hcp(south) >= 6 and diamond(south)>= 5
+Cap1Hx2D  = open1H and eastDbl1H and !HeLR and hcp(south) >= 8 and hearts(south) >= 3 
+Cap1Hx2H  = open1H and eastDbl1H and 3 <= hcp(south) and hcp(south) <= 7 and hearts(south) >= 3
+
+Cap1Sx1N  = open1S and eastDbl1S and !SpLR and hcp(south) >= 6 and clubs(south)  >= 5 
+Cap1Sx2C  = open1S and eastDbl1S and !SpLR and hcp(south) >= 6 and diamond(south)>= 5
+Cap1Sx2D  = open1S and eastDbl1S and !SpLR and hcp(south) >= 6 and hearts(south) >= 5 
+Cap1Sx2H  = open1S and eastDbl1S and !SpLR and hcp(south) >= 8 and spades(south) >= 3
+Cap1Sx2S  = open1S and eastDbl1S and 3 <= hcp(south) and hcp(south) <= 7 and spades(south) >= 3
+
+Jord1Hop  = open1H and eastDbl1H and HeLR
+Jord1Sop  = open1S and eastDbl1S and SpLR
+
+# Condition Clauses Go Here:
+
+
+

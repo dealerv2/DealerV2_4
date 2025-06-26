@@ -1,0 +1,7 @@
+
+produce 2
+predeal north SAKQ2,HJT92, DK32,CQT
+predeal south       HKQ87, DAQ9,CAJ8765
+
+condition top5(north) > 0 && ltc(south) > 0
+action printns

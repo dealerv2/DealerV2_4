@@ -1,0 +1,16 @@
+generate   100000
+produce    20
+title "OPC Details, NT and Best Fit "
+# opc always works on a per side, not per player basis
+# opc( NS ) or opc( EW ) will return value of OPC in the longest or best fit
+# Can also put opc( <side> , <strain> ) where
+#         <side> is NS or EW and <strain> is one of clubs, diamonds, hearts, spades, notrump
+opener north
+condition hcp(north)+hcp(south) >= 20
+action
+        average "OPC NS " opc(NS),
+        average "HCP NS " hcp(north)+hcp(south),
+        bktfreq "N+S OPC (down) vs HCP (accross)" (opc(NS), 21.00,40.0,2.0, hcp(north)+hcp(south),21,40,2 ),
+        printrpt(NS, "opc BF=",opc(NS), "opcNT=", opc(NS,notrump), "HCP NS=", hcp(north)+hcp(south)  ),
+
+

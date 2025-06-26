@@ -1,0 +1,77 @@
+generate 10000000
+produce 1000
+
+// Version 2024/08/10  - UE Tags: HLDF vs NT evaluations
+
+predeal north SQT6,HT98332,DA9,CQ53   // 3=5=2=3
+predeal south S5432,HAK,DKJT76,CT8    // 4=2=5=2
+title "Set 40 NT vs HLDF"
+
+    // title "Pavlicek's Spec for hands that might play in NT "
+condition  
+ // shape(south,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+ // shape(north,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+ 
+   hcp(south)+hcp(north) >= 17
+
+
+action
+
+   // the values are in sets of 5: NT_side, NT_north, NT_south,HLDF_side, HLDF_north, HLDF_south, strain, fitlen
+   // the HLDF values are in slots 45..119 in sets of 5: side, north, south, strain, fitlen 
+
+   printrpt("Bergen  NT:",usereval(40,NS,  0),usereval(40,NS,  1),usereval(40,NS,  2) ),
+   printrpt("      HLDF:",usereval(40,NS,  3),usereval(40,NS,  4),usereval(40,NS,  5),usereval(40,NS,  6),usereval(40,NS,  7)),
+   printrpt("Bissel  NT:",usereval(40,NS,  8),usereval(40,NS,  9),usereval(40,NS, 10) ),
+   printrpt("      HLDF:",usereval(40,NS, 11),usereval(40,NS, 12),usereval(40,NS, 13),usereval(40,NS, 14),usereval(40,NS, 15)),
+   printrpt("DKP     NT:",usereval(40,NS, 16),usereval(40,NS, 17),usereval(40,NS, 18) ),
+   printrpt("      HLDF:",usereval(40,NS, 19),usereval(40,NS, 20),usereval(40,NS, 21),usereval(40,NS, 22),usereval(40,NS, 23)),
+   printrpt("Goren   NT:",usereval(40,NS, 24),usereval(40,NS, 25),usereval(40,NS, 26) ),
+   printrpt("      HLDF:",usereval(40,NS, 27),usereval(40,NS, 28),usereval(40,NS, 29),usereval(40,NS, 30),usereval(40,NS, 31)),   
+   printrpt("Karp_B  NT:",usereval(40,NS, 32),usereval(40,NS, 33),usereval(40,NS, 34) ),
+   printrpt("      HLDF:",usereval(40,NS, 35),usereval(40,NS, 36),usereval(40,NS, 37),usereval(40,NS, 38),usereval(40,NS, 39)),
+   printrpt("Kaplan  NT:",usereval(40,NS, 40),usereval(40,NS, 41),usereval(40,NS, 42) ),
+   printrpt("      HLDF:",usereval(40,NS, 43),usereval(40,NS, 44),usereval(40,NS, 45),usereval(40,NS, 46),usereval(40,NS, 47)),
+   printrpt("Karpin  NT:",usereval(40,NS, 48),usereval(40,NS, 49),usereval(40,NS, 50) ),
+   printrpt("      HLDF:",usereval(40,NS, 51),usereval(40,NS, 52),usereval(40,NS, 53),usereval(40,NS, 54),usereval(40,NS, 55)),
+   printrpt("KnR Fit NT:",usereval(40,NS, 56),usereval(40,NS, 57),usereval(40,NS, 58) ),
+   printrpt("      HLDF:",usereval(40,NS, 59),usereval(40,NS, 60),usereval(40,NS, 61),usereval(40,NS, 62),usereval(40,NS, 63)),
+   printrpt("Larsson NT:",usereval(40,NS, 64),usereval(40,NS, 65),usereval(40,NS, 66) ),
+   printrpt("      HLDF:",usereval(40,NS, 67),usereval(40,NS, 68),usereval(40,NS, 69),usereval(40,NS, 70),usereval(40,NS, 71)),
+   printrpt("LAR_B   NT:",usereval(40,NS, 72),usereval(40,NS, 73),usereval(40,NS, 74) ),
+   printrpt("      HLDF:",usereval(40,NS, 75),usereval(40,NS, 76),usereval(40,NS, 77),usereval(40,NS, 78),usereval(40,NS, 79)),
+   printrpt("Pav  NT:",usereval(40,NS, 80),usereval(40,NS, 81),usereval(40,NS, 82) ),
+   printrpt("      HLDF:",usereval(40,NS, 83),usereval(40,NS, 84),usereval(40,NS, 85),usereval(40,NS, 86),usereval(40,NS, 87)),   
+   printrpt("Sheinw NT:",usereval(40,NS, 88),usereval(40,NS, 89),usereval(40,NS, 90) ),
+   printrpt("      HLDF:",usereval(40,NS, 91),usereval(40,NS, 92),usereval(40,NS, 93),usereval(40,NS, 94),usereval(40,NS, 95)),
+   printrpt("ZarBas  NT:",usereval(40,NS, 96),usereval(40,NS, 97),usereval(40,NS, 98) ),
+   printrpt("      HLDF:",usereval(40,NS, 99),usereval(40,NS,100),usereval(40,NS,101),usereval(40,NS,102),usereval(40,NS,103)),
+   printrpt("ZarAdv  NT:",usereval(40,NS,104),usereval(40,NS,105),usereval(40,NS,106) ),
+   printrpt("      HLDF:",usereval(40,NS,107),usereval(40,NS,108),usereval(40,NS,109),usereval(40,NS,110),usereval(40,NS,111)),
+   printrpt("Roth    NT:",usereval(40,NS,112),usereval(40,NS,113),usereval(40,NS,114) ),
+   printrpt("      HLDF:",usereval(40,NS,115),usereval(40,NS,116),usereval(40,NS,117),usereval(40,NS,118),usereval(40,NS,119)),
+   printrpt(NS , "HCP=",hcp(north)+hcp(south)),
+   printrpt("----------------------------------------------------------"),
+
+  /*
+   frequency " 0 Bergen: NoTrump (down) vs BestFit (across)" (usereval(40,NS, 0),21,29 , usereval(40,NS,15),21,29 ),
+   frequency " 1 Bissel: NoTrump (down) vs BestFit (across)" (usereval(40,NS, 1),21,29 , usereval(40,NS,16),21,29 ),
+   frequency " 2 DKP   : NoTrump (down) vs BestFit (across)" (usereval(40,NS, 2),21,29 , usereval(40,NS,17),21,29 ),
+   frequency " 3 Goren : NoTrump (down) vs BestFit (across)" (usereval(40,NS, 3),21,29 , usereval(40,NS,18),21,29 ),  
+   frequency " 4 KARP_B: NoTrump (down) vs BestFit (across)" (usereval(40,NS, 4),21,29 , usereval(40,NS,19),21,29 ),
+   frequency " 5 KAPLAN: NoTrump (down) vs BestFit (across)" (usereval(40,NS, 5),21,29 , usereval(40,NS,20),21,29 ),
+   frequency " 6 KARPIN: NoTrump (down) vs BestFit (across)" (usereval(40,NS, 6),21,29 , usereval(40,NS,21),21,29 ),
+   frequency " 7 KnRfit: NoTrump (down) vs BestFit (across)" (usereval(40,NS, 7),21,29 , usereval(40,NS,22),21,29 ),
+   frequency " 8 Larson: NoTrump (down) vs BestFit (across)" (usereval(40,NS, 8),21,29 , usereval(40,NS,23),21,29 ),
+   frequency " 9 LAR_B : NoTrump (down) vs BestFit (across)" (usereval(40,NS, 9),21,29 , usereval(40,NS,24),21,29 ),
+   frequency "10 PAV   : NoTrump (down) vs BestFit (across)" (usereval(40,NS,10),21,29 , usereval(40,NS,25),21,29 ),   
+   frequency "11 Sheinw: NoTrump (down) vs BestFit (across)" (usereval(40,NS,11),21,29 , usereval(40,NS,26),21,29 ),
+   frequency "12 ZarBas: NoTrump (down) vs BestFit (across)" (usereval(40,NS,12),21,29 , usereval(40,NS,27),21,29 ),
+   frequency "13 ZarAdv: NoTrump (down) vs BestFit (across)" (usereval(40,NS,13),21,29 , usereval(40,NS,28),21,29 ),
+   frequency "14 Roth  : NoTrump (down) vs BestFit (across)" (usereval(40,NS,14),21,29 , usereval(40,NS,29),21,29 ),
+   */
+   // Note set40 returns the HLDF.side value for each metric in slots 0 .. 14, and the NT.side value in slots 15..29
+  //    0        1       2     3      4      5        6      7    8    9     10     11       12      13     14     
+  // BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH,
+
+

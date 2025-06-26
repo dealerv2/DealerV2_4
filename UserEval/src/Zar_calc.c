@@ -94,20 +94,23 @@ int zarbas_calc( UE_SIDESTAT_k *p_ss ) {   /* Tag Number: 12 Two Hands independe
    UEv.hldf_pts_side = zar_pts[0] + zar_pts[1] ;
    UEv.hldf_suit   = p_ss->t_suit;     /* So we know which dds tricks to count if we are playing in a suit */
    UEv.hldf_fitlen = p_ss->t_fitlen ;
-   /* calculate the zar points on a more common scale */
-   UEv.misc_count = 0 ; 
-   for (h=0 ; h < 2 ; h++ ) {  /* for zarbas we only need two extra vals since NT and HLDF are the same */
-       half_zars = Pav_round(  0.5 *((float_t)UEv.nt_pts_seat[h]) ,p_ss->pav_body[h] ) ;
-       JGMDPRT(8,"Scaling NTpts[%d]=%d with body=%d Result=%d \n",h, UEv.nt_pts_seat[h], p_ss->pav_body[h], half_zars );
-       UEv.misc_pts[UEv.misc_count++] = half_zars ;  // results 6, and 7 are the HALF ZARs for zarbas metric
-   }
-   JGMDPRT(7,"ZarBas Rounded NT   pts Res[6,7]=%d, %d \n",UEv.misc_pts[0], UEv.misc_pts[1] );
+   /* calculate the zar points on a more common scale BF: Side, N, S ::: NT: Side, N, S */
+   UEv.misc_count = 0 ;
    for (h=0 ; h < 2 ; h++ ) {  /* but put the rounded zar/2 pts in both anyway for consistency and easy remembering*/
       half_zars = Pav_round(  0.5 * (float_t)UEv.hldf_pts_seat[h] ,p_ss->pav_body[h] ) ;
       JGMDPRT(8,"Scaling HLDFpts[%d]=%d with body=%d Result=%d \n",h, UEv.hldf_pts_seat[h], p_ss->pav_body[h], half_zars );
-      UEv.misc_pts[UEv.misc_count++] = half_zars ;  // results 8,9 are the HALF ZARs for zaradv HLDF metric
+      UEv.misc_pts[1+h] = half_zars ;  
    }
-   JGMDPRT(7,"ZarBas Rounded HLDF pts Res[8,9]=%d,%d \n",UEv.misc_pts[2], UEv.misc_pts[3] );
+   UEv.misc_pts[0] = UEv.misc_pts[1] + UEv.misc_pts[2] ;  /* 6,7,8 side, hand[0], hand[1] in BF */
+   JGMDPRT(7,"ZarBas Rounded HLDF pts Res[6,7,8]=> %d = %d + %d\n",UEv.misc_pts[0], UEv.misc_pts[1], UEv.misc_pts[2] ); 
+   for (h=0 ; h < 2 ; h++ ) {  
+       half_zars = Pav_round(  0.5 *((float_t)UEv.nt_pts_seat[h]) ,p_ss->pav_body[h] ) ;
+       JGMDPRT(8,"Scaling NTpts[%d]=%d with body=%d Result=%d \n",h, UEv.nt_pts_seat[h], p_ss->pav_body[h], half_zars );
+       UEv.misc_pts[4+h] = half_zars ;  // results u.res[9,10,11] are the HALF ZARs for zarbas metric NT saved in UEv_misc[3,4,5]
+   }
+   UEv.misc_pts[3] = UEv.misc_pts[4] + UEv.misc_pts[5] ;  /* 10,11,12side, hand[0], hand[1] in NT */
+   JGMDPRT(7,"ZarBas Rounded NT   pts Res[6,7] => %d = %d + %d \n",UEv.misc_pts[3], UEv.misc_pts[4], UEv.misc_pts[5] );
+      UEv.misc_count = 6 ;
    /* Debugging vars */
    /* The factors that apply to both NT and Suit */
       UEv.misc_pts[UEv.misc_count++] = hcp_adj[0];     // Result[10]
@@ -140,12 +143,13 @@ int zaradv_calc( UE_SIDESTAT_k  *p_ss ) {   /* Tag Number: 13 */
    HANDSTAT_k *phs[2];
    phs[0] = p_ss->phs[0];
    phs[1] = p_ss->phs[1];
-   
+
+   int h;
    int zHf_pts, zDfit_pts ;
-   int half_zars, i;
+   int half_zars;
    set_dbg_names(13, "zaradv_calc" ) ;
 
-   JGMDPRT(7,"ZARADV ztrumps=%d, decl=%d, t_fitlen=%d\n",p_ss->t_suit, p_ss->decl_h ,p_ss->t_fitlen );
+   JGMDPRT(7,"ZARADV ztrump_suit=%d, decl=%d, t_fitlen=%d\n",p_ss->t_suit, p_ss->decl_h ,p_ss->t_fitlen );
    Fn_pts[1] = Fn_ptsZar( p_ss, p_ss->t_suit ) ;   /* one or two points for a secondary fit Arbitrary choose hand 1*/
    zHf_pts  =  Hf_ptsZar( phs ) ;                  /* Sets the globals hf_pts[2] */
    zDfit_pts = DfitZAR(   p_ss, p_ss->dummy_h ) ;  /* Sets the globals dfit_pts[2] */
@@ -157,32 +161,39 @@ int zaradv_calc( UE_SIDESTAT_k  *p_ss ) {   /* Tag Number: 13 */
    UEv.hldf_suit   = p_ss->t_suit;     /* So we know which dds tricks to count if we are playing in a suit */
    UEv.hldf_fitlen = p_ss->t_fitlen ;
    
-   /* calculate the zar points on a more common scale These are always at start of Misc count.
-    * Overwrite the ones that zarbas put there since our pts are different */
-   i = 0 ; /* the four extra values always go in misc_slots 0 .. 3 we want to keep UEv.misc_count as set by zarbas */
-   for (int h=0 ; h < 2 ; h++ ) {  /* for zaradv we round all 4 values since ADV NT might not be the same as BAS NT. */
-      half_zars = Pav_round( ( 0.5 * UEv.nt_pts_seat[h]) ,p_ss->pav_body[h] ) ;
-      UEv.misc_pts[i++] = half_zars ;  // results 6,7 are the HALF ZARs for zaradv NT metric
+   /* calculate the zar points on a more common scale   BF: Side, N, S ::: NT: Side, N, S 
+    * Overwrite the ones that zarbas put there since our pts are different                */
+   UEv.misc_count = 0 ;
+   for (h=0 ; h < 2 ; h++ ) {  /* but put the rounded zar/2 pts in both anyway for consistency and easy remembering*/
+      half_zars = Pav_round(  0.5 * (float_t)UEv.hldf_pts_seat[h] ,p_ss->pav_body[h] ) ;
+      JGMDPRT(8,"Scaling HLDFpts[%d]=%d with body=%d Result=%d \n",h, UEv.hldf_pts_seat[h], p_ss->pav_body[h], half_zars );
+      UEv.misc_pts[1+h] = half_zars ;  
    }
-   for (int h=0 ; h < 2 ; h++ ) {  /* for zaradv we need four extra vals since NT and HLDF are Not the same */
-      half_zars = Pav_round( ( 0.5 * UEv.hldf_pts_seat[h]) ,p_ss->pav_body[h] ) ;
-      UEv.misc_pts[i++] = half_zars ;  // results 8,9 are the HALF ZARs for zaradv HLDF metric
-    }
-   JGMDPRT(7,"ZarAdv Rounded NT=[%d,%d] and HLDF pts=[%d,%d] \n",UEv.misc_pts[0], UEv.misc_pts[1], UEv.misc_pts[2], UEv.misc_pts[3] );
+   UEv.misc_pts[0] = UEv.misc_pts[1] + UEv.misc_pts[2] ;  /* 6,7,8 side, hand[0], hand[1] in BF */
+   JGMDPRT(7,"ZarBas Rounded HLDF pts Res[6,7,8] => %d = %d + %d \n",UEv.misc_pts[0], UEv.misc_pts[1], UEv.misc_pts[2] ); 
+   for (h=0 ; h < 2 ; h++ ) {  
+       half_zars = Pav_round(  0.5 *((float_t)UEv.nt_pts_seat[h]) ,p_ss->pav_body[h] ) ;
+       JGMDPRT(8,"Scaling NTpts[%d]=%d with body=%d Result=%d \n",h, UEv.nt_pts_seat[h], p_ss->pav_body[h], half_zars );
+       UEv.misc_pts[4+h] = half_zars ;  // results u.res[9,10,11] are the HALF ZARs for zarbas metric NT saved in UEv_misc[3,4,5]
+   }
+   UEv.misc_pts[3] = UEv.misc_pts[4] + UEv.misc_pts[5] ;  /* 10,11,12side, hand[0], hand[1] in NT */
+   JGMDPRT(7,"ZarBas Rounded NT   pts Res[6,7] => %d = %d + %d \n",UEv.misc_pts[3], UEv.misc_pts[4], UEv.misc_pts[5] );
+      UEv.misc_count = 6 ;
+   /* Debugging vars */
      /* Debugging vars in addition to the ones already there by zarbas*/
 
-   UEv.misc_pts[UEv.misc_count++] = Fn_pts[0];  // Result[18]
+   UEv.misc_pts[UEv.misc_count++] = Fn_pts[0];  // Result[20]
    UEv.misc_pts[UEv.misc_count++] = hf_pts[0];
    UEv.misc_pts[UEv.misc_count++] = dfit_pts[0];
    UEv.misc_pts[UEv.misc_count++] = Fn_pts[1];
    UEv.misc_pts[UEv.misc_count++] = hf_pts[1];
-   UEv.misc_pts[UEv.misc_count++] = dfit_pts[1]; // result[23]
+   UEv.misc_pts[UEv.misc_count++] = dfit_pts[1]; // result[25]
 
    UEv.hldf_suit   = p_ss->t_suit;     /* So we know which dds tricks to count if we are playing in a suit */
    UEv.hldf_fitlen = p_ss->t_fitlen ;  /* will be put into slots 126, 127 by SaveUserVals since there is room */
   /* now put the results into the user result area at p_uservals */
   SaveUserVals( UEv , p_uservals ) ;
-  JGMDPRT(3,"ZARADV pts ALL done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d\n", UEv.hldf_pts_seat[0],UEv.hldf_pts_seat[1], UEv.nt_pts_side );
+  JGMDPRT(6,"ZARADV pts ALL done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d\n", UEv.hldf_pts_seat[0],UEv.hldf_pts_seat[1], UEv.nt_pts_side );
   return ( 6 + UEv.misc_count ) ;
 } /* end zaradv_calc */
 
@@ -201,7 +212,7 @@ int SynZAR( HANDSTAT_k *p_hs ) {
 } /* end SynZAR */
 
 int Fn_ptsZar(UE_SIDESTAT_k *p_ss,  int t_suit) {
-   /* add 1 pt for a second 8 fit, 2Pts for a second 9/up fit */
+   /* add 1 pt for a second 8 fit, 2Pts for a second 9/up fit JGM version */
    /* Pav says +1 for second 9fit +2 for 2nd 10 fit; will that ever happen? */
    /* Zar says +3 HC points for a secondary 7+ fit; but that may be old info. JGM invented the following as a compromise */
    int MaxFit = 0 ;
@@ -219,8 +230,8 @@ int Fn_ptsZar(UE_SIDESTAT_k *p_ss,  int t_suit) {
 }
 /* Hf Zar; Does not depend on trump suit or who is dummy; any suit with a 7+ fit, and both hands can have Hf Pts */
 int Hf_ptsZar( HANDSTAT_k *phs[] ) {
-   /* Either hand (but not both in same suit) can add +1 for each honor,incl Ten, (max of 2 pts)
-    * in a suit where partner has shown 4+ cards.
+   /* Either hand (but not both in same suit) can add +1 for each honor,incl Ten, (max of 2 pts per suit)
+    * in a suit where partner has shown 4+ cards. Also Short Honor Deductions are Reversed if the short honor is facing a 4+ suit 
     * Max of two such suits per hand.
     * In this code I only add Hf pts to the shorter hand; e.g. QJTxxx facing AKxx only 2 Hf pts total, not 4.
     * In a 4-4 Fit I add Hf only to the hand with the FEWER Tops or HCP. AKJx facing QTxx only Q, T count = 2Hf pts.
@@ -236,7 +247,6 @@ int Hf_ptsZar( HANDSTAT_k *phs[] ) {
 
    /* Track the Hf pts by seat so that we know if our hand has improved enough for an invite etc. */
    /* Use the globals hf_pts[2] and hf_pts_suit[2][4] */
-   top5[0] = 0 ; top5[1] = 0 ; 
    for (s = CLUBS; s <= SPADES ; s++ ) {
       if ( (4 > phs[0]->hs_length[s]) && (4 > phs[1]->hs_length[s]) )  { continue ; } /* bypass suits where Neither has 4+ */
       top5[0] = (phs[0]->hs_counts[idxTop5][s] < 2 ) ? phs[0]->hs_counts[idxTop5][s] : 2 ; /* count max of two honors per suit */
@@ -250,13 +260,13 @@ int Hf_ptsZar( HANDSTAT_k *phs[] ) {
       /* Both hands equal Length, equal honors e.g. Axxx vs Kxxx - Give Hf to hand with Weaker suit */
       else if ( phs[0]->hs_points[s] > phs[1]->hs_points[s] ) { h_Hf = 1 ;}
       else    { h_Hf = 0 ;}
-      JGMDPRT(9,"Suit=%c, FitLen=%d, Top5[0]=%d, Top5[1]=%d, h_Hf=%d\n","CDHS"[s],(phs[0]->hs_length[s] + phs[1]->hs_length[s]),
+      JGMDPRT(7,"ZHf_Pts::Suit=%c, FitLen=%d, Top5[0]=%d, Top5[1]=%d, h_Hf=%d\n","CDHS"[s],(phs[0]->hs_length[s] + phs[1]->hs_length[s]),
                                      top5[0],top5[1],h_Hf) ;
       /* we have Honor(s) facing a 4+ suit This code even counts Stiff J facing xxxx since the PDF implies this is the case */
       if (phs[h_Hf]->hs_length[s] < 3 ) { temp = shortHon_adj(phs[h_Hf], s, ZARBAS) ;} /* we need to reverse the deduction we previously made if any */
       else { temp = 0.0 ; }  /* there was no  ded if the suit_len >= 3 */
       hf_pts_suit[h_Hf][s] = top5[h_Hf] - (int)temp ;  /* top5 <= 2 here; temp is negative */
-      JGMDPRT(9,"%d Hf Points assigned to hand=%d in suit =%d reversing %g deduction\n",hf_pts_suit[h_Hf][s], h_Hf, s,temp);
+      JGMDPRT(6,"ZHf_Pts:: %d Hf Points assigned to hand=%d in suit =%d reversing %g deduction\n",hf_pts_suit[h_Hf][s], h_Hf, s,temp);
    }
    didxsort4(hf_pts_suit[0], suit_idx[0]);            /* sort the HfPts for hand 0 in Desc order We need the sorted suit_ids also*/
    didxsort4(hf_pts_suit[1], suit_idx[1]);            /* sort the HfPts for hand 1 in Desc order */
@@ -275,7 +285,7 @@ int DfitZAR( UE_SIDESTAT_k *p_ss, int h)  { /* h unused place holder */
    du = p_ss->dummy_h;
    excess[dc] = p_ss->t_len[dc] - 5 ; if (excess[dc] < 0 ) excess[dc] = 0 ;
    excess[du] = p_ss->t_len[du] - 3 ; if (excess[du] < 0 ) excess[du] = 0 ;
-   if(p_ss->t_fitlen > 8 ) {
+   if(p_ss->t_fitlen > 8 ) {  /* a 9+ fit will always have at least one hand with 'excess' trump */
       dfit_pts[du] = excess[du] * (3 - p_ss->sorted_slen[du][3] ) ; /* 3 - len of shortest suit */
       dfit_pts[dc] = excess[dc] * (3 - p_ss->sorted_slen[dc][3] ) ;
    }

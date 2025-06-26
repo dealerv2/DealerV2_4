@@ -1,6 +1,7 @@
 /* File dkp_calc.c */
 /* Date        Version  Author   Description
  * 2024/08/12  1.0      JGM      Extracted from metrics_calcs.c and factors.c; Using the UE_SIDESTAT functionality
+ * 2025/04/12  1.1      JGM      Prevent any final results from being less than zero.
  *
  */
 #define GNU_SOURCE
@@ -71,6 +72,7 @@ int dkp_calc( UE_SIDESTAT_k *p_ss) {       /* Tag Number: 2 */
       if (p_hs->square_hand) { hand_adj[h] += -2 ; }
       dkp_pts[h] = (int)lround( (fhcp[h] + fhcp_adj[h]  + syn_pts[h] + hand_adj[h] )/3.0 ) ; /* hcp and synpts are div by 3 */
       dkp_pts[h] += lpts[h];      /* lpts are not div by 3 */
+      if (dkp_pts[h] < 0 ) dkp_pts[h] = 0; /* JGM::2025-04-12 a hand can NEVER have negative points no matter the deductions */
       JGMDPRT(7,"-------DKP for hidx=%d DONE. dkp_pts=%d, lpts=%d, 4333_adj=%d, synpts=%d, fhcp=%g, fhcp_adj=%g \n",
                h, dkp_pts[h],lpts[h],hand_adj[h], syn_pts[h], fhcp[h], fhcp_adj[h] ) ;
       UEv.nt_pts_seat[h] = dkp_pts[h] ;

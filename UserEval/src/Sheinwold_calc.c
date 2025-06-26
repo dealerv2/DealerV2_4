@@ -83,11 +83,13 @@ int sheinw_calc (UE_SIDESTAT_k *p_ss) {     /* Tag Number: 11 */
       /* Check for Aces or lack of +1 for 3-4 Aces, -1 for no Aces*/
       body_pts[h] = (p_hs->hs_totalcounts[idxAces] >= 3 ) ?  1 :
                     (p_hs->hs_totalcounts[idxAces] == 0 ) ? -1 : 0 ;
+      if ( (fhcp[h] + fhcp_adj[h]) < 11 && body_pts[h] < 0 ) body_pts[h] = 0 ; /* only deduct for no Aces if INV+ */
 
-      JGMDPRT(7,"sheinw_calc, Hand=%d, fhcp[h]=%g, fhcp-adj[h]=%g, Dpts[h]=%d, body_pts[h]=%d,Qtrix=%g \n",
+      JGMDPRT(7,"sheinw_calc, TOTAL Hand=%d, fhcp[h]=%g, fhcp-adj[h]=%g, Dpts[h]=%d, body_pts[h]=%d,Qtrix=%g \n",
                      h, fhcp[h], fhcp_adj[h], dpts[h],body_pts[h], qtrix[h] );
       /* In NT Do not count Dpts; so we just need the HCP + ShortHonor_ADJ + body */
       sheinw_NTpts[h] = roundf(fhcp[h] + fhcp_adj[h]) + body_pts[h]   ; /* NT points for hand h -- dont count Dpts for NT */
+      if (sheinw_NTpts[h] < 0 ) sheinw_NTpts[h] = 0 ; /* a hand can never have -ve pts */
      JGMDPRT(7,"SHEINW NT Result: Hand=%d, NT_pts=%d, fhcp=%g, fhcp_adj=%g, body_pts=%d,Qtricks=%g\n",
                      h,  sheinw_NTpts[h],fhcp[h],fhcp_adj[h], body_pts[h], qtrix[h]);
 

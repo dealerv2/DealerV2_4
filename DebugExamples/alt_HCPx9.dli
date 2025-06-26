@@ -1,0 +1,20 @@
+generate 100
+produce 1000
+title "Test Altcount as counting various types of HCP"
+// Dont redefine HCP (pointcount) it breaks too many other things. Also keep C13 as is.
+altcount 8 6.0 4.0 2.0 1.0         // C13 Aces in DotNum Scale for easier Excel Compare
+altcount 7 4.0 3.0 2.0 1.0         // Work in Dotnum Scale     for easier Excel Compare
+altcount 6 4.25 3.0 1.75 0.75 0.25 // JGM: Mix of BumWrap, Woolsey, and Andrews
+altcount 5 4.0 2.8 1.8 1.0 0.4     // Andrews Fifths
+altcount 4 4.5 3.0 1.75 0.75       // Woolsey HCP
+altcount 3 4.5 3.0 1.5 0.75 0.25   // BumWrap
+altcount 2 4.25 3.0 2.0 1.0 0.5    // Work with A=4.25 and T=0.5 Per Andrews
+altcount 1 4.25 3.0 2.0 1.0        // Work with A=4.25           Per Andrews
+altcount 0 4.0 3.0 2.0 1.0 0.5     // Work with T=0.5            Per Andrews
+condition
+   hcp(south) >= 10.0
+
+action printrpt("South HCP",hcp(south),pt0(south),pt1(south), pt2(south),pt3(south),pt4(south),pt5(south),pt6(south),pt7(south),pt8(south),pt9(south), south  )
+         
+
+

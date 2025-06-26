@@ -1,0 +1,56 @@
+greg21@trojan:~/DealerV2_4/Prod$ ./dealerv2 -D2.2 -U ./DealerServer -s 500 -m -p10 ../DebugExamples/UEset41a_tst.dli 
+Showing Options with Verbosity = 1
+	 g:Maxgenerate=[0]
+	 m:ProgressMeter=[1]
+	 p:Maxproduce=[10]
+	 q:Quiet=[0]
+	 s:Seed=[500]
+	 v:Verbose=[1 ; 1]
+	 x:eXchange aka Swapping=[0]
+	 C:Fname=[] mode=[]
+	 D:Debug Verbosity=[2] set to 2 Server Debug=2
+	 L:Fname=[=] zrdlib_mode[0] seed=[500]
+	 M:DDS Mode=[1] set to 1
+	 O:Opener=[W, 3]
+	 P:Par Vuln=[0]
+	 R:MaxThreads=[1]
+	 R:MaxRamMB=[160]
+	 T:Title=[],len=-1
+	 N:PreDeal=[]
+	 S:PreDeal=[]
+	 E:PreDeal=[]
+	 W:PreDeal=[]
+	 X:Fname=[]
+	 U:Fname=[./DealerServer] Not Needed 
+	 Z:Fname=[] mode=[] DDtricks=N
+	 l:Fname=[] mode=[] DDtricks=N
+../src/dealServer_subs.c::330 ++++ in mainCHILD:: POST FORK:: child pid=1105504, Pathname To start=./DealerServer srvDebug=2
+
+Server Logfile Name=/tmp/DealerServer_x68aXC.log logfdfd=2 Check Here for Error Messages and Debugging output
+
+src/UserServer.c:175 UE::pid=1105504, Argc=3, argv[0]= ./DealerServer ,  mmap_fd=   3,  jgmDebug=   2 
+UE:: UserEval Version=3.5.1 Sleep for 500000 MicroSec then; waiting for semaphore 
+Calculating...  0% complete
+ 1,20,2235,'rounded',20,19,21,18,18,19,19,22,22,'x100',2050,1925,2075,1875,1850,1920,1900,2200,2235
+ e 6432.J6.K52.AJT7 w KQ875.KQT.JT84.2 
+ 2,13,1820,'rounded',13,12,13,13,13,13,13,12,18,'x100',1350,1250,1400,1350,1275,1300,1300,1225,1820
+ e J.KT932.AT4.A742 w T87542.6.J98.983 
+ 3,25,2415,'rounded',24,24,25,23,24,23,24,25,24,'x100',2450,2450,2500,2350,2400,2320,2375,2500,2415
+ e K7542.AKQ.Q53.T2 w AQ93.JT76.K72.J7 
+ 4,29,2845,'rounded',28,28,29,26,28,27,27,28,29,'x100',2850,2875,2925,2700,2775,2720,2725,2875,2845
+ e Q.AK75.K62.Q8532 w AJ63.QJ2.QJT3.A7 
+ 5,28,2990,'rounded',27,27,28,27,27,27,27,27,30,'x100',2750,2775,2825,2700,2750,2620,2700,2725,2990
+ e 842.AK96.763.KJ6 w AKQ3.Q.T52.AQ874 
+ 6,17,2005,'rounded',17,17,19,18,17,17,17,17,20,'x100',1800,1750,1850,1775,1750,1720,1750,1725,2005
+ e 9654.AT95.K5.984 w QT2.3.J9843.AK72 
+ 7,21,2785,'rounded',21,21,22,21,21,20,21,22,27,'x100',2150,2150,2200,2125,2125,2060,2100,2175,2785
+ e K742.5.K9852.KJ3 w AQT3.J742..A7652 
+ 8,16,2250,'rounded',17,16,17,17,17,17,17,16,22,'x100',1700,1650,1750,1700,1650,1640,1650,1700,2250
+ e 954.J987.762.K84 w T87..AKJT853.A32 
+ 9,19,2225,'rounded',19,19,21,19,19,19,19,20,22,'x100',2000,1950,2050,2000,1950,1920,1950,2075,2225
+ e 75.63.AKJ2.KT432 w KJT63.A7.654.765 
+ 10,17,1820,'rounded',17,17,17,17,17,16,17,17,18,'x100',1700,1750,1750,1725,1750,1640,1700,1700,1820
+ e AKQ7.J53.T5.K532 w 32.942.A8432.976 
+Generated 10 hands                    
+Produced  10 hands
+

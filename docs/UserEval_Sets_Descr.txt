@@ -1,0 +1,117 @@
+2025-04-24
+	This Test file documents the Use of USEREVAL for:
+	set 40 : Sets of six values (The NT values for Side, North/East , South/West, and the Best Fit values for same) for each of the 15 Metrics coded already.
+	set 41 : Sets of six values (The Rounded/Scaled ones for Side, North/East, South/West and the x100 values to show both the int and fractional part for same)
+	set 42 : Used to populate the Database. More shan set 88, less than set 40.
+
+Set 40
+----------------------------------------------------------------------------------------------------------------------------------------------------  
+   printrpt( "Bergen::NT=",usereval(40,NS, 0),usereval(40,NS, 1),usereval(40,NS, 2),"HLDF",usereval(40,NS, 3),usereval(40,NS, 4),usereval(40,NS, 5),
+             "Bissel::NT=",usereval(40,NS, 6),usereval(40,NS, 7),usereval(40,NS, 8),"HLDF",usereval(40,NS, 9),usereval(40,NS,10),usereval(40,NS,11),
+             "DKPLJP::NT=",usereval(40,NS,12),usereval(40,NS,13),usereval(40,NS,14),"HLDF",usereval(40,NS,15),usereval(40,NS,16),usereval(40,NS,17),
+             "GOREN ::NT=",usereval(40,NS,18),usereval(40,NS,19),usereval(40,NS,20),"HLDF",usereval(40,NS,21),usereval(40,NS,22),usereval(40,NS,23) ),
+   printrpt( "KAPLAN::NT=",usereval(40,NS,24),usereval(40,NS,25),usereval(40,NS,26),"HLDF",usereval(40,NS,27),usereval(40,NS,28),usereval(40,NS,29),
+             "KARPIN::NT=",usereval(40,NS,30),usereval(40,NS,31),usereval(40,NS,32),"HLDF",usereval(40,NS,33),usereval(40,NS,34),usereval(40,NS,35),  
+             "KARP_B::NT=",usereval(40,NS,36),usereval(40,NS,37),usereval(40,NS,38),"HLDF",usereval(40,NS,39),usereval(40,NS,40),usereval(40,NS,41),
+             "KnRFIT::NT=",usereval(40,NS,42),usereval(40,NS,43),usereval(40,NS,44),"HLDF",usereval(40,NS,45),usereval(40,NS,46),usereval(40,NS,47)), 
+   printrpt( "LARSSN::NT=",usereval(40,NS,48),usereval(40,NS,49),usereval(40,NS,50),"HLDF",usereval(40,NS,51),usereval(40,NS,52),usereval(40,NS,53),
+             "LAR_B ::NT=",usereval(40,NS,54),usereval(40,NS,55),usereval(40,NS,56),"HLDF",usereval(40,NS,57),usereval(40,NS,58),usereval(40,NS,59),
+             "PAVLCK::NT=",usereval(40,NS,60),usereval(40,NS,61),usereval(40,NS,62),"HLDF",usereval(40,NS,63),usereval(40,NS,64),usereval(40,NS,65),             
+             "SHEINW::NT=",usereval(40,NS,66),usereval(40,NS,67),usereval(40,NS,68),"HLDF",usereval(40,NS,69),usereval(40,NS,70),usereval(40,NS,71)), 
+   printrpt( "ZARBAS::NT=",usereval(40,NS,72),usereval(40,NS,73),usereval(40,NS,74),"HLDF",usereval(40,NS,75),usereval(40,NS,76),usereval(40,NS,77), 
+             "ZARADV::NT=",usereval(40,NS,78),usereval(40,NS,79),usereval(40,NS,80),"HLDF",usereval(40,NS,81),usereval(40,NS,82),usereval(40,NS,83), 
+             "ROTH  ::NT=",usereval(40,NS,84),usereval(40,NS,85),usereval(40,NS,86),"HLDF",usereval(40,NS,87),usereval(40,NS,88),usereval(40,NS,89) 
+
+  
+Set 41 
+---------------------------------------------------------------------------------------------------------
+// PAV Body Points. If 4*Tens + 2*Nines + Eights >16 then GOOD Body. if 12-15 then FAIR if 0-11 then POOR. 
+// When evaluating 3NT, GOOD or FAIR allows 25 HCP to make 70% and 24 HCP 60%/up so translate those >14 to be = +1HCP. (JGM Hack)
+// Note when ROUNDING metrics like KnR and Zar, PAV uses IF( 3*Tens+2*Nines+Eights >= 12) THEN Round up, else round down -- This is NOT the same as Good,Fair,Poor above.
+
+// In General the DealerServer program called by UserEval does not want the altcount arrays to be redefined. It relies on the altcount 0 .. 8 to be 'standard'
+//  But idxC13 does not appear anywhere in the src for Dealer Server so it does not use the C13 value, and we can redefine it here to count Nines
+//         A K Q J T 9
+altcount 9 0 0 0 0 0 1
+PAV_body_ptsN = ((4*tens(north) + 2*pt9(north)+ hascard(north,8C)+hascard(north,8D)+hascard(north,8H)+hascard(north,8S)) > 13) ? 1 : 0 
+PAV_body_ptsS = ((4*tens(south) + 2*pt9(south)+ hascard(south,8C)+hascard(south,8D)+hascard(south,8H)+hascard(south,8S)) > 13) ? 1 : 0
+PAV_body_ptsE = ((4*tens(east ) + 2*pt9(east )+ hascard(east ,8C)+hascard(east ,8D)+hascard(east ,8H)+hascard(east ,8S)) > 13) ? 1 : 0
+PAV_body_ptsW = ((4*tens(west ) + 2*pt9(west )+ hascard(west ,8C)+hascard(west ,8D)+hascard(west ,8H)+hascard(west ,8S)) > 13) ? 1 : 0
+PAV_body_ptsNS= PAV_body_ptsN + PAV_body_ptsS
+PAV_body_ptsEW= PAV_body_ptsE + PAV_body_ptsW
+
+action
+    printrpt(EW,"HCP=",  hcp(east)+hcp(west), "PAV Body Val[]=", usereval(41, EW, 126 ), usereval(41, EW, 127 )),    
+
+					// AltT050 															 AltT050-x100	                 
+    printrpt("AltT050 :", usereval(41, EW, 0 ),usereval(41, EW, 1 ),usereval(41, EW, 2 ),usereval(41, EW, 3 ),usereval(41, EW, 4 ),usereval(41, EW, 5 )),  
+					// AltA425															 AltA425-x100 
+    printrpt("AltA450 :", usereval(41, EW, 6 ),usereval(41, EW, 7 ),usereval(41, EW, 8 ),usereval(41, EW, 9 ),usereval(41, EW,10 ),usereval(41, EW,11 )),
+					// AltAT475															 AltAT475-x100
+	printrpt("AltAT475:", usereval(41, EW,12 ),usereval(41, EW,13 ),usereval(41, EW,14 ),usereval(41, EW,15 ),usereval(41, EW,16 ),usereval(41, EW,17 )),
+					// BumWrap 															 BumWrap-x100
+	printrpt("BumWrap :", usereval(41, EW,18 ),usereval(41, EW,19 ),usereval(41, EW,20 ),usereval(41, EW,21 ),usereval(41, EW,22 ),usereval(41, EW,23 )),
+					// Woolsey															 Woolsey-x100
+	printrpt("Woolsey :", usereval(41, EW,24 ),usereval(41, EW,25 ),usereval(41, EW,26 ),usereval(41, EW,27 ),usereval(41, EW,28 ),usereval(41, EW,29 )),		
+					// And5ths														     And5thsx100  
+    printrpt("Andrew_5:", usereval(41, EW,30 ),usereval(41, EW,31 ),usereval(41, EW,32 ),usereval(41, EW,33 ),usereval(41, EW,34 ),usereval(41, EW,35 )),
+					// BW_jgm															 BW_jgm-x100    
+    printrpt("BW_jgm  :", usereval(41, EW,36 ),usereval(41, EW,37 ),usereval(41, EW,38 ),usereval(41, EW,39 ),usereval(41, EW,40 ),usereval(41, EW,41 )),		
+					// OPC_jgm															 OPC_jgm-x100
+    printrpt("OPC_jgm :", usereval(41, EW,42 ),usereval(41, EW,43 ),usereval(41, EW,44 ),usereval(41, EW,45 ),usereval(41, EW,46 ),usereval(41, EW,47 )), 
+					// KnR_NT															 KnR_NTx100 
+    printrpt("KnR NT  :", usereval(41, EW,48 ),usereval(41, EW,49 ),usereval(41, EW,50 ),usereval(41, EW,51 ),usereval(41, EW,52 ),usereval(41, EW,53 ))   
+                             
+# Output;
+# e A5.A874.AJ7.QJ97 w K.KJ953.K82.AT64 ,'HCP=',30,'PAV Body Val[]=',3,6
+# 'AltT050 :',29,16,13,2950,1600,1350 
+# etc...
+
+# 42 is the query-id that asks for testing all metrics implemented plus a few extra RAW values. Very similar to set88 which does not have the RAW and may be removed in Fut
+# Set 42
+---------------------------------------------------------------------------------------------------------------------------------------------
+  // Note set42 returns 2 vals for each metric.  BestFit-side and NT-side Also two extra values for the metrics,6,7,9(RAW) and 12,13(Scaled)
+  //    0        1       2     3      4      5        6      7    8    9     10     11       12      13     14       15        16
+  // BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, (opc -- fut) (DK4C -- fut)
+
+// Values here are output in alphabetical order, so Metric 14 (Roth) comes before Metric 11 (Sheinwold)
+csvrpt(rnd(0),usereval(42,NS, 0),usereval(42,NS, 1),usereval(42,NS, 2),usereval(42,NS, 3),usereval(42,NS, 4),usereval(42,NS, 5),usereval(42,NS, 6),
+                usereval(42,NS, 7),usereval(42,NS, 8),usereval(42,NS, 9),usereval(42,NS,10),usereval(42,NS,14),usereval(42,NS,11),
+                usereval(42,NS,12),usereval(42,NS,13),  (opc(NS)+50)/100 ,
+         //  1,21,14,16,20,20,19,18,16,17,16,19,17,19,40,45,20,       
+ 
+                // NS NT   Values Rounded
+                usereval(42,NS,15),usereval(42,NS,16),usereval(42,NS,17),usereval(42,NS,18),usereval(42,NS,19),usereval(42,NS,20),usereval(42,NS,21),
+                usereval(42,NS,22),usereval(42,NS,23),usereval(42,NS,24),usereval(42,NS,25),usereval(42,NS,29),usereval(42,NS,26),
+                usereval(42,NS,27),usereval(42,NS,28),  (opc(NS,notrump)+50)/100 ,
+         //       16,14,16,14,18,17,16,15,17,16,15,16,17,40,40,19,
+
+                // NS HLDF RAW x 100
+                usereval(42,NS,30),usereval(42,NS,31),usereval(42,NS,32),usereval(42,NS,33),usereval(42,NS,34),opc(NS),
+        //         1875,1560,1650,20,22,2000,
+                // NS NT   RAW x 100
+                usereval(42,NS,35),usereval(42,NS,36),usereval(42,NS,37),usereval(42,NS,38),usereval(42,NS,39), opc(NS,notrump)),
+       //          1675,1510,1650,20,20,1900
+       
+       
+                // EW HLDF Values Rounded
+printrpt(rnd(0),usereval(42,EW, 0),usereval(42,EW, 1),usereval(42,EW, 2),usereval(42,EW, 3),usereval(42,EW, 4),usereval(42,EW, 5),usereval(42,EW, 6),
+                usereval(42,EW, 7),usereval(42,EW, 8),usereval(42,EW, 9),usereval(42,EW,10),usereval(42,EW,14),usereval(42,EW,11),
+                usereval(42,EW,12),usereval(42,EW,13),  (opc(EW)+50)/100 ,
+        //  1,33,25,32,28,29,29,29,30,25,25,29,29,28,56,62,2950,      
+ 
+                // EW NT   Values Rounded
+                usereval(42,EW,15),usereval(42,EW,16),usereval(42,EW,17),usereval(42,EW,18),usereval(42,EW,19),usereval(42,EW,20),usereval(42,EW,21),
+                usereval(42,EW,22),usereval(42,EW,23),usereval(42,EW,24),usereval(42,EW,25),usereval(42,EW,29),usereval(42,EW,26),
+                usereval(42,EW,27),usereval(42,EW,28),  (opc(EW,notrump)+50)/100 ,
+       // 26,25,26,24,25,25,25,29,25,25,25,24,24,56,56,2150,
+
+                // EW HLDF RAW x 100
+                usereval(42,EW,30),usereval(42,EW,31),usereval(42,EW,32),usereval(42,EW,33),usereval(42,EW,34), opc(EW),
+      //          2925,2950,2500,27,31,2950,
+                // EW NT   RAW x 100
+                usereval(42,EW,35),usereval(42,EW,36),usereval(42,EW,37),usereval(42,EW,38),usereval(42,EW,39),opc(EW,notrump) ),
+     //           2525,2875,2500,27,27,2150 
+ 
+
+

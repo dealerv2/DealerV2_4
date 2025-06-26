@@ -1,0 +1,37 @@
+generate   10000
+produce    10
+seed 919
+title "UE_roth0.dli  "
+//    0        1       2     3       4      5       6      7    8    9     10     11       12      13     14    20         21      40      88
+// BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, MixKARPB , MixLARB, ALL_UE, SET_88    
+# 2024/03/11 Printing all the Roth results 0-21
+# 
+
+
+action
+#  Roth NS all the details --
+   printrpt ( NS ),         // NT side Tot      NT H0               NT H1            HLDF Side Tot        HLDF H0             HLDF H1
+   printrpt ( "Roth-NS=", usereval(14,NS,0),  usereval(14,NS,1), usereval(14,NS,2), usereval(14,NS,3),  usereval(14,NS,4), usereval(14,NS,5) ),
+                          //  Hand Type        hcp adj             Dpts                Lpts            Lpts NT               FN pts      FN pts NT          Dfit Pts
+	printrpt(
+		"North:: Htype,HcpAdj,Dpts=",usereval(14,NS,6) ,usereval(14,NS,7), usereval(14,NS,8 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=",     usereval(14,NS,9), usereval(14,NS,10),usereval(14,NS,11), usereval(14,NS,12), usereval(14,NS,13)),
+	printrpt(
+		"South:: Htype,HcpAdj,Dpts=",usereval(14,NS,14) ,usereval(14,NS,15), usereval(14,NS,16 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=", usereval(14,NS,17), usereval(14,NS,18),usereval(14,NS,19), usereval(14,NS,20), usereval(14,NS,21)),
+
+                  
+
+
+#  Roth EW all the details --
+       printrpt ( EW ),         // NT side Tot      NT H0               NT H1            HLDF Side Tot        HLDF H0             HLDF H1
+       printrpt ( "Roth-EW=", usereval(14,EW,0),  usereval(14,EW,1), usereval(14,EW,2), usereval(14,EW,3),  usereval(14,EW,4), usereval(14,EW,5) ),
+                              //  Hand Type        hcp adj             Dpts                Lpts            Lpts NT               FN pts      FN pts NT          Dfit Pts
+ 	printrpt(
+		"East:: Htype,HcpAdj,Dpts=",usereval(14,EW,6) ,usereval(14,EW,7), usereval(14,EW,8 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=",     usereval(14,EW,9), usereval(14,EW,10),usereval(14,EW,11), usereval(14,EW,12), usereval(14,EW,13)),
+	printrpt(
+		"West:: Htype,HcpAdj,Dpts=",usereval(14,EW,14) ,usereval(14,EW,15), usereval(14,EW,16 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=", usereval(14,EW,17), usereval(14,EW,18),usereval(14,EW,19), usereval(14,EW,20), usereval(14,EW,21)),
+                  
+#       csvrpt( NS , "::", EW )

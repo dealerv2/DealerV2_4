@@ -1,0 +1,35 @@
+Software for Bridge Simulations and Studies
+
+DealerV2 is a significantly expanded version of the program first written in 1990 timeframe by Hans van Staveren of Amsterdam.
+The original version is still used today by BBO for generating deals for bidding practice and the like.
+
+The code, binaries and documentation for DealerV2 is available on github at:
+https://github.com/dealerv2/Dealer-Version-2-
+
+The latest version of dealerv2 includes the ability to use Richard Pavlicek's library of over 10 Million solved deals.
+Having a source of __solved__ deals greatly speeds up studies of various kinds. More than 100x faster in some cases.
+
+The latest version of dealerv2 also includes a feature which allows the user to write his own extensions to DealerV2
+functionality.
+
+
+The 50 page User's Guide explains how to use the many new features of DealerV2 to conduct simulation studies efficiently.
+
+The program has been written for,  and runs on, Linux. There is no Windows port available at this time. However it will run
+on Windows Subsystem for Linux (WSL) without problems and the instructions for doing so are included in the documentation.
+
+Show_RP_DB is a program written in C, that can take deals from Richard Pavlicek's library of over 10 Million solved
+deals and print them out in a brief PBN format. RP's Library is in a highly efficient binary format that is not human
+readable. This program shows how to extract the deals from the library and decode them into something easier to use
+in studies and simulations.
+The tools to create RP's Library can be downloaded from his website: www.rpbridge.net. These tools run on MSDOS.
+If you do not have such a system, the github repo also includes a copy of RP's library. 
+Because Github limits file sizes to 100 MB the library is in 3 separate pieces which can easily be concatenated together.
+The repo is at: https://github.com/dealerv2/Show_RP_DB
+
+All of the code developed by JGM is Open Source and free to use under the GPL.
+All of the other content is also free to use under even fewer copyright restrictions. See the included files.
+
+JGM 2023/03/21
+
+

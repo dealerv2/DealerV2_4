@@ -1,0 +1,30 @@
+generate   100000
+produce    20
+seed 11393  // a prime number >10000 -- these seeds are put into the top 32 bits of the 48bit seed.
+
+title "UE_set88_SpFit.dli  NS Spades >=8  21 <= NS HCP <= 25"
+# 88 is the query-id that asks for testing all metrics implemented
+condition ( (hcp(north) + hcp(south) >= 21 ) && (hcp(north) + hcp(south) <= 25 ) && ( spades(north) + spades(south) )>= 8  )
+      
+//    0        1      2     3       4      5        6      7    8    9     10     11      12      13     14     20         21       40      88
+// BERGEN=0, BISSEL, DKP, GOREN,  KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW, ZARBAS, ZARADV, ROTH, MixKARPB , MixLARB, ALL_UE, SET_88   
+
+
+action
+	printrpt( NS, dds(south,spades),
+         usereval(88,NS,5 ), usereval(88,NS,6)  // compare  Karpin_Work to Karp_Bumwrap 
+   ),
+   average "South Spade Trix" dds(south,spades),
+   evalcontract(NS, z3S, vul),
+   evalcontract(NS, z4S, vul),
+   average "--HLDF-- " 0, // set 88 puts the HLDF pts in slots 0 .. 14, and the NT_pts in slots 15 .. 29
+   average "HCP      " (hcp(north) + hcp(south) ),
+   average "Berg     " usereval(88,NS,0), average "Bissel   " usereval(88,NS,1),
+   average "DKP      " usereval(88,NS,2), average "Goren    " usereval(88,NS,3),
+   average "Karpin   " usereval(88,NS,5), average "KARP_B   " usereval(88,NS,6),
+   average "Kaplan   " usereval(88,NS,4), average "Sheinwold" usereval(88,NS,11),
+   average "LAR      " usereval(88,NS,8), average "LAR_B    " usereval(88,NS,9),
+   average "Pav      " usereval(88,NS,10),average "Roth     " usereval(88,NS,14),
+   average "KnR      " usereval(88,NS,7), average "CCCC     " (cccc(north)+cccc(south))/100,
+   average "Zar Basic" usereval(88,NS,12),average "Zar Full " usereval(88,NS,13),
+

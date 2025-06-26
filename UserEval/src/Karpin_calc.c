@@ -1,4 +1,4 @@
-/* File bergen_calc.c */
+/* File Karpin_calc.c */
 /* Date        Version  Author   Description
  * 2024/08/12  1.0      JGM      Extracted from metrics_calcs.c and factors.c; Using the UE_SIDESTAT functionality
  *
@@ -48,6 +48,7 @@ int DfitKARPIN(   UE_SIDESTAT_k *p_ss, int du ) ;
 int karpin_calc( UE_SIDESTAT_k *p_ss ) {    /* Tag Number: 6 */
    int karpin_pts[2] ;
    int h, s ;
+
    HANDSTAT_k *p_hs, *phs[2];
    zero_globals(p_ss->side) ;
    
@@ -58,7 +59,6 @@ int karpin_calc( UE_SIDESTAT_k *p_ss ) {    /* Tag Number: 6 */
  
    JGMDPRT(7 , "++++++++++ KARPIN_calc for side=%d compass[0]=%c, compass[1]=%c, phs[0]=%p, phs[1]=%p, hcp[0]=%d, hcp[1]=%d, fhcp=[%g,%g]\n",
                p_ss->side, compass[0],compass[1],(void *)phs[0], (void *)phs[1], phs[0]->hs_totalpoints, phs[1]->hs_totalpoints, fhcp[0],fhcp[1] ) ;
-
    for (h = 0 ; h < 2 ; h++) {         /* for each hand */
       p_hs = phs[h] ; /* phs array set by prolog to point to hs[north] and hs[south] OR to hs[east] and hs[west] */
       hcp[h] = p_hs->hs_totalpoints ; fhcp[h] = hcp[h];
@@ -113,8 +113,9 @@ int karpin_calc( UE_SIDESTAT_k *p_ss ) {    /* Tag Number: 6 */
   return ( 6 + UEv.misc_count ) ;
 } /* end karpin_calc */
 
-int karpb_calc( UE_SIDESTAT_k *p_ss ) {      /*Tag Number: 4 Karpin method with BumWrap points (4.5/3/1.5/0.75/0.25)*/
+int karpb_calc( UE_SIDESTAT_k *p_ss ) {      /*Tag Number: 6 Karpin method with BWjgm points (4.25/3/1.75/0.75/0.25)*/
    int karpb_pts[2] = {0} ;
+   float_t karpb_raw_pts[2] = { 0.0, 0.0 } ; 
    float_t karpb_hcp[2][4] = { {0.0}, {0.0} } ;
    int h, s ;
    HANDSTAT_k *p_hs, *phs[2];
@@ -129,10 +130,11 @@ int karpb_calc( UE_SIDESTAT_k *p_ss ) {      /*Tag Number: 4 Karpin method with 
    for (h = 0 ; h < 2 ; h++) {         /* for each hand */
       p_hs = phs[h] ; 
       for (s = CLUBS ; s<= SPADES ; s++ ) { /* I think I should total the adjustments, and THEN round them. use fhcp_adj[2] */
-         karpb_hcp[h][s] = calc_alt_hcp(p_hs, s, KARP_B) ; /* calc BumWrap points for this suit. */
+         karpb_hcp[h][s] = calc_alt_hcp(p_hs, s, KARP_B) ; /* calc suit AltHCP see file honors_calc_subs */
          fhcp[h] += karpb_hcp[h][s] ;
          fhcp_adj[h] += shortHon_adj(p_hs, s, KARP_B ) ; /* -1 for K, Q, J, KQ, QJ, */
-         JGMDPRT(8,"karpb_calc hcp_adj, Hidx=%d, suit=%d, hcp[s]=%g, Tot_Raw_fhcp[h]=%g, Tot_fhcp_adj=%g, SuitLen=%d\n",
+         
+         JGMDPRT(7,"karpb_calc Using BWjgm scale: hcp_adj, Hidx=%d, suit=%d, hcp[s]=%g, Tot_Raw_fhcp[h]=%g, Tot_fhcp_adj=%g, SuitLen=%d\n",
                      h, s, karpb_hcp[h][s], fhcp[h], fhcp_adj[h], p_hs->hs_length[s] );
 
          /* simpler to do inline than call Lpts_std */
@@ -141,13 +143,15 @@ int karpb_calc( UE_SIDESTAT_k *p_ss ) {      /*Tag Number: 4 Karpin method with 
             JGMDPRT(8,"L_pts_KARP_B, Hand=%d, suit=%d, len=%d, Tot_Lpts=%d\n", h, s, p_hs->hs_length[s], lpts[h] );
           }
       } /* end for s = CLUBS to SPADES*/
-      hcp_adj[h] = roundf( fhcp_adj[h] ) ;
-      hcp[h] = roundf( fhcp[h] ) ;
+      hcp_adj[h] = roundf( fhcp_adj[h] ) ;  /* simple rounding for debugging */
+      hcp[h]     = roundf( fhcp[h] ) ;
 
-      karpb_pts[h] = Pav_round( (fhcp[h] + fhcp_adj[h]), p_ss->pav_body[h]) + lpts[h] ; /* NT pts for hand h omit + body_pts[h] */
+      karpb_pts[h] = Pav_round( (fhcp[h] + fhcp_adj[h]), p_ss->pav_body[h]) + lpts[h] ; /* NT pts for hand h HCP + Lpts + short HCP_adj */
+      karpb_raw_pts[h] = fhcp[h] + fhcp_adj[h] + lpts[h];
       JGMDPRT(7,"Karp_B hand=%d,karpb_pts_net=%d, fhcp=%g, fhcp_adj=%g,   Lpts=%d,\n",
                   h, karpb_pts[h],fhcp[h],fhcp_adj[h], lpts[h] );
       UEv.nt_pts_seat[h] = karpb_pts[h] ;
+      
    } /* end for each hand */
    UEv.nt_pts_side = UEv.nt_pts_seat[0] + UEv.nt_pts_seat[1] ;
    JGMDPRT(7,"Karp_B NT pts done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d\n", karpb_pts[0],karpb_pts[1], UEv.nt_pts_side );
@@ -162,6 +166,23 @@ int karpb_calc( UE_SIDESTAT_k *p_ss ) {      /*Tag Number: 4 Karpin method with 
    UEv.hldf_suit   = p_ss->t_suit;     /* So we know which dds tricks to count if we are playing in a suit */
    UEv.hldf_fitlen = p_ss->t_fitlen ;
    UEv.misc_count = 0 ;
+
+   
+   /* Provide the RAW Karp_B points (with fractions) x100 for the Database. BF::Side,N,S then NT Side,N,S */
+   int tx100 ;
+   UEv.misc_count = 0 ;
+   for (h=0 ; h < 2 ; h++ ) {  
+      tx100 = (int) (karpb_raw_pts[h] * 100.0) ;
+      UEv.misc_pts[1+h] = tx100 + (TFpts.df_val[h] + TFpts.fn_val[h])*100 ;  /* BF value  Must scale Fit pts also */
+      UEv.misc_pts[4+h] = tx100 ;                                            /* NT value */
+   }
+   UEv.misc_pts[0] = UEv.misc_pts[1] + UEv.misc_pts[2] ;  /* 6, 7, 8 side, hand[0], hand[1] in BF */
+   UEv.misc_pts[3] = UEv.misc_pts[4] + UEv.misc_pts[5] ;  /* 9,10,11 side, hand[0], hand[1] in NT */
+   JGMDPRT(7,"Karp_B RAW BF pts Res[6, 7, 8] => %d = %d + %d \n",UEv.misc_pts[0], UEv.misc_pts[1], UEv.misc_pts[2] );
+   JGMDPRT(7,"Karp_B RAW NT pts Res[9,10,11] => %d = %d + %d \n",UEv.misc_pts[3], UEv.misc_pts[4], UEv.misc_pts[5] );
+   UEv.misc_count = 6 ;
+   /* Debugging vars */
+
 /* now some debugging fields Standard set even tho some don't apply to this metric */
 
       /* The factors that apply to both NT and Suit */

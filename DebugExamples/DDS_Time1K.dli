@@ -1,0 +1,9 @@
+generate   10000
+produce    1000
+seed 919
+title " Check DDS Timing. Run this with -M2 -R8 and -M2 (no R) and -M1 (no R) "
+#condition dummy
+
+action  average "  DDS WEST CLUBS TRICKS= " dds(west, club),
+        // average "DDS SOUTH HEARTS TRICKS= " dds(south, heart),
+

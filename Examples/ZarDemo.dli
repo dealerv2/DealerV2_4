@@ -5,14 +5,15 @@ title "Demo How To Use Ternary Op to Calculate Zar Points  "
 # For ZAR we need longest suit, second longest suit and shortest suit.
 # We also use the C13 Count (6-4-2-1) to value the honors.
 
+# Find the lengths of the Longest suit, and of the shortest suit, (but not their names) 
 SMaj = (spades(west)  <= hearts(west)) ? spades(west)  : hearts(west)
 LMaj = (spades(west)  >= hearts(west)) ? spades(west)  : hearts(west)
 SMin = (diamond(west) <= clubs(west) ) ? diamond(west) : clubs(west)
 LMin = (diamond(west) >= clubs(west) ) ? diamond(west) : clubs(west)
 
 
-SS   = (SMaj <= SMin ) ? SMaj : SMin
-LS   = (LMaj >= LMin ) ? LMaj : LMin
+SS   = (SMaj <= SMin ) ? SMaj : SMin     // shortest suit length
+LS   = (LMaj >= LMin ) ? LMaj : LMin      // longest suit length
 
 
 

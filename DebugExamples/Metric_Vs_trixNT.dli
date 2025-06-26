@@ -1,0 +1,23 @@
+generate   10000000
+produce    50
+# Run this with the -L ZRD lib switch to speed it up.
+title "Side Evaluation vs Tricks in NT  "
+# Simplest Just HCP total
+NShcp = hcp(north) + hcp(south)
+EWhcp = hcp(east)  + hcp(west)
+
+NStrix = (dds(north, notrump) >= dds(south,notrump)) ? dds(north, notrump) : dds(south,notrump)
+EWtrix = (dds(east , notrump) >= dds(west, notrump)) ? dds(east , notrump) : dds(west,notrump)
+trixNT =  NStrix >= EWtrix ? NStrix : EWtrix
+sideHCP=  NStrix >= EWtrix ? NShcp  : EWhcp
+sideKnR=  NStrix >= EWtrix ? (cccc(north) + cccc(south) ) / 100 : (cccc(east) + cccc(west) ) / 100
+side4c =  NStrix >= EWtrix ? (cccc(north) + cccc(south) )       : (cccc(east) + cccc(west) )
+sideOPC=  NStrix >= EWtrix ? opc(NS,notrump) : opc(EW,notrump) 
+
+// condition side4c >= 5400
+action 
+ //  printrpt(deal),
+ //  printrpt("NStrix=",NStrix,"EWtrix=",EWtrix,"trixNT=",trixNT,"NShcp=",NShcp,"EWhcp=",EWhcp,"sideHCP=",sideHCP,"side4Cs=",side4c),
+   bktfreq   "Strain=NoTrump ID=15 Name=OPC  Tricks" (sideOPC,  800, 4400, 50, trixNT, 7, 12, 1 ),
+   bktfreq   "Strain=NoTrump ID=22 Name=CCCC Tricks" (side4c ,  800, 4400, 50, trixNT, 7, 12, 1 ),
+

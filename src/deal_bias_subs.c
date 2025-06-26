@@ -13,7 +13,7 @@
  * The bad part of this is that it is done on EVERY random deal, perhaps millions of them, not just on the 'interesting' deals.
  * And the shuffle is several times more complicated (and hence slower) than a normal shuffle or a normal predeal shuffle
  * So we can expect a significant impact on the runtimes of simulations using Bias Predeals
- * 
+ * But a bias deal is still MUCH MUCH faster than specifying hard to meet conditions such as 8 cards in a suit and so forth. See the manual.
  * Future: allow mixing of Predeal and biasdeal? but not in the same suit? this could get very complicated.
  */
 #ifndef JGMDBG

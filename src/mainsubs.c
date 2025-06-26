@@ -184,20 +184,33 @@ int get_options (int argc, char *argv[], struct options_st *opts) {
      case 'L':  // RPLIB file of solved deals
          strncpy( opts->zrdlib_fname, optarg, sizeof(opts->zrdlib_fname)-1 ) ;
          if ( strcmp(opts->zrdlib_fname, "=") == 0 ) {      /* equal sign is shorthand for default rplib path name */
-            strncpy(opts->zrdlib_fname, zrdlib_default, sizeof(opts->zrdlib_fname)-1 );
-         }
-         fzrdlib = fopen(opts->zrdlib_fname , "r" ) ;
-         if (fzrdlib == NULL ) {
-            perror("ERROR!! Open RP LIB file for reading FAILED");
-            fprintf(stderr, "ERROR!! Cant open [%s] for read. Aborting program \n",opts->zrdlib_fname );
-            opts->options_error = FATAL_OPTS_ERR - 2 ;
-
-            break ;
-         }
+            strncpy(opts->zrdlib_fname, biglib, sizeof(opts->zrdlib_fname)-1 ); /* Try the full version if available */
+            fzrdlib = fopen(opts->zrdlib_fname , "r" ) ;  
+            if (fzrdlib == NULL ) {  /* full version failed. Try the tiny version */
+			   strncpy(opts->zrdlib_fname, tinylib, sizeof(opts->zrdlib_fname)-1 );
+			   if (fzrdlib == NULL ) {  /* both versions failed. User must specify exact filename */
+			      perror("ERROR!! Open both choices for default RP LIB file for reading FAILED. Try entering complete filename");
+                  fprintf(stderr, "ERROR!! Cant open [%s] for read. Aborting program \n",opts->zrdlib_fname );
+                  opts->options_error = FATAL_OPTS_ERR - 2 ;
+                  break ;  /* exit case L */
+               } /* end tiny try failed */
+            }    /* end  full version try failed */
+         }       /* end user wanted default */
+         else  { /* User not trying default name. Try the name he entered on cmd line */
+			 fzrdlib = fopen(opts->zrdlib_fname , "r" ) ;  
+			 if (fzrdlib == NULL ) {  /*Users filename failed Abort Program with err msg */
+			      perror("ERROR!! Open RP LIB file for reading FAILED.");
+                  fprintf(stderr, "ERROR!! Cant open [%s] for read. Aborting program \n",opts->zrdlib_fname );
+                  opts->options_error = FATAL_OPTS_ERR - 2 ;
+                  break ; /* exit case L */
+               } /* end users cmdline entry try */
+		}   /* end non default filename */ 
+         /* either cmdline or one of the defaults succeeded */
+         assert( fzrdlib != NULL );
          opts->zrdlib_mode = 1 ;
          opts->zrd_seed = (opts->seed_provided > 0 ) ? opts->seed : 0 ;  /* Note 0 is a valid seed in RP_lib mode */
          JGMDPRT(2,"RP DD File '%s' Opened OK \n",opts->zrdlib_fname ); /* cant seek yet. seed may not be final */
-         break ;
+         break ; /* exit case L */
      case 'M':
         opts->dds_mode = atoi( optarg ) ;
         if (1 <= opts->dds_mode && opts->dds_mode <= 2 ) { dds_mode = opts->dds_mode ; }

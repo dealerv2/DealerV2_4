@@ -1,7 +1,7 @@
-generate   100000
+generate   1000000
 produce    5000
 title " bktfreq for KnR Points  "
-action  bktfreq "KnR North 15.0 to 17.0" (cccc(north), 15.00,17.00,0.25 ),
-        bktfreq "KnR (down) vs HCP(across)" (cccc(north), 15.00,17.75,0.25, hcp(north), 15, 17, 1 )
+action  bktfreq "KnR North 11.0 to 22.0" (cccc(north), 11.00,22.00,0.25 ),
+        bktfreq "KnR (down) vs HCP(across)" (cccc(north), 11.00,22.75,0.25, hcp(north), 11, 22, 1 )
 
 

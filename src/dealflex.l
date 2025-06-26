@@ -15,6 +15,8 @@
 /* JGM 2022-12-20   Touch up for UserEval; uevtag, var name change */
 /* JGM 2023-12-10   Added VULNERABILITY so as to be able to set it in par() clause */
 /* JGM 2023-12-15   Added PARCONTRACT to be able to print same in csv_rpt and print_rpt */
+/* JGM 2025-04-29   Fixed Flex conversion of dotnum to int(line 426) by adding .001 to ensure accurate hundreths digit */
+/* JGM 2025-07-01   Added starting board number for those print cmds that print board numbers: print, printpbn, printall, printns, printew,  printside */     
  #ifndef _GNU_SOURCE
    #define _GNU_SOURCE
  #endif
@@ -173,7 +175,7 @@
  /* Define Exclusive states to handle text processed within Flex */
 %x COMMENT
 %x SETSEED
-%x MAXPROD MAXGEN MAXDEAL MAXVUL
+%x MAXPROD MAXGEN MAXDEAL MAXVUL STARTINGBOARD
 %x OPENER
 %x TITLE
 %x FD1 FD2 FD3
@@ -330,7 +332,14 @@ dealer({ws}|{nl})  { BEGIN(MAXDEAL); }
                                      maxdealer = compass2int(buff); yylval.y_int = maxdealer ;
                                      BEGIN(INITIAL) ;
                                     }
-
+startboard({ws}|{nl})   { BEGIN(STARTINGBOARD);   }
+<STARTINGBOARD>{nl}  ;                /* do nothing if {nl} found. flex will track yylineno */
+<STARTINGBOARD>{ws}  ;
+<STARTINGBOARD>{digits} { strncpy(buff, yytext, yyleng) ; buff[yyleng]='\0';
+                        boardoffset  = atoi(buff) - 1    ;
+                        yylval.y_int = boardoffset ;
+                        BEGIN(INITIAL) ;
+                        }
 opener({ws}|{nl})  { BEGIN(OPENER); }
 <OPENER>{nl}  ;                /* do nothing if {nl} found. flex will track yylineno */
 <OPENER>{ws}  ;
@@ -421,7 +430,7 @@ trix        return(TRIX);
 [a-zA-Z][a-zA-Z0-9_]*   { yylval.y_str = mystrcpy(yytext); return IDENT; }
 
 {dotnum} |          /* numbers of the form .[0-9]{1,2} or [0-9]{1,2}\.[0-9]{0,2} */
-{decnum}        { yylval.y_int  = (int)(100. * atof(yytext) ) ; /* will handle minus signs */
+{decnum}        { yylval.y_int  = (int)(100. * atof(yytext) + .001 ) ; /* will handle minus signs .001 to ensure rounding to nearest hundredth */
          #ifdef JGMDBG
                if(jgmDebug >= 3) { fprintf(stderr, "FLEX::Found a dotnum/decnum string= [%s] value=%d\n", yytext, yylval.y_int ) ; }
          #endif

@@ -1,0 +1,57 @@
+generate   10000
+produce    1
+seed 919
+//    0        1       2     3       4      5       6      7    8    9     10     11       12      13     14     20         21       40      88
+// BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, MixKARPB , MixLARB, ALL_UE, SET_88  
+
+title "UE_Roth.dli -- Roth Hand Evaluation in NT and Suit  "
+# 14 is the query-id that asks for Roth hand evaluation
+# The external code was written to return the various results in 0 .. 5, with other debug results in 6-21
+
+#  Roth Evaluation(14) 
+
+# For Roth
+#predeal north SQ5,HKJ,DQJ432,CKQ65
+#predeal south S432,HQT32,DK98,CJT9 
+
+
+# Roth Stuff NS
+#                    Total            North              South
+action printrpt(NS),
+	printrpt(
+      "NS_NT=",usereval(14,NS,0),usereval(14,NS,1), usereval(14,NS,2),
+      "NS_Suit=",usereval(14,NS,3),usereval(14,NS,4), usereval(14,NS,5)),
+	printrpt(
+		"North:: Htype,HcpAdj,Dpts=",usereval(14,NS,6) ,usereval(14,NS,7), usereval(14,NS,8 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=",     usereval(14,NS,9), usereval(14,NS,10),usereval(14,NS,11), usereval(14,NS,12), usereval(14,NS,13)),
+	printrpt(
+		"South:: Htype,HcpAdj,Dpts=",usereval(14,NS,14) ,usereval(14,NS,15), usereval(14,NS,16 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=", usereval(14,NS,17), usereval(14,NS,18),usereval(14,NS,19), usereval(14,NS,20), usereval(14,NS,21)),
+
+# 
+# 
+	printrpt(EW),
+	printrpt(
+      "EW_NT=",usereval(14,EW,0),usereval(14,EW,1), usereval(14,EW,2),
+      "EW_Suit=",usereval(14,EW,3),usereval(14,EW,4), usereval(14,EW,5)),
+	printrpt(
+		"East:: Htype,HcpAdj,Dpts=",usereval(14,EW,6) ,usereval(14,EW,7), usereval(14,EW,8 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=",     usereval(14,EW,9), usereval(14,EW,10),usereval(14,EW,11), usereval(14,EW,12), usereval(14,EW,13)),
+	printrpt(
+		"West:: Htype,HcpAdj,Dpts=",usereval(14,EW,14) ,usereval(14,EW,15), usereval(14,EW,16 ),
+		" Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=", usereval(14,EW,17), usereval(14,EW,18),usereval(14,EW,19), usereval(14,EW,20), usereval(14,EW,21)),
+
+# 
+# 
+  /*
+   The above produces these results which are correct 
+   n Q93.964.Q.AQT842 s KJT854.QJ8.KJ.K5 
+ 'NS_NT=',25,11,14,'NS_Suit=',29,11,18
+ 'North:: Htype,HcpAdj,Dpts=',2,-1,2,' Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=',1,1,0,0,2
+ 'South:: Htype,HcpAdj,Dpts=',1,-1,2,' Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=',1,0,2,0,2
+ e A6.T32.98532.J63 w 72.AK75.AT764.97 
+ 'EW_NT=',16,5,11,'EW_Suit=',20,7,13
+ 'East:: Htype,HcpAdj,Dpts=',0,0,1,' Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=',0,0,0,0,2
+ 'West:: Htype,HcpAdj,Dpts=',0,0,2,' Lpts,LptsNT,FnPts,FnPtsNT,DfitPts=',0,0,0,0,2
+  */
+		

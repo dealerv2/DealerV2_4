@@ -1,0 +1,15 @@
+generate   10000
+produce    1000
+seed 919
+title " Check OPC Timing - 1000 hands One Side Only 1-6 calls per side take the same time."
+#condition dummy
+
+action  average "  OPC EW Best Fit= " opc(EW),
+        average "  OPC NS Best Fit= " opc(NS),
+        average "        OPC EW NT= " opc(EW, notrump),
+        average "        OPC NS Sp= " opc(NS, spades),
+//        average "        OPC EW He= " opc(EW, hearts),
+//        average "        OPC EW Di= " opc(EW, diamonds),
+//        average "        OPC EW Cl= " opc(EW, clubs),                        
+                               
+

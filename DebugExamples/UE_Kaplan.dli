@@ -1,8 +1,8 @@
 generate   10000
 produce    1
 seed 17
-#      0      1       2     3     4      5       6      7    8    9    10   11    12    13   14       -1
-#  { BERG=0, BISSEL, DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, R22, SHEIN, ZAR, UNKN, Quit=-1} ;
+//    0        1       2     3       4      5       6      7    8    9     10     11       12      13     14     20         21       40      88
+// BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, MixKARPB , MixLARB, ALL_UE, SET_88  
 
 title "UE_Kaplan.dli -- All Kaplan Hand Evaluation in NT and Suit  "
 # 5 is the query-id that asks for Kaplan hand evaluation. Hpts, Lpts, DFpts x 2, Hfpts Fairly simple. 

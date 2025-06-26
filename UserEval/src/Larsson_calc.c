@@ -47,7 +47,7 @@ int lar_calc( UE_SIDESTAT_k *p_ss ) {    /* Tag Number: 8 */
   JGMDPRT(7 , "++++++++++ Larsson (m=8)_calc for p_ss->side= %d; compass[0]=%c, compass[1]=%c, phs[0]=%p, phs[1]=%p, hcp[0]=%d, hcp[1]=%d, fhcp=[%g,%g]\n",
                p_ss->side, compass[0],compass[1],(void *)phs[0], (void *)phs[1], phs[0]->hs_totalpoints, phs[1]->hs_totalpoints, fhcp[0],fhcp[1] ) ;
 
-     for (h = 0 ; h < 2 ; h++) {         /* for each hand */
+  for (h = 0 ; h < 2 ; h++) {         /* for each hand */
       p_hs = phs[h] ; 
       hcp[h] = p_hs->hs_totalpoints ; fhcp[h] = hcp[h];
 
@@ -112,9 +112,11 @@ int lar_calc( UE_SIDESTAT_k *p_ss ) {    /* Tag Number: 8 */
   return ( 6 + UEv.misc_count ) ;
 } /* end larsson_calc */
 
-int lar_b_calc(UE_SIDESTAT_k *p_ss ) {    /* Tag Number:  9 -- this is LAR with BumWrap HCP.and possible JGM mods to Dfit calcs */
+int lar_b_calc(UE_SIDESTAT_k *p_ss ) {    /* Tag Number:  9 -- this is LAR with BWjgm HCP.and possible JGM mods to Dfit calcs */
    int lar_b_pts[2] = {0} ;
+   
    float_t lar_b_hcp[2][4] = { {0.0}, {0.0} } ;
+   float_t lar_b_pts_raw[2] = {0.0,0.0};
    int nines = 0 ;
    int h, s ;
    int temp = 0 ;
@@ -130,10 +132,10 @@ int lar_b_calc(UE_SIDESTAT_k *p_ss ) {    /* Tag Number:  9 -- this is LAR with 
    set_dbg_names(9, "lar_b_calc" ) ;
    JGMDPRT( 7 , "++++++++++ lar_b_calc(m=9) for side=%d compass[0]=%c, compass[1]=%c, phs[0]=%p, phs[1]=%p, hcp[0]=%d, hcp[1]=%d, fhcp=[%g,%g]\n",
                p_ss->side, compass[0],compass[1],(void *)phs[0], (void *)phs[1], phs[0]->hs_totalpoints, phs[1]->hs_totalpoints, fhcp[0],fhcp[1] ) ;
-   for (h = 0 ; h < 2 ; h++) {         /* for each hand */
+  for (h = 0 ; h < 2 ; h++) {         /* for each hand */
       p_hs = phs[h] ; 
       for (s = CLUBS ; s<= SPADES ; s++ ) { /* I think I should total the adjustments, and THEN round them. use fhcp_adj[2] */
-         lar_b_hcp[h][s] = calc_alt_hcp(p_hs, s, LAR_B) ; /* calc BumWrap points for this suit. */
+         lar_b_hcp[h][s] = calc_alt_hcp(p_hs, s, LAR_B) ; /* calc BWjgm points for this suit. */
          fhcp[h] += lar_b_hcp[h][s] ;
          fhcp_adj[h] += shortHon_adj(p_hs, s, LAR_B ) ; /* -1 for K, Q, J, KQ, QJ, */
          JGMDPRT(8,"Adjlar_b, Hidx=%d, suit=%d, hcp[s]=%g, Tot_Raw_fhcp[h]=%g, Tot_fhcp_adj=%g, SuitLen=%d\n",
@@ -152,30 +154,40 @@ int lar_b_calc(UE_SIDESTAT_k *p_ss ) {    /* Tag Number:  9 -- this is LAR with 
       /* Body_pts +1 if the hand has two Tens or one Ten and two+ Nines */
       if ( (p_hs->hs_totalcounts[idxTens] >= 2) || (p_hs->hs_totalcounts[idxTens] == 1 && nines >= 2) ) {body_pts[h] = 1 ;}
       pav_body = p_ss->pav_body[h] ; ; 
-      hcp_adj[h] = Pav_round( fhcp_adj[h], pav_body ) ;
-      hcp[h] = Pav_round( fhcp[h] , pav_body) ;
+      hcp_adj[h] = Pav_round( fhcp_adj[h], pav_body ) ;  /* for debug only. */
+      hcp[h] = Pav_round( fhcp[h] , pav_body) ;          /* for debug only */
       lar_b_pts[h] = Pav_round( (fhcp[h] + fhcp_adj[h]), pav_body) + syn_pts[h] + lpts[h] ; /* NT pts for hand h omit + body_pts[h] */
       JGMDPRT(7,"lar_b hand=%d,lar_b_pts_net=%d, fhcp=%g, fhcp_adj=%g,  syn=%d, Lpts=%d, pav_body=%d\n",
                   h,           lar_b_pts[h],     fhcp[h], fhcp_adj[h],  syn_pts[h],lpts[h], pav_body );
       UEv.nt_pts_seat[h] = lar_b_pts[h] ;
+      lar_b_pts_raw[h] = fhcp[h] + fhcp_adj[h] + syn_pts[h] + lpts[h] ; /* omit body_pts[h] */
    } /* end for each hand */
    UEv.nt_pts_side = UEv.nt_pts_seat[0] + UEv.nt_pts_seat[1] ;
    JGMDPRT(7,"lar_b NT pts done. pts[0]=%d, pts[1]=%d, UEv_Side_pts=%d\n", lar_b_pts[0],lar_b_pts[1], UEv.nt_pts_side );
 
    /* Done both hands -- Now check for a trump fit */
-   TFpts = Do_Df_Fn_pts(p_ss, DfitLAR, LAR_Fn_pts) ; /* will also set the globals dfit_pts[],Fn_pts[],trump, and fitstat */
-
-   lar_b_pts[0] += TFpts.df_val[0] + TFpts.fn_val[0] ;  /* there are no Fn pts currently */
-   lar_b_pts[1] += TFpts.df_val[1] + TFpts.fn_val[1] ;
-
-   UEv.hldf_pts_seat[0] = lar_b_pts[0] ;
-   UEv.hldf_pts_seat[1] = lar_b_pts[1] ;
-   UEv.hldf_pts_side    = lar_b_pts[0] + lar_b_pts[1] ;
+   TFpts = Do_Df_Fn_pts(p_ss, DfitLAR, LAR_Fn_pts) ; /* LAR_B same as LAR. will also set the globals dfit_pts[],Fn_pts[] */
+    
+   UEv.hldf_pts_seat[0] = lar_b_pts[0] + TFpts.df_val[0] + TFpts.fn_val[0] ;  /* there are no Fn pts currently */
+   UEv.hldf_pts_seat[1] = lar_b_pts[1] + TFpts.df_val[1] + TFpts.fn_val[1] ; 
+   UEv.hldf_pts_side    = UEv.hldf_pts_seat[0] + UEv.hldf_pts_seat[1] ;
    UEv.hldf_suit   = p_ss->t_suit;     /* So we know which dds tricks to count if we are playing in a suit */
    UEv.hldf_fitlen = p_ss->t_fitlen ;
-   UEv.misc_count = 0 ;
-/* now some debugging fields Standard set even tho some don't apply to this metric */
 
+   /* Return also the RAW points, with fractions x100 for inclusion in DBase */
+   int tx100 ;
+   UEv.misc_count = 0 ;
+   for (h=0 ; h < 2 ; h++ ) {  
+      tx100 = (int) (lar_b_pts_raw[h] * 100.0) ;
+      UEv.misc_pts[1+h] = tx100 + (TFpts.df_val[h] + TFpts.fn_val[h])*100 ;  /* BF value Must scale these also */
+      UEv.misc_pts[4+h] = tx100 ;                                      /* NT value */
+   }
+   UEv.misc_pts[0] = UEv.misc_pts[1] + UEv.misc_pts[2] ;  /* 6, 7, 8 side, hand[0], hand[1] in BF */
+   UEv.misc_pts[3] = UEv.misc_pts[4] + UEv.misc_pts[5] ;  /* 9,10,11 side, hand[0], hand[1] in NT */
+   JGMDPRT(7,"LAR_B RAW BF pts Res[6, 7, 8] => %d = %d + %d \n",UEv.misc_pts[0], UEv.misc_pts[1], UEv.misc_pts[2] );
+   JGMDPRT(7,"LAR_B RAW NT pts Res[9,10,11] => %d = %d + %d \n",UEv.misc_pts[3], UEv.misc_pts[4], UEv.misc_pts[5] );
+   UEv.misc_count = 6 ;
+/* now some debugging fields Standard set even tho some don't apply to this metric */
       /* The factors that apply to both NT and Suit */
       UEv.misc_pts[UEv.misc_count++] = hcp_adj[0];
       UEv.misc_pts[UEv.misc_count++] = lpts[0];
@@ -217,7 +229,7 @@ int SynLAR(HANDSTAT_k *p_hs ) {
 }
 /* end SynLAR */
 
-int DfitLAR( UE_SIDESTAT_k *p_ss, int du) { /* called with 'short' hand 0/1; for 4=4 fit called once for each hand */ 
+int DfitLAR( UE_SIDESTAT_k *p_ss, int du) { /* called with 'short' hand 0/1/2; for 4=4 fit called once for each hand */ 
    int ss_len, t_len, dfit ;
    int idx_short ;
    int DF_LAR[2][4] = { {3,2,1,0},{5,3,1,0} } ; /* Dfit pts with 3/4 trump for V/S/D/Longer -- Only if 9+ fit */

@@ -1,0 +1,119 @@
+
+  /* will need to use perl/awk script to make sure values are in the right places for bulk load data statement */
+create table README (Author varchar(30), LastUpdate date, Description varchar(500) ) ;  
+  
+create table Cards ( DealID int primary key, NS char(37) not null, EW char(37) not null ) ;
+
+create table TricksNS( DealID int primary key, Clubs tinyint unsigned not null ,  Diams tinyint unsigned not null, Hearts tinyint unsigned not null , 
+          Spades tinyint unsigned not null , Notrump tinyint unsigned not null , Max_tr tinyint unsigned not null, Max_st tinyint unsigned not null );
+                 
+          
+create table NSMetric_HCP( DealID int primary key, HCP tinyint unsigned not null, AltT050 Fixed(4,2) unsigned not null,  AltA425 Fixed(4,2) unsigned not null, 
+       AltAT475 Fixed(4,2) unsigned not null, And5ths Fixed(4,2) unsigned not null, CCCC Fixed(4,2) unsigned not null,
+       Bumwrap  Fixed(4,2) unsigned not null, Woolsey  Fixed(4,2) unsigned not null,
+       BWjgm  Fixed(4,2)   unsigned not null, OPCjgm  Fixed(4,2) unsigned not null ) ;
+
+       
+create table NSMetric( DealID int primary key, 
+       Bergen_hldf          Fixed(4,2) unsigned not null, 
+       Bissel_hldf          Fixed(4,2) unsigned not null, 
+       DKP_hldf             Fixed(4,2) unsigned not null, 
+       Goren_hldf           Fixed(4,2) unsigned not null, 
+       Kaplan_hldf          Fixed(4,2) unsigned not null, 
+       Karpin_hldf          Fixed(4,2) unsigned not null, 
+       Karp_jgm_hldf        Fixed(4,2) unsigned not null, 
+       KnR_hldf             Fixed(4,2) unsigned not null, 
+       Larsson_hldf         Fixed(4,2) unsigned not null,
+       Lar_jgm_hldf         Fixed(4,2) unsigned not null,
+       Pav_hldf             Fixed(4,2) unsigned not null, 
+       Roth_hldf            Fixed(4,2) unsigned not null, 
+       Shein_hldf           Fixed(4,2) unsigned not null, 
+       ZarBas_hldf          Fixed(4,2) unsigned not null, 
+       ZarAdv_hldf          Fixed(4,2) unsigned not null, 
+       OPC_hldf             Fixed(4,2) unsigned not null,
+        Bergen_nt           Fixed(4,2) unsigned not null,
+        Bissel_nt           Fixed(4,2) unsigned not null, 
+        DKP_nt              Fixed(4,2) unsigned not null,
+        Goren_nt            Fixed(4,2) unsigned not null,
+        Kaplan_nt           Fixed(4,2) unsigned not null,
+        Karpin_nt           Fixed(4,2) unsigned not null, 
+        Karp_jgm_nt         Fixed(4,2) unsigned not null, 
+        KnR_nt              Fixed(4,2) unsigned not null, 
+        Larsson_nt          Fixed(4,2) unsigned not null, 
+        Lar_jgm_nt          Fixed(4,2) unsigned not null, 
+        Pav_nt              Fixed(4,2) unsigned not null, 
+        Roth_nt             Fixed(4,2) unsigned not null, 
+        Shein_nt            Fixed(4,2) unsigned not null, 
+        ZarBas_nt           Fixed(4,2) unsigned not null, 
+        ZarAdv_nt           Fixed(4,2) unsigned not null,
+        OPC_nt              Fixed(4,2) unsigned not null,
+        Karp_jgm_hldf_raw   Fixed(4,2) unsigned not null,
+        KnR_hldf_raw        Fixed(4,2) unsigned not null,
+        Lar_jgm_hldf_raw    Fixed(4,2) unsigned not null,
+        ZarBas_hldf_scaled  Fixed(4,2) unsigned not null,
+        ZarAdv_hldf_scaled  Fixed(4,2) unsigned not null,
+        OPC_hldf_raw        Fixed(4,2) unsigned not null,
+        Karp_jgm_nt_raw     Fixed(4,2) unsigned not null,
+        KnR_nt_raw          Fixed(4,2) unsigned not null,
+        Lar_jgm_nt_raw      Fixed(4,2) unsigned not null,
+        ZarBas_nt_scaled    Fixed(4,2) unsigned not null,
+        ZarAdv_nt_scaled    Fixed(4,2) unsigned not null,
+        OPC_nt_raw          Fixed(4,2) unsigned not null        
+ ); 
+             
+create table TricksEW(  DealID int primary key, Clubs tinyint unsigned not null , Diams tinyint unsigned not null , Hearts tinyint unsigned not null , 
+           Spades tinyint unsigned not null , Notrump tinyint unsigned not null ,Max_tr tinyint unsigned not null,  Max_st tinyint unsigned not null );
+ 
+create table EWMetric_HCP( DealID int primary key, HCP tinyint unsigned not null, AltT050 Fixed(4,2) unsigned not null,  AltA425 Fixed(4,2) unsigned not null, 
+       AltAT475 Fixed(4,2) unsigned not null, And5ths Fixed(4,2) unsigned not null, CCCC Fixed(4,2) unsigned not null,
+       Bumwrap  Fixed(4,2) unsigned not null, Woolsey  Fixed(4,2) unsigned not null,
+       BWjgm    Fixed(4,2) unsigned not null, OPCjgm   Fixed(4,2) unsigned not null ) ;
+
+create table EWMetric( DealID int primary key, 
+       Bergen_hldf          Fixed(4,2) unsigned not null, 
+       Bissel_hldf          Fixed(4,2) unsigned not null, 
+       DKP_hldf             Fixed(4,2) unsigned not null, 
+       Goren_hldf           Fixed(4,2) unsigned not null, 
+       Kaplan_hldf          Fixed(4,2) unsigned not null, 
+       Karpin_hldf          Fixed(4,2) unsigned not null, 
+       Karp_jgm_hldf        Fixed(4,2) unsigned not null, 
+       KnR_hldf             Fixed(4,2) unsigned not null, 
+       Larsson_hldf         Fixed(4,2) unsigned not null,
+       Lar_jgm_hldf         Fixed(4,2) unsigned not null,
+       Pav_hldf             Fixed(4,2) unsigned not null, 
+       Roth_hldf            Fixed(4,2) unsigned not null, 
+       Shein_hldf           Fixed(4,2) unsigned not null, 
+       ZarBas_hldf          Fixed(4,2) unsigned not null, 
+       ZarAdv_hldf          Fixed(4,2) unsigned not null, 
+       OPC_hldf             Fixed(4,2) unsigned not null,
+        Bergen_nt           Fixed(4,2) unsigned not null,
+        Bissel_nt           Fixed(4,2) unsigned not null, 
+        DKP_nt              Fixed(4,2) unsigned not null,
+        Goren_nt            Fixed(4,2) unsigned not null,
+        Kaplan_nt           Fixed(4,2) unsigned not null,
+        Karpin_nt           Fixed(4,2) unsigned not null, 
+        Karp_jgm_nt         Fixed(4,2) unsigned not null, 
+        KnR_nt              Fixed(4,2) unsigned not null, 
+        Larsson_nt          Fixed(4,2) unsigned not null, 
+        Lar_jgm_nt          Fixed(4,2) unsigned not null, 
+        Pav_nt              Fixed(4,2) unsigned not null, 
+        Roth_nt             Fixed(4,2) unsigned not null, 
+        Shein_nt            Fixed(4,2) unsigned not null, 
+        ZarBas_nt           Fixed(4,2) unsigned not null, 
+        ZarAdv_nt           Fixed(4,2) unsigned not null,
+        OPC_nt              Fixed(4,2) unsigned not null,
+        Karp_jgm_hldf_raw   Fixed(4,2) unsigned not null,
+        KnR_hldf_raw        Fixed(4,2) unsigned not null,
+        Lar_jgm_hldf_raw    Fixed(4,2) unsigned not null,
+        ZarBas_hldf_scaled  Fixed(4,2) unsigned not null,
+        ZarAdv_hldf_scaled  Fixed(4,2) unsigned not null,
+        OPC_hldf_raw        Fixed(4,2) unsigned not null,
+        Karp_jgm_nt_raw     Fixed(4,2) unsigned not null,
+        KnR_nt_raw          Fixed(4,2) unsigned not null,
+        Lar_jgm_nt_raw      Fixed(4,2) unsigned not null,
+        ZarBas_nt_scaled    Fixed(4,2) unsigned not null,
+        ZarAdv_nt_scaled    Fixed(4,2) unsigned not null,
+        OPC_nt_raw          Fixed(4,2) unsigned not null  
+);     
+          
+ 

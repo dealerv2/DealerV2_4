@@ -1,0 +1,17 @@
+# File to create the 'NS_HCPmetric,EW_HCPmetrics' tables from the rpLib.zrd file
+generate 10485760    // there are 10,485,760 deals in the library
+produce  5
+seed 5
+title " This DB_C13.cli output will need to be post processed by Perl or mlr to convert x100 ints into xx.dd numbers"
+# Define a scaled C13. No Ten since with a Ten it is just Bumwrap
+altcount 8 4.5 3.0 1.5 0.75 0
+
+# altcount 9 6.0 4.0 2.0 1.0  // C13 on a dotnum scale
+action
+
+    printrpt( NS, "N:=", c13(north,spades),c13(north,heart),c13(north,diamond),c13(north,clubs),"=",c13(north),
+                  "S:=", c13(south,spades),c13(south,heart),c13(south,diamond),c13(south,clubs),"=",c13(south) , "TOT=",c13(north)+c13(south), 
+     "x100 N:=", pt8(north,spades),pt8(north,heart),pt8(north,diamond),pt8(north,clubs),"=",pt8(north),
+                  "S:=", pt8(south,spades),pt8(south,heart),pt8(south,diamond),pt8(south,clubs),"=",pt8(south), "TOT=",pt8(north)+pt8(south)),
+    printrpt("C13=", c13(north)+c13(south),"C13_075=",pt8(north)+pt8(south))
+

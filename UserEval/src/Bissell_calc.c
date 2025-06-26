@@ -14,7 +14,8 @@
 extern void zero_globals( int side ) ;
 extern float_t shortHon_adj( HANDSTAT_k *p_hs, int suit, int mtag ) ;
 extern void SaveUserVals(struct UserEvals_st UEv , USER_VALUES_k *p_ures ) ;
- extern void set_dbg_names(int m, char *dbg_func) ;
+extern void set_dbg_names(int m, char *dbg_func) ;
+extern int Pav_round(float val, int body ) ;
  /* Forward Function Definitions */
 
 // main or userfunc has a) set all the mm_ptrs etc. b) used prolog to zero globals c) filled sidestat global with trump suit choice.
@@ -52,6 +53,7 @@ int bissell_calc( UE_SIDESTAT_k *p_ss ) {   /* Tag Number: 1 */
       len4_cnt = 0 ;
       void_cnt = 0 ;
       biss_totpts[h] = 0.0 ;
+      biss_shape_ded[h] = 0 ; 
       for (s = SUIT_CLUB; s <= SUIT_SPADE; ++s) {
          biss_honpts[h][s]=0;
          biss_adj[h][s]=0;
@@ -107,7 +109,7 @@ int bissell_calc( UE_SIDESTAT_k *p_ss ) {   /* Tag Number: 1 */
          biss_shape_ded[h] = -1.0; /* or 44xy not 4450  therefore 4432 */
          biss_totpts[h] += -1.0 ;
       }
-      biss_pts[h] = lround(biss_totpts[h]); /* starting points for hand h */
+      biss_pts[h] = Pav_round(biss_totpts[h], p_ss->pav_body[h]); /* starting points for hand h */
       UEv.nt_pts_seat[h] = biss_pts[h] ;
       JGMDPRT(8, "Biss Hand[%d] UEv.nt=%d, biss_tot=%g biss_shape_ded=%g\n",h, UEv.nt_pts_seat[h], biss_totpts[h],biss_shape_ded[h] );
    } /* end for each hand */
@@ -134,9 +136,9 @@ int bissell_calc( UE_SIDESTAT_k *p_ss ) {   /* Tag Number: 1 */
       UEv.misc_pts[UEv.misc_count++] = biss_shape_ded[1];
 
       SaveUserVals( UEv , p_uservals ) ;
-      JGMDPRT(7, "Bissell calcs Done UEV MIsc-count=%d\n", UEv.misc_count);
+      JGMDPRT(7, "Bissell calcs Done UEV MIsc-count=%d biss_pts[0]=%d, biss_pts[1]=%d\n", UEv.misc_count, biss_pts[0],biss_pts[1]);
   return ( 6 + UEv.misc_count ) ;
-/* Deductions for stiffs A(3-0=3), K(2-1 = 1) Q(1-1 = 0) ; Since stiff J and stiff T = 0 no deduct for themc
+/* Deductions for stiffs A(3-0=3), K(2-1 = 1) Q(1-1 = 0) ; Since stiff J and stiff T = 0 no deduct for them
  * Deductions for HH     AK(6-1=5), AQ(5-1=4), AJ(4-.5=3.5), KQ(4-1 = 3), KJ(3-.5=2.5),QJ(2-.5=1.5),Qx(1-.5=.5)
 */
 } /* end bissell_calc */

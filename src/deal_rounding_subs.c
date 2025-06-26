@@ -10,7 +10,7 @@
   #define _GNU_SOURCE
 #endif
 
-#include "dbgprt_macros.h"
+#include "../include/dbgprt_macros.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -28,9 +28,9 @@ int Pav_body_val( HANDSTAT_k  *p_hs ) {
    int s;
    int body = 0 ;
    for (s=0; s<4 ; s++ ) {
-      if (p_hs->Has_card[s][EIGHT] ) body++ ;
-      if (p_hs->Has_card[s][NINE]  ) body += 2;
-      if (p_hs->Has_card[s][TEN]   ) body += 3; 
+      if (p_hs->Has_card[s][EIGHT] ) { body++ ;   }
+      if (p_hs->Has_card[s][NINE]  ) { body += 2; }
+      if (p_hs->Has_card[s][TEN]   ) { body += 3; }
    }
    return( body ) ; /* if >= 12 Good Body. Round Up */
 } /* end Pav_body_val */

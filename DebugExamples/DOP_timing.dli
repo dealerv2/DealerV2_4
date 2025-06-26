@@ -1,7 +1,10 @@
 generate   100000
 produce    1000
 title "Testing DOP Timing: 1 val in cond, 1 val in action "
-# in future add opc(NS, spades) for example
+# opc always works on a per side, not per player basis
+# opc( NS ) or opc( EW ) will return value of OPC in the longest or best fit
+# Can also put opc( <side> , <strain> ) where
+#         <side> is NS or EW and <strain> is one of clubs, diamonds, hearts, spades, notrump
 opener north
 
 condition ( opc(NS) > 13.5 )
@@ -11,3 +14,7 @@ condition ( opc(NS) > 13.5 )
 
 action
         average "OPC NS " opc(NS)
+# the above should result in showing that the total calls to OPC were 1000 more than the 'Calc Calls' to opc
+# since the condition clause is always evaluated as a 'Calc call' and the action clause is filled from cache
+# on a 3.8GHz Intel core i7-2600K with 1M L2 cache the above (1060 real calls, 2060 total incl cache) takes
+   38,354 msecs or 36.2 msecs per 'real' call to OPC  2024/07/13

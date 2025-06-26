@@ -24,8 +24,8 @@ basically a no-op.
 * and the Dealer Input File looks 'nicer'.
 *
 * JGM 2022/10/18 fixed several bugs in the original code; Qx, Qxx, AQ KQ stiff Q, first doubleton, and ded for 4333.
-* JGM 2023/01/22 Allowed 1st dblton to count for +1 if there is also another shortness. 6-4-2-1 counts 3 pts for shortness.
-*
+* JGM 2023/01/22 Allowed 1st dblton to count for +1 if there is also another shortness. 6-4-2-1 counts 3 pts for shortness.  -- Removed from code.
+* JGM 2025-04-15 Always discount the first doubleton, as that is more 'standard'. Never return a negative value, which per Pavlicek is possible. 
 */
 #define _GNU_SOURCE 1
 #include <assert.h>
@@ -150,6 +150,7 @@ int eval_cccc (int seat) {
   JGMDPRT(7,"C4 END SEAT[%d] TotEval=%d, square=%d\n\n",seat, toteval, hs[seat].square_hand ) ;
 
   assert ((toteval % 5) == 0); /* KnR pts go in steps of 0.05 always */
+  if (toteval < 0 ) toteval = 0 ;  /* For simulation Database prevent negative hand values. Pavlicek would not agree and allow them. */
   return (toteval);
 }
 

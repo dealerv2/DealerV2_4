@@ -1,0 +1,19 @@
+generate 1000000
+produce 20
+seed 17 
+title "Testing syntax for PAV Body Points"
+// PAV Body Points. If 4*Tens + 2*Nines + Eights >16 then GOOD if 12-15 then FAIR if 0-11 then poor. 
+// When evaluating 3NT, GOOD or FAIR allows 25 HCP to make 70% and 24 HCP 60%/up so translate those >14 to be = 1HCP.
+// Note when rounding metrics like KnR and Zar, PAV uses 3*Tens+2*Nines+Eights >= 12 Round up, else round down.
+
+//         A K Q J T 9
+altcount 9 0 0 0 0 0 1
+PAV_body_ptsN = ((4*tens(north) + 2*pt9(north)+ hascard(north,8C)+hascard(north,8D)+hascard(north,8H)+hascard(north,8S)) > 13) ? 1 : 0 
+PAV_body_ptsS = ((4*tens(south) + 2*pt9(south)+ hascard(south,8C)+hascard(south,8D)+hascard(south,8H)+hascard(south,8S)) > 13) ? 1 : 0
+PAV_body_ptsE = ((4*tens(east ) + 2*pt9(east )+ hascard(east ,8C)+hascard(east ,8D)+hascard(east ,8H)+hascard(east ,8S)) > 13) ? 1 : 0
+PAV_body_ptsW = ((4*tens(west ) + 2*pt9(west )+ hascard(west ,8C)+hascard(west ,8D)+hascard(west ,8H)+hascard(west ,8S)) > 13) ? 1 : 0
+
+condition 1 
+action 
+// printrpt(deal, "N:", Pav_body_ptsN,  "E:",Pav_body_ptsE,  "S:",Pav_body_ptsS,  "W:",Pav_body_ptsW) 
+ printrpt( north,PAV_body_ptsN, south,PAV_body_ptsS, east,PAV_body_ptsE, west,PAV_body_ptsW ) 

@@ -32,15 +32,15 @@ pCALC_FUNC_k p_cfunc[] = {bergen_calc,  bissell_calc, dkp_calc,      goren_calc,
  * The downside is that only a limited number of results per metric can be obtained.
  * But in practice this is not a drawback as usually we are only interested in at most two results:
  * The total for the side if played in NT and the total for the side if played in the longest suit.
- * Since we can gete 128 results stored in the mmap, this allows the main 2 results for 64 metrics.
+ * Since we can get 128 results stored in the mmap, this allows the main 2 results for 64 metrics.
  * Set88 is a reduced version of set40, which returns 6 values per metric for each metric.
  */
 /* the set88 array allows us to filter or choose which of the implemented metrics to do the evaluations for
  * To change the choice, either Recompile or patch the array with a hex editor or a Debugger
  */
  char FIND88[]="8888 SET 8888";  /*marker in case we want to patch next array with GDB */
-  /*                     0        1       2     3      4       5       6      7    8      9     10     11       12      13      14      15        20          21  */
-//enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEND, MixJGM=20, MixMOR,
+  /*                     0        1       2     3      4       5       6      7    8      9     10     11       12      13      14      15   */
+//enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEND, 
  //              B,b,D,  G,E, K,kb, KnR, L,lb, P,S, z,Z, R  U    1 means include in set, zero skip. -0 not implemented Future HCP Flavors
  int  set88[16]={1,1,1,  1,1, 1,1,   1,  1,1,  1,1, 1,1, 1, -0 } ;
  #define SET88_SZ sizeof(set88)/sizeof(int)
@@ -60,7 +60,7 @@ int set88_calc ( UE_SIDESTAT_k *p_ss) { /* returns the side total in BestFit and
    for (m=0 ; m<metricEND ; m++ ) {
       if (set88[m] == 1 ) {
          (*p_cfunc[m])( p_ss ) ;  /* results in UEv struct. Returns number of results calculated; we only care about the side total */
-         set88_HLDF_pts[m] = UEv.hldf_pts_side ; /* we need to store these temporarily bec the metrics modify the userresults area*/
+         set88_HLDF_pts[m] = UEv.hldf_pts_side ; /* we need to store these temporarily bec the metrics modify the user results area*/
          set88_NT_pts[m]   = UEv.nt_pts_side;
          if( m == ZARBAS ) {  /* return the rounded half zar pts which are on a 0 .. 40 pt scale */
             set88_NT_pts[m]   = UEv.misc_pts[0]+UEv.misc_pts[1];  // use same for both as ZarBas has no Hf, Fn, Dfit etc. pts
@@ -71,7 +71,7 @@ int set88_calc ( UE_SIDESTAT_k *p_ss) { /* returns the side total in BestFit and
             set88_HLDF_pts[m] = UEv.misc_pts[2]+UEv.misc_pts[3];
          }           
          m_cnt++;
-         JGMDPRT(4," Metric=%d, Enabled?=%d, name=%s HLDF_pts=%d, NT_pts=%d m_cnt=%d funcptr=%p\n",
+         JGMDPRT(6," Metric=%d, Enabled?=%d, name=%s HLDF_pts=%d, NT_pts=%d m_cnt=%d, funcptr=%p\n",
                      m,set88[m],cf_name[m],set88_HLDF_pts[m],set88_NT_pts[m], m_cnt, p_cfunc[m]);
       }
       else { set88_HLDF_pts[m] = -1 ; set88_NT_pts[m] = -1 ; }
@@ -82,6 +82,8 @@ int set88_calc ( UE_SIDESTAT_k *p_ss) { /* returns the side total in BestFit and
       p_88_results->u.res[m] = set88_HLDF_pts[m] ;          /* some of these will be invalid i.e. -1; USER BEWARE */
       p_88_results->u.res[m + nt_offset] = set88_NT_pts[m];
    }
+   p_88_results->u.res[126] = p_ss->t_suit;
+   p_88_results->u.res[127] = p_ss->t_fitlen;
    JGMDPRT(7, "Set88 did %d metrics. Showing user results at ptr=%p, from 0 to 29 for\n",m_cnt,(void *)p_88_results );
    DBGDO(7, show_user_res( "Set_88_calcs", p_88_results, 0, 29 )  ) ;
    return m_cnt*2; /* the total number of valid results in the 0 .. (NT_offset+m_cnt) slots */
@@ -99,23 +101,27 @@ int mixed_Karpin_calc (  UE_SIDESTAT_k *p_ss ) { /* call karpin_calc then karpb_
    karpin_pts[7] = UEv.hldf_fitlen;
    
    karpb_calc( p_ss ) ;
+      /* TODO Use memcpy here */
    for (i = 0 ; i < 6 ; i++ ) {
       karpb_pts[i] = p_uservals->u.res[i] ; /* save results since they will be overwritten by karpin pts. */
    }
    karpb_pts[6] = UEv.hldf_suit ;  /* Global UEv filled by karpin calc still OK at this point */
    karpb_pts[7] = UEv.hldf_fitlen;
    /* now copy the saved karpin results to the next available slots in the p_uservals area */
+      /* TODO Use memcpy here */
    for (i = 0 ; i < 6 ; i++ ) {
-      p_uservals->u.res[i]   = karpb_pts[i]    ;  /* karpb in lower slots since karpb is lower numbered metric */
-      p_uservals->u.res[i+6] = karpin_pts[i] ;
+      p_uservals->u.res[i]   = karpin_pts[i]    ;  /* karp in lower slots since karp is lower numbered metric */
+      p_uservals->u.res[i+6] = karpb_pts[i] ;
    }
-      p_uservals->u.res[12]   = karpb_pts[6]    ; /* trump suit */
-      p_uservals->u.res[13]   = karpb_pts[7]    ; /* trump fitlen */
-      p_uservals->u.res[14]   = karpin_pts[6]   ; /* trump suit same as karpb_pts since trump suit chosen by Analyze Side */
-      p_uservals->u.res[15]   = karpin_pts[7]   ; /* trump fitlen */
+      p_uservals->u.res[12]   = karpin_pts[6]   ; /* trump suit same as karpb_pts since trump suit chosen by Analyze Side */
+      p_uservals->u.res[13]   = karpin_pts[7]   ; /* trump fitlen */
+      p_uservals->u.res[14]   = karpb_pts[6]    ; /* trump suit */
+      p_uservals->u.res[15]   = karpb_pts[7]    ; /* trump fitlen */
+
    /* we should now have:
-    * in slots 0 .. 5 for KARP_B: NT_side, NT_north, NT_south, HLDF_side, HLDF_north, HLDF_south
-    * in slots 6 ..11 for Karpin: NT_side, NT_north, NT_south, HLDF_side, HLDF_north, HLDF_south (overwriting jgm dbg vals)
+    * in slots 0 ..  5 for Karpin: NT_side, NT_north, NT_south, HLDF_side, HLDF_north, HLDF_south
+    * in slots 6 .. 11 for KARP_B: NT_side, NT_north, NT_south, HLDF_side, HLDF_north, HLDF_south (overwriting jgm dbg vals)
+    * in slots 12.. 15  the trump_suit, and trump_fitlen
     * The misc extra debug values in slots 16 .. nn are still there, but will be ignored by Dealer
     * Added trump suit and trump fitlen to help dealer chose which dds tricks to use
     */
@@ -127,22 +133,21 @@ int mixed_Larsson_calc  ( UE_SIDESTAT_k *p_ss ) { /* call lar_calc    then lar_b
    int lar_pts[8] = { 0 };
    int lar_b_pts[8] = { 0 };
    int i ;
-   lar_calc( p_ss ) ;
-   for (i = 0 ; i < 6 ; i++ ) {
-      lar_pts[i] = p_uservals->u.res[i] ; /* save results since they will be overwritten by lar_b_calc */
-   }
 
    lar_b_calc( p_ss ) ;
+      /* TODO Use memcpy here */
    for (i = 0 ; i < 6 ; i++ ) {
       lar_b_pts[i] = p_uservals->u.res[i] ; /* save results since they will be overwritten by lar_calc */
    }
    lar_b_pts[6] = UEv.hldf_suit ;  /* Global UEv filled by lar_calc still OK at this point */
    lar_b_pts[7] = UEv.hldf_fitlen;
-   /* now copy the saved lar results to the next available slots in the p_uservals area LAR first since it is lower metric*/
-   for (i = 0 ; i < 6 ; i++ ) {
-      p_uservals->u.res[i] = lar_pts[i] ;
-      p_uservals->u.res[i+6]  = lar_b_pts[i] ;
+   
+   lar_calc( p_ss ) ;  /* plain larsson results in u.res[0 .. 5] */
 
+   /* now copy the saved lar_b results to the next available slots in the p_uservals area LAR first since it is lower metric*/
+      /* TODO Use memcpy here */
+   for (i = 0 ; i < 6 ; i++ ) {
+      p_uservals->u.res[i+6]  = lar_b_pts[i] ; /* tweaked larsson results in 6 .. 11 */
    }              /* extraneous values to help with choosing which DDS tricks to pick */
       p_uservals->u.res[12]   = lar_pts[6] ;   /* trump suit */
       p_uservals->u.res[13]   = lar_pts[7] ;   /* trump fitlen */
@@ -191,7 +196,7 @@ int test_calc ( UE_SIDESTAT_k *p_ss ) {                /* make the prototype con
 } /* end test calc */
 
 /* Return 6 values for each of the 15 coded metrics. (Room for 21 metrics ) and also in slot 126 BestFit Suit, slot 127 BestFit fitlen
- * NT: Side_total NTpts, Horth/East NTpts, South/West NTpts
+ * NT: Side_total NTpts, North/East NTpts, South/West NTpts
  * BestFit: Side total HLDFpts, Horth/East HLDFpts, South/West HLDFpts, 
  */ 
 int set40_calc (UE_SIDESTAT_k *p_ss ) {
@@ -212,7 +217,7 @@ int set40_calc (UE_SIDESTAT_k *p_ss ) {
                 
    for (m=0 ; m < MAX_METRICS ; m++ ) {
        if (metric_enabled[m] == 1 ) {
-         JGMDPRT(3," Set40 Metric=%d, Enabled=%d, name=%s\n",m,metric_enabled[m], cf_name[m] );
+         JGMDPRT(6," Set40 Metric=%d, Enabled=%d, name=%s\n",m,metric_enabled[m], cf_name[m] );
          (*p_cfunc[m])( p_ss ) ;                   
          All_UE_res[m].nt_pts_side    = UEv.nt_pts_side;
          All_UE_res[m].nt_pts_seat[0] = UEv.nt_pts_seat[0];
@@ -253,29 +258,26 @@ int set40_calc (UE_SIDESTAT_k *p_ss ) {
  */
 extern char alt_HCP_names[][16];
 extern int alt_HCP_calc( UE_SIDESTAT_k *p_ss, int metric ) ;
+int cpy_KnR_vals(struct EvalALT_res_st *p_altres) ;
+/* return all the Alternate ways of counting HCP. No HLDF considerations. 0..2 Pav(rounded), 3..5 xx.dd x 100 (Raw) */
 int set41_calc (UE_SIDESTAT_k *p_ss ) {
-   struct EvalALT_res_st {
-      int nt_pts_side;  /*  The float vals Pav Rounded to Ints */
-      int nt_pts_seat[2];
-      int raw_pts_side;  /* The float vals *100 converted to Ints */
-      int raw_pts_seat[2];
-   } ;
    int m , metric;
-   int m_val_cnt = 0 ; 
-   #define MAX_ALTCNTS 8
-   struct EvalALT_res_st All_ALT_res[MAX_ALTCNTS] ; /* sets of 6 ints. will memcpy this to the p_nsres or p_ewres area at the end. */
+   int m_val_cnt = 0 ;
+   int knr_cnt = 0 ; 
+   #define MAX_ALTCNTS 8  /* T050, A425, AT475, BW, Woolsey, And5ths, BWjgm, OPCjgm */
+   struct EvalALT_res_st All_ALT_res[MAX_ALTCNTS+1] ; /* sets of 6 ints. extra set for KnR since CCCC does not scale or round. (and FUT ZAR?) */
    size_t All_ALT_res_sz = sizeof(All_ALT_res) ; 
    size_t All_ALT_res_cnt = All_ALT_res_sz/sizeof(int) ;  /* total number of results for all 8 metrics ; should be 48 */
    memset(All_ALT_res, 0, All_ALT_res_sz ) ;
    struct EvalALT_res_st ue41_res ;
 
    int side = p_ss->side ;
-   JGMDPRT(3, "All_ALT_res_sz=%zd, All_ALT_res_cnt=%zd side=%d\n",
-               All_ALT_res_sz, All_ALT_res_cnt, side ) ;
+   JGMDPRT(6, " All_ALT_res base ptr = %p, All_ALT_res_sz=%0lx, All_ALT_res_cnt=%zd side=%d\n",
+               (void *) All_ALT_res, All_ALT_res_sz, All_ALT_res_cnt, side ) ;
                 
-   for (m=0 ; m < MAX_ALTCNTS ; m++ ) {
+   for (m=0 ; m < MAX_ALTCNTS ; m++ ) {   /* do the non KnR and non ZAR ones which are just table lookups mostly */
          metric = 20 + m;
-         JGMDPRT(3," Set41 Metric=%d, name=%s\n",metric, alt_HCP_names[m] );
+         JGMDPRT(6," Set41 Metric=%d, name=%s\n",metric, alt_HCP_names[m] );
          alt_HCP_calc( p_ss, metric ) ;
          All_ALT_res[m].nt_pts_side    = UEv.nt_pts_side;  /* nt pts are the Pav_round() ones */
          All_ALT_res[m].nt_pts_seat[0] = UEv.nt_pts_seat[0];
@@ -285,19 +287,136 @@ int set41_calc (UE_SIDESTAT_k *p_ss ) {
          All_ALT_res[m].raw_pts_seat[1] = UEv.hldf_pts_seat[1];
          m_val_cnt += 6 ; 
          ue41_res = All_ALT_res[m] ;
-         showints(&All_ALT_res[m].nt_pts_side, NULL, 6 ) ; 
-         JGMDPRT(3,"Curr_Val_cnt=%d, %s_calc done ; NT: %d = %d + %d ; RAWx100: %d = %d + %d\n",m_val_cnt, alt_HCP_names[m],
+         // DBGDO(6, showints(&All_ALT_res[m].nt_pts_side, NULL, 6 ) ) ; 
+         JGMDPRT(7,"Curr_Val_cnt=%d, %s_calc done ; NT: %d = %d + %d ; RAWx100: %d = %d + %d\n",m_val_cnt, alt_HCP_names[m],
             ue41_res.nt_pts_side,  ue41_res.nt_pts_seat[0],  ue41_res.nt_pts_seat[1],
             ue41_res.raw_pts_side, ue41_res.raw_pts_seat[0], ue41_res.raw_pts_seat[1]) ;
    } /* end for m 0 .. MAX_ALTCNTS */
-  
+     /* add the KnR CCCC values (rounded and raw) to the set41 results. cant just use cccc in dli file because that one is not rounded or scaled.  */
+   JGMDPRT(9,"Next free Array Slot=%d aka MAX_ALTCNTS. m_val_cnt=%d. \nCalling knr_calc with side ptr=%p \n", m,m_val_cnt,(void *)p_ss);
+   knr_cnt = knr_calc(p_ss) ;  /*  this will put values into the global UEv struct as well as the uservals shared memory. */
+   JGMDPRT(7, "knr_calc returns %d Showing UEv results 0..5(rounded), and 6..12(x100)\n",knr_cnt ); 
+   DBGDO(8, showints(&UEv.nt_pts_side, 0, 12 ) ) ;
+   cpy_KnR_vals( &All_ALT_res[MAX_ALTCNTS] ) ;  /* from the Global UEv to next free Array slot. (Note base zero addressing) */
+   m_val_cnt += 6;
+   JGMDPRT(8,"cpy_KnR_vals returns. Next memcpy to %p from %p size=%ld m_val_cnt=%d\n" ,
+                        (void *) p_uservals, (void *) &All_ALT_res, All_ALT_res_sz, m_val_cnt );
+   
    // we now have 6 values for each of the 8 metrics in our array of structures. 48 of the 128 allowed
    // memcpy this entire array to the User Results area of 128 ints.
-   memcpy(p_uservals, All_ALT_res ,  All_ALT_res_sz );
-   DBGDO(3, show_user_res("Set41_calc", p_uservals, 0, (m_val_cnt-1) ) ) ;  
-   return m_val_cnt; /* the number of metrics evaluated in slots 0..47 */
+   memcpy(p_uservals,  All_ALT_res ,  All_ALT_res_sz );
+   p_uservals->u.res[126] = p_ss->pav_body[0];     // so we can verify the rounding calculations if needed
+   p_uservals->u.res[127] = p_ss->pav_body[1];	  // Round up if 3*Tens + 2*Nines + Eights in a hand is >=12 and fraction == 0.5
+   
+   DBGDO(8, show_user_res("Set41_calc", p_uservals, 0, (m_val_cnt-1) ) ) ;
+   JGMDPRT(6, "Mixed Set41 Calc returning %d  to caller\n", m_val_cnt ) ; 
+   return m_val_cnt; /* the number of metrics evaluated in slots 0..47 + 6 */
 }
+/* returns the side total in BestFit and the side total in NT and
+ * the unrounded (raw) values for metrics with fractional values
+ * Karp_jgm, KnR, Lar_jgm, and the scaled Zar pts
+*/
+#include "../include/UserEval_types.h"
+#define SET42_SZ 15
+int save_raw_pts(int m, int set42_RAW_pts[] ) ;
+int set42_calc ( UE_SIDESTAT_k *p_ss) { /* Side NT, and side HLDF pts for 15 metrics, plus 5 raw side NT and 5 Raw HLDF for some */
+   int m;
+   int m_cnt = 0 ;
+   int res_cnt = 0 ; 
+   USER_VALUES_k *p_42_results;
+  /* we don't need to redo prolog, or reset_UEsidestat for each metric; we only need to zero the globals. */
+   int set42_HLDF_pts[SET42_SZ] = { -1 };   /* set42 returns the HLDF evals in res[ 0] to res[14] */
+   int set42_NT_pts[SET42_SZ]   = { -1 };   /* set42 returns the NT   evals in res[15] to res[29] */
+   int set42_RAW_pts[10] =        { -1, -2, -3, -4, -5, -6, -7, -8, -9, -10  };
+               /* and the HDLF_raw in 30..31,HLDF_ZAR_Scaled 32,33, the NT_raw in 35..37 and NT_ZAR Scaled 38,39 */
+                                            
+   int nt_offset = metricEND ;
+   int raw_offset = 2*metricEND ; 
+   JGMDPRT(4, "SET42_SZ = %d, metricEnd=%d, nt_offset=%d p_Sidestat=%p\n", SET42_SZ, metricEND, nt_offset, (void *)p_ss );
 
+   p_42_results   = p_uservals;
+   for (m=0 ; m<metricEND ; m++ ) { /* do for all metrics */
+      JGMDPRT(4, "m=%d, Starting func: %s \n", m, cf_name[m] ) ; 
+         (*p_cfunc[m])( p_ss ) ;  /* results in UEv struct. Returns number of results calculated; we only care about the side totals */
+         set42_HLDF_pts[m] = UEv.hldf_pts_side ; /* we need to store these temporarily bec the metrics modify the user results area*/
+         set42_NT_pts[m]   = UEv.nt_pts_side;
+
+         save_raw_pts(m, set42_RAW_pts ) ; /* do nothing if m is not Karp_B, KnR, Lar_B, ZarBas, or ZarAdv */
+         
+         m_cnt++;
+         JGMDPRT(4," Metric=%d, name=%s HLDF_pts=%d, NT_pts=%d,  m_cnt=%d\n",
+                     m,cf_name[m],set42_HLDF_pts[m],set42_NT_pts[m], m_cnt);
+   } /* end for all metrics */
+   /* put the set42 values into the mmap user results area */
+  /* one hldf val and one nt val per metric Plus the abnormal (aka raw) pts at the end */
+   for (m=0; m < metricEND ; m++ ) {
+      p_42_results->u.res[m] = set42_HLDF_pts[m] ;          /* could do memcpy here metricEnd ints into &u.res[0] */
+      p_42_results->u.res[m + nt_offset] = set42_NT_pts[m]; /* could do memcpy here metricEnd ints into &u.res[metricEnd] */
+      res_cnt += 2;                                         /* res_cnt = metricEnd + metricEnd */
+   }
+   JGMDPRT(4, "Saving RaW pts at offset=%d [ ", raw_offset ) ; 
+   for (int i=0 ; i < 10 ; i++ ) {
+      p_42_results->u.res[raw_offset++] = set42_RAW_pts[i] ; /* memcpy 10 ints to &u.res[2*metricEND] */
+      JGMDPRT(4, "%d,",set42_RAW_pts[i] ) ;
+      res_cnt++ ;                                            /* res_cnt += 10 */
+   }
+   JGMDPRT(4," ]\n");
+   p_42_results->u.res[126] = p_ss->t_suit;
+   p_42_results->u.res[127] = p_ss->t_fitlen; 
+   JGMDPRT(4, "Set42 did %d metrics. Showing user results at ptr=%p, from 0 to %d for\n",m_cnt, (void *)p_42_results, (res_cnt - 1) );
+   DBGDO(4, show_user_res( "Set_42_calcs", p_42_results, 0, (res_cnt - 1) )  ) ;
+   return res_cnt; /* the total number of valid results in the 0 .. res_cnt-1 slots */
+}
+//enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEND, 
+
+/* the RAW results are the 'abnormal' resulls; the xx.dd x 100 for KarpB,KnR,LarB
+ * for Zars we do the opposite, since most Zar users will be using ZarPetrov's scale. so the 'Raw' ones are the rounded(zars/2)
+ */
+int save_raw_pts(int m, int set42_RAW_pts[] ) {
+   /* The Raw/Scaled pts (when there are any) are always saved in misc[0..5]. SideTot RAW HLDF in [0] and SideTot RAW NT in[3] 
+    * The RAW array is setup for easy memcpy to the results area;
+    * The HLDF results in the low subscripts; the NT results in the High ones.
+    */
+    JGMDPRT(4, "KARP_B=%d, KnR=%d, LAR_B=%d, ZARBAS=%d, ZARADV=%d \n",KARP_B,KnR,LAR_B,ZARBAS,ZARADV) ;
+     switch (m) {
+       case KARP_B  : set42_RAW_pts[0]     = UEv.misc_pts[0] ;  /* HLDF side tot x100 */
+                      set42_RAW_pts[5]     = UEv.misc_pts[3] ;  /* NT   side tot x100 */
+                      break ;
+       case KnR     : set42_RAW_pts[1]     = UEv.misc_pts[0] ;  /* HLDF side tot x100 */
+                      set42_RAW_pts[6]     = UEv.misc_pts[3] ;  /* NT   side tot x100 */
+                      break ;
+       case LAR_B   : set42_RAW_pts[2]     = UEv.misc_pts[0] ;  /* HLDF side tot x100 */
+                      set42_RAW_pts[7]     = UEv.misc_pts[3] ;  /* NT   side tot x100 */
+                      break ;
+       case ZARBAS  : set42_RAW_pts[3]     = UEv.misc_pts[0] ;  /* HLDF side tot x100 */
+                      set42_RAW_pts[8]     = UEv.misc_pts[3] ;  /* NT   side tot x100 */
+                      break ;
+       case ZARADV  : set42_RAW_pts[4]     = UEv.misc_pts[0] ;  /* HLDF side tot x100 */
+                      set42_RAW_pts[9]     = UEv.misc_pts[3] ;  /* NT   side tot x100 */
+                      break ;
+
+       default      :  //  Do nothing if we call this routine with a metric that does not need raw.
+                     break ;
+   } /* end switch */
+   JGMDPRT(4,"Save Raw Results called with m=%d, returns HLDF_RAW=%d, NT_RAW=%d\n",m,set42_RAW_pts[m], set42_RAW_pts[m+5] ) ; 
+   return 1 ; 
+}  /* end save_raw_pts */
+ 
+int cpy_KnR_vals(struct EvalALT_res_st *p_altres) {
+   /* copy from UEv global to a member of our array of structures */
+         /* scaled rounded values */
+   p_altres->nt_pts_side     = UEv.nt_pts_side;
+   p_altres->nt_pts_seat[0]  = UEv.nt_pts_seat[0];
+   p_altres->nt_pts_seat[1]  = UEv.nt_pts_seat[1];
+         /* x100 non rounded values for NT using the Misc area to report those */
+   p_altres->raw_pts_side    = UEv.misc_pts[3];
+   p_altres->raw_pts_seat[0] = UEv.misc_pts[4];
+   p_altres->raw_pts_seat[1] = UEv.misc_pts[5];
+   // showints((int *)&p_altres->nt_pts_side, NULL, 6);
+   // fprintf(stderr, "----cpy KnR Values From UEv  global to set41_calc EvalALT_res_st at %p Returning NOW ----\n",(void *) p_altres ) ; 
+   return 6 ;
+}
+     
 /* Raw write to the UserEval area in mmap. Tests Dealer to UserServer IP communication -- only uses first 64 values leaves gaps now */
 /* side stuff -ve or 0 - 999 ; suits clubs=100+, diam=200+ etc. hand[0]= 1000+, hand[1] = 2000+ */
 int make_test_evals(struct detailed_res_st *p_ures) {

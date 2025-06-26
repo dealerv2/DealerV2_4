@@ -1,0 +1,57 @@
+generate 10485760 
+produce  1
+
+# predeal north SAJT432,HKT92,D32,C2
+# predeal south SKQ,HA43,DJT4,CK6543
+predeal north SAKQ64, HQT8, DKJ2, CK9 
+predeal south ST93, HAK, DAQ6, CQJ642 
+predeal east  SJ8752, H94, D974, CT73
+ 
+title "DB_Metrics.dli will need to post process output to turn RAWx100 into reals "
+# 42 is the query-id that asks for testing all metrics implemented plus a few extra RAW values. Very similar to set88 which does not have the RAW and may be removed in Fut
+condition 1
+
+  // Note set42 returns 2 vals for each metric.  BestFit-side and NT-side Also two extra values for the metrics,6,7,9(RAW) and 12,13(Scaled)
+  //    0        1       2     3      4      5        6      7    8    9     10     11       12      13     14       15        16
+  // BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, (opc -- fut) (DK4C -- fut)
+
+action          // NS HLDF Values Rounded
+printrpt( rnd(0), deal ),
+printrpt( rnd(0),usereval(42,NS, 0),usereval(42,NS, 1),usereval(42,NS, 2),usereval(42,NS, 3),usereval(42,NS, 4),usereval(42,NS, 5),usereval(42,NS, 6),
+                usereval(42,NS, 7),usereval(42,NS, 8),usereval(42,NS, 9),usereval(42,NS,10),usereval(42,NS,14),usereval(42,NS,11),
+                usereval(42,NS,12),usereval(42,NS,13),  (opc(NS)+50)/100 ,
+         //  1,21,14,16,20,20,19,18,16,17,16,19,17,19,40,45,20,       
+ 
+                // NS NT   Values Rounded
+                usereval(42,NS,15),usereval(42,NS,16),usereval(42,NS,17),usereval(42,NS,18),usereval(42,NS,19),usereval(42,NS,20),usereval(42,NS,21),
+                usereval(42,NS,22),usereval(42,NS,23),usereval(42,NS,24),usereval(42,NS,25),usereval(42,NS,29),usereval(42,NS,26),
+                usereval(42,NS,27),usereval(42,NS,28),  (opc(NS,notrump)+50)/100 ,
+         //       16,14,16,14,18,17,16,15,17,16,15,16,17,40,40,19,
+
+                // NS HLDF RAW x 100
+                usereval(42,NS,30),usereval(42,NS,31),usereval(42,NS,32),usereval(42,NS,33),usereval(42,NS,34),opc(NS),
+        //         1875,1560,1650,20,22,2000,
+                // NS NT   RAW x 100
+                usereval(42,NS,35),usereval(42,NS,36),usereval(42,NS,37),usereval(42,NS,38),usereval(42,NS,39), opc(NS,notrump)),
+       //          1675,1510,1650,20,20,1900
+       
+       
+                // EW HLDF Values Rounded
+printrpt(rnd(0),usereval(42,EW, 0),usereval(42,EW, 1),usereval(42,EW, 2),usereval(42,EW, 3),usereval(42,EW, 4),usereval(42,EW, 5),usereval(42,EW, 6),
+                usereval(42,EW, 7),usereval(42,EW, 8),usereval(42,EW, 9),usereval(42,EW,10),usereval(42,EW,14),usereval(42,EW,11),
+                usereval(42,EW,12),usereval(42,EW,13),  (opc(EW)+50)/100 ,
+        //  1,33,25,32,28,29,29,29,30,25,25,29,29,28,56,62,2950,      
+ 
+                // EW NT   Values Rounded
+                usereval(42,EW,15),usereval(42,EW,16),usereval(42,EW,17),usereval(42,EW,18),usereval(42,EW,19),usereval(42,EW,20),usereval(42,EW,21),
+                usereval(42,EW,22),usereval(42,EW,23),usereval(42,EW,24),usereval(42,EW,25),usereval(42,EW,29),usereval(42,EW,26),
+                usereval(42,EW,27),usereval(42,EW,28),  (opc(EW,notrump)+50)/100 ,
+       // 26,25,26,24,25,25,25,29,25,25,25,24,24,56,56,2150,
+
+                // EW HLDF RAW x 100
+                usereval(42,EW,30),usereval(42,EW,31),usereval(42,EW,32),usereval(42,EW,33),usereval(42,EW,34), opc(EW),
+      //          2925,2950,2500,27,31,2950,
+                // EW NT   RAW x 100
+                usereval(42,EW,35),usereval(42,EW,36),usereval(42,EW,37),usereval(42,EW,38),usereval(42,EW,39),opc(EW,notrump) ),
+     //           2525,2875,2500,27,27,2150 
+ 

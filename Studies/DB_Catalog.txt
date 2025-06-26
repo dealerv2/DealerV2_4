@@ -1,0 +1,398 @@
+use BRIDGE_DB;
+show tables;
++---------------------+
+| Tables_in_BRIDGE_DB |
++---------------------+
+| AltC13metrics       |
+| Cards               |
+| EW_HCPmetrics       |
+| EW_Metrics          |
+| EW_Tricks           |
+| Metrics             |
+| NS_HCPmetrics       |
+| NS_Metrics          |
+| NS_Tricks           |
+| Properties          |
+| README              |
++---------------------+
+11 rows in set (0.000 sec)
+
+MariaDB [BRIDGE_DB]> describe AltC13metrics;
++---------------+-----------------------+------+-----+---------+-------+
+| Field         | Type                  | Null | Key | Default | Extra |
++---------------+-----------------------+------+-----+---------+-------+
+| DealID        | int(10) unsigned      | NO   | PRI | <null>  |       |
+| C13_NS        | tinyint(3) unsigned   | NO   |     | <null>  |       |
+| C13_BW_NS     | decimal(4,2) unsigned | NO   |     | <null>  |       |
+| C13_jgm_NS    | decimal(4,2) unsigned | NO   |     | <null>  |       |
+| C13_scaled_NS | decimal(5,3) unsigned | NO   |     | <null>  |       |
+| C13_EW        | tinyint(3) unsigned   | NO   |     | <null>  |       |
+| C13_BW_EW     | decimal(4,2) unsigned | NO   |     | <null>  |       |
+| C13_jgm_EW    | decimal(4,2) unsigned | NO   |     | <null>  |       |
+| C13_scaled_EW | decimal(5,3) unsigned | NO   |     | <null>  |       |
++---------------+-----------------------+------+-----+---------+-------+
+
+
+MariaDB [BRIDGE_DB]> describe Cards;
++--------+------------------+------+-----+---------+-------+
+| Field  | Type             | Null | Key | Default | Extra |
++--------+------------------+------+-----+---------+-------+
+| DealID | int(10) unsigned | NO   | PRI | NULL    |       |
+| North  | char(18)         | NO   |     | NULL    |       |
+| South  | char(18)         | NO   |     | NULL    |       |
+| East   | char(18)         | NO   |     | NULL    |       |
+| West   | char(18)         | NO   |     | NULL    |       |
++--------+------------------+------+-----+---------+-------+
+5 rows in set (0.001 sec)
+
+MariaDB [BRIDGE_DB]> describe EW_HCPmetrics;
++----------+-----------------------+------+-----+---------+-------+
+| Field    | Type                  | Null | Key | Default | Extra |
++----------+-----------------------+------+-----+---------+-------+
+| DealID   | int(10) unsigned      | NO   | PRI | NULL    |       |
+| HCP      | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| AltT050  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| AltA425  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| AltAT475 | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Andy5ths | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| CCCC     | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Bumwrap  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Woolsey  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| BWjgm    | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| OPCjgm   | decimal(4,2) unsigned | NO   |     | NULL    |       |
++----------+-----------------------+------+-----+---------+-------+
+11 rows in set (0.001 sec)
+MariaDB [BRIDGE_DB]> describe EW_Metrics;
++------------------+-----------------------+------+-----+---------+-------+
+| Field            | Type                  | Null | Key | Default | Extra |
++------------------+-----------------------+------+-----+---------+-------+
+| DealID           | int(10) unsigned      | NO   | PRI | NULL    |       |
+| Bergen_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Bissel_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DKP_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Goren_bf         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Kaplan_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karpin_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karp_jgm_bf      | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| KnR_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Larsson_bf       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Lar_jgm_bf       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Pav_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Roth_bf          | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Shein_bf         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarBas_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| OPC_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Bergen_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Bissel_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DKP_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Goren_nt         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Kaplan_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karpin_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karp_jgm_nt      | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| KnR_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Larsson_nt       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Lar_jgm_nt       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Pav_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Roth_nt          | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Shein_nt         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarBas_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| OPC_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karp_jgm_bf_raw  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| KnR_bf_raw       | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_bf_raw   | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| ZarBas_bf_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_bf_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| OPC_bf_raw       | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Karp_jgm_nt_raw  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| KnR_nt_raw       | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_nt_raw   | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| ZarBas_nt_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_nt_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| OPC_nt_raw       | decimal(4,2) unsigned | NO   |     | NULL    |       |
++------------------+-----------------------+------+-----+---------+-------+
+45 rows in set (0.001 sec)
+
+MariaDB [BRIDGE_DB]> describe EW_Tricks;
++------------+---------------------+------+-----+---------+-------+
+| Field      | Type                | Null | Key | Default | Extra |
++------------+---------------------+------+-----+---------+-------+
+| DealID     | int(10) unsigned    | NO   | PRI | NULL    |       |
+| ClubsE     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| DiamsE     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| HeartsE    | tinyint(3) unsigned | NO   |     | NULL    |       |
+| SpadesE    | tinyint(3) unsigned | NO   |     | NULL    |       |
+| NotrumpE   | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ClubsW     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| DiamsW     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| HeartsW    | tinyint(3) unsigned | NO   |     | NULL    |       |
+| SpadesW    | tinyint(3) unsigned | NO   |     | NULL    |       |
+| NotrumpW   | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Max_tricks | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Max_strain | char(1)             | NO   |     | NULL    |       |
+| Max_seat   | char(1)             | NO   |     | NULL    |       |
++------------+---------------------+------+-----+---------+-------+
+14 rows in set (0.001 sec)
+
+MariaDB [BRIDGE_DB]> describe Properties;
++------------+-----------------------+------+-----+---------+-------+
+| Field      | Type                  | Null | Key | Default | Extra |
++------------+-----------------------+------+-----+---------+-------+
+| DealID     | int(10) unsigned      | NO   | PRI | NULL    |       |
+| ClubsN     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DiamsN     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| HeartsN    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| SpadesN    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| FreaknessN | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| LosersN    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| MltcN      | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| ClubsS     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DiamsS     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| HeartsS    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| SpadesS    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| FreaknessS | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| LosersS    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| MltcS      | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| ClubsE     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DiamsE     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| HeartsE    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| SpadesE    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| FreaknessE | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| LosersE    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| MltcE      | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| ClubsW     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DiamsW     | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| HeartsW    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| SpadesW    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| FreaknessW | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| LosersW    | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| MltcW      | decimal(4,2) unsigned | NO   |     | NULL    |       |
++------------+-----------------------+------+-----+---------+-------+
+29 rows in set (0.001 sec)
+
+MariaDB [BRIDGE_DB]> describe README;
++-------------+--------------+------+-----+---------+-------+
+| Field       | Type         | Null | Key | Default | Extra |
++-------------+--------------+------+-----+---------+-------+
+| Author      | varchar(60)  | YES  |     | NULL    |       |
+| LastUpdate  | date         | YES  |     | NULL    |       |
+| Description | varchar(500) | YES  |     | NULL    |       |
+| Terminology | varchar(500) | YES  |     | NULL    |       |
+| Refs        | varchar(500) | YES  |     | NULL    |       |
++-------------+--------------+------+-----+---------+-------+
+5 rows in set (0.001 sec)
+
+======================== The Following Two Tables are not used in production and will be dropped someday ==========================
+
+MariaDB [BRIDGE_DB]> describe Metrics;
++------------------+-----------------------+------+-----+---------+-------+
+| Field            | Type                  | Null | Key | Default | Extra |
++------------------+-----------------------+------+-----+---------+-------+
+| DealID           | int(10) unsigned      | NO   | PRI | NULL    |       |
+| Bergen_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Bissel_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DKP_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Goren_bf         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Kaplan_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karpin_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karp_jgm_bf      | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| KnR_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Larsson_bf       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Lar_jgm_bf       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Pav_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Roth_bf          | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Shein_bf         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarBas_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_bf        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| opc_bf           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Bergen_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Bissel_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| DKP_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Goren_nt         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Kaplan_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karpin_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karp_jgm_nt      | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| KnR_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Larsson_nt       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Lar_jgm_nt       | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Pav_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Roth_nt          | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Shein_nt         | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarBas_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_nt        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| opc_nt           | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| Karp_jgm_bf_raw  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| KnR_bf_raw       | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_bf_raw   | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| ZarBas_bf_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_bf_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| opc_bf_raw       | decimal(4,2)          | NO   |     | NULL    |       |
+| Karp_jgm_nt_raw  | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| KnR_nt_raw       | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_nt_raw   | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| ZarBas_nt_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| ZarAdv_nt_scaled | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| opc_nt_raw       | decimal(4,2)          | NO   |     | NULL    |       |
++------------------+-----------------------+------+-----+---------+-------+
+45 rows in set (0.001 sec)
+
+MariaDB [BRIDGE_DB]> describe DealEval;
++---------------------+---------------------+------+-----+---------+-------+
+| Field               | Type                | Null | Key | Default | Extra |
++---------------------+---------------------+------+-----+---------+-------+
+| DealID              | int(11)             | NO   | PRI | NULL    |       |
+| Cards_N             | char(18)            | NO   |     | NULL    |       |
+| Cards_S             | char(18)            | NO   |     | NULL    |       |
+| Cards_E             | char(18)            | NO   |     | NULL    |       |
+| Cards_W             | char(18)            | NO   |     | NULL    |       |
+| Tricks_ClubsN       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_DiamsN       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_HeartsN      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_SpadesN      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_NoTrumpN     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_ClubsS       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_DiamsS       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_HeartsS      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_SpadesS      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_NoTrumpS     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Max_tricks_NS       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Max_strain_NS       | char(1)             | NO   |     | NULL    |       |
+| Max_seat_NS         | char(1)             | NO   |     | NULL    |       |
+| Tricks_ClubsE       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_DiamsE       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_HeartsE      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_SpadesE      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_NoTrumpE     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_ClubsW       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_DiamsW       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_HeartsW      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_SpadesW      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Tricks_NoTrumpW     | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Max_tricks_EW       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Max_strain_EW       | char(1)             | NO   |     | NULL    |       |
+| Max_seat_EW         | char(1)             | NO   |     | NULL    |       |
+| HCP_NS              | tinyint(3) unsigned | NO   |     | NULL    |       |
+| AltT050_NS          | double unsigned     | NO   |     | NULL    |       |
+| AltA425_NS          | double unsigned     | NO   |     | NULL    |       |
+| AltAT475_NS         | double unsigned     | NO   |     | NULL    |       |
+| And5ths_NS          | double unsigned     | NO   |     | NULL    |       |
+| CCCC_NS             | double unsigned     | NO   |     | NULL    |       |
+| Bumwrap_NS          | double unsigned     | NO   |     | NULL    |       |
+| Woolsey_NS          | double unsigned     | NO   |     | NULL    |       |
+| BWjgm_NS            | double unsigned     | NO   |     | NULL    |       |
+| OPCjgm_NS           | double unsigned     | NO   |     | NULL    |       |
+| HCP_EW              | tinyint(3) unsigned | NO   |     | NULL    |       |
+| AltT050_EW          | double unsigned     | NO   |     | NULL    |       |
+| AltA425_EW          | double unsigned     | NO   |     | NULL    |       |
+| AltAT475_EW         | double unsigned     | NO   |     | NULL    |       |
+| And5ths_EW          | double unsigned     | NO   |     | NULL    |       |
+| CCCC_EW             | double unsigned     | NO   |     | NULL    |       |
+| Bumwrap_EW          | double unsigned     | NO   |     | NULL    |       |
+| Woolsey_EW          | double unsigned     | NO   |     | NULL    |       |
+| BWjgm_EW            | double unsigned     | NO   |     | NULL    |       |
+| OPCjgm_EW           | double unsigned     | NO   |     | NULL    |       |
+| Bergen_bf_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Bissel_bf_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| DKP_bf_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Goren_bf_NS         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Kaplan_bf_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karpin_bf_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karp_jgm_bf_NS      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| KnR_bf_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Larsson_bf_NS       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_bf_NS       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Pav_bf_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Roth_bf_NS          | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Shein_bf_NS         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarBas_bf_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_bf_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_bf_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Bergen_nt_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Bissel_nt_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| DKP_nt_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Goren_nt_NS         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Kaplan_nt_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karpin_nt_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karp_jgm_nt_NS      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| KnR_nt_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Larsson_nt_NS       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_nt_NS       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Pav_nt_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Roth_nt_NS          | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Shein_nt_NS         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarBas_nt_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_nt_NS        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_nt_NS           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karp_jgm_bf_raw_NS  | double unsigned     | NO   |     | NULL    |       |
+| KnR_bf_raw_NS       | double unsigned     | NO   |     | NULL    |       |
+| Lar_jgm_bf_raw_NS   | double unsigned     | NO   |     | NULL    |       |
+| ZarBas_bf_scaled_NS | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_bf_scaled_NS | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_bf_raw_NS       | double unsigned     | NO   |     | NULL    |       |
+| Karp_jgm_nt_raw_NS  | double unsigned     | NO   |     | NULL    |       |
+| KnR_nt_raw_NS       | double unsigned     | NO   |     | NULL    |       |
+| Lar_jgm_nt_raw_NS   | double unsigned     | NO   |     | NULL    |       |
+| ZarBas_nt_scaled_NS | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_nt_scaled_NS | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_nt_raw_NS       | double unsigned     | NO   |     | NULL    |       |
+| Bergen_bf_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Bissel_bf_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| DKP_bf_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Goren_bf_EW         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Kaplan_bf_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karpin_bf_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karp_jgm_bf_EW      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| KnR_bf_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Larsson_bf_EW       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_bf_EW       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Pav_bf_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Roth_bf_EW          | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Shein_bf_EW         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarBas_bf_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_bf_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_bf_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Bergen_nt_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Bissel_nt_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| DKP_nt_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Goren_nt_EW         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Kaplan_nt_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karpin_nt_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karp_jgm_nt_EW      | tinyint(3) unsigned | NO   |     | NULL    |       |
+| KnR_nt_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Larsson_nt_EW       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Lar_jgm_nt_EW       | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Pav_nt_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Roth_nt_EW          | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Shein_nt_EW         | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarBas_nt_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_nt_EW        | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_nt_EW           | tinyint(3) unsigned | NO   |     | NULL    |       |
+| Karp_jgm_bf_raw_EW  | double unsigned     | NO   |     | NULL    |       |
+| KnR_bf_raw_EW       | double unsigned     | NO   |     | NULL    |       |
+| Lar_jgm_bf_raw_EW   | double unsigned     | NO   |     | NULL    |       |
+| ZarBas_bf_scaled_EW | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_bf_scaled_EW | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_bf_raw_EW       | double unsigned     | NO   |     | NULL    |       |
+| Karp_jgm_nt_raw_EW  | double unsigned     | NO   |     | NULL    |       |
+| KnR_nt_raw_EW       | double unsigned     | NO   |     | NULL    |       |
+| Lar_jgm_nt_raw_EW   | double unsigned     | NO   |     | NULL    |       |
+| ZarBas_nt_scaled_EW | tinyint(3) unsigned | NO   |     | NULL    |       |
+| ZarAdv_nt_scaled_EW | tinyint(3) unsigned | NO   |     | NULL    |       |
+| OPC_nt_raw_EW       | double unsigned     | NO   |     | NULL    |       |
++---------------------+---------------------+------+-----+---------+-------+
+
+MariaDB [BRIDGE_DB]> describe C13_Metric;
++---------------+-----------------------+------+-----+---------+-------+
+| Field         | Type                  | Null | Key | Default | Extra |
++---------------+-----------------------+------+-----+---------+-------+
+| DealID        | int(10) unsigned      | NO   | PRI | NULL    |       |
+| NS_C13        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| NS_C13_scaled | decimal(4,2) unsigned | NO   |     | NULL    |       |
+| EW_C13        | tinyint(3) unsigned   | NO   |     | NULL    |       |
+| EW_C13_scaled | decimal(4,2) unsigned | NO   |     | NULL    |       |
++---------------+-----------------------+------+-----+---------+-------+
+
+
+
+

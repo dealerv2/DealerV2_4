@@ -1,0 +1,44 @@
+ // file RothPredeal.dli  -- note the single line C style comment works ok so long as NOT start in col 1
+produce 1
+generate 100
+seed 29
+dealer west
+vulnerable EW
+title "Testing Roth Predeal usereval code 14"
+
+# First test Passed - Dual Lpts in NT with 5:2 and 2:5 works.
+#predeal north SAJT432,HKT92,D32,C2
+#predeal south SKQ,HA43,DJT4,CK6543
+#2nd Roth SSS/RRS. Dbl L pts. Keep Dpts
+predeal north SKQJ5432,H3,D3,C5432
+predeal south S6,HKQJT87,D7654,C76
+predeal east  SA7,HA,DKQT982,CQJT9
+#3rd JGM version of SSS and RSS with AJT etc.
+#4th Check promotion of Dpts to Dfit with 4+ trump and No Promo(3) Demote(2-)
+#5th 
+
+/*---------------- Testing now --------------------*/
+
+#
+action printrpt(NS),
+	printrpt(
+      "NS_NT=",usereval(14,NS,0),usereval(14,NS,1), usereval(14,NS,2),
+      "NS_Suit=",usereval(14,NS,3),usereval(14,NS,4), usereval(14,NS,5)),
+	printrpt(
+		"Hand[0] Type,HcpAdj,Dpts",usereval(14,NS,6) ,usereval(14,NS,7), usereval(14,NS,8 ),
+		"Lpts,LptsNT,FNPts,FnPtsNT,Dfit",usereval(14,NS,9), usereval(14,NS,10),usereval(14,NS,11), usereval(14,NS,12),usereval(14,NS,13)),
+	printrpt(
+		"Hand[1] Type,HcpAdj,Dpts",usereval(14,NS,14) ,usereval(14,NS,15), usereval(14,NS,16),
+		"Lpts,LptsNT,FNPts,FnPtsNT,Dfit",usereval(14,NS,17), usereval(14,NS,18),usereval(14,NS,19), usereval(14,NS,20),usereval(14,NS,21)),
+
+	printrpt(EW),
+	printrpt(	
+     "EW_NT=",usereval(14,EW,0),usereval(14,EW,1), usereval(14,EW,2),
+      "EW_Suit=",usereval(14,EW,3),usereval(14,EW,4), usereval(14,EW,5)),
+	printrpt(
+		"Hand[0] Type,HcpAdj,Dpts",usereval(14,EW,6) ,usereval(14,EW,7), usereval(14,EW,8 ),
+		"Lpts,LptsNT,FNPts,FnPtsNT,Dfit",usereval(14,EW,9), usereval(14,EW,10),usereval(14,EW,11), usereval(14,EW,12),usereval(14,EW,13)),
+	printrpt(
+		"Hand[1] Type,HcpAdj,Dpts",usereval(14,EW,14) ,usereval(14,EW,15), usereval(14,EW,16),
+		"Lpts,LptsNT,FNPts,FnPtsNT,Dfit",usereval(14,EW,17), usereval(14,EW,18),usereval(14,EW,19), usereval(14,EW,20),usereval(14,EW,21)),
+

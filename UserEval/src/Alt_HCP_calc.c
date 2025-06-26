@@ -96,7 +96,7 @@ float Stiff_Hon_pts(int metric, int suit, HANDSTAT_k *p_hs ) {    // called when
       case   4 : sHp = alt_stiff_H_pts[m][4] ; break ; /* stiff T */
       default : sHp = 0.0; break;
    }
-   JGMDPRT(3,"Stiff Hon Pts m=%d, metric=%d, w_mask=%d, sHp=%g\n",m,metric,w_mask,sHp);
+   JGMDPRT(8,"Stiff Hon Pts m=%d, metric=%d, w_mask=%d, sHp=%g\n",m,metric,w_mask,sHp);
    return sHp ;
 } /* end stiff H pts */
 
@@ -122,7 +122,7 @@ float Dblton_Hon_pts(int metric, int suit, HANDSTAT_k *p_hs ) {    // called whe
       case  5 : dblton_H_pts = alt_dbl_HH_pts[m][14] ; break ; // Tx 4 + 1
       default : dblton_H_pts = 0.0                   ; break ; // xx
    } /* end switch(w_mask) */
-   JGMDPRT(3,"Dblton_H Pts m=%d, metric=%d, w_mask=%d, HH_Pts=%g\n",m,metric,w_mask,dblton_H_pts);  
+   JGMDPRT(8,"Dblton_H Pts m=%d, metric=%d, w_mask=%d, HH_Pts=%g\n",m,metric,w_mask,dblton_H_pts);  
    return dblton_H_pts;
 } /* end dblton_HH_pts */
 
@@ -131,7 +131,7 @@ float Long_Hxx_pts( int metric, int suit, HANDSTAT_k *p_hs ) {
    int w_mask = p_hs->topcards[suit][0] + p_hs->topcards[suit][1] + p_hs->topcards[suit][2] ;   // bit mask for top 3 cards in suit.
    float lHp, lHp2  ;
    lHp2 = 0.0;
-   JGMDPRT(3,"Long_Hxx_Pts m=%d, metric=%d, w_mask=%d\n",m,metric,w_mask);
+   JGMDPRT(8,"Long_Hxx_Pts m=%d, metric=%d, w_mask=%d\n",m,metric,w_mask);
    switch (w_mask) {
       case 112 :  // AKQ 64 + 32 + 16
                lHp = alt_Hxx_pts[m][0] + alt_Hxx_pts[m][1] + alt_Hxx_pts[m][2] ;       
@@ -254,12 +254,12 @@ float Long_Hxx_pts( int metric, int suit, HANDSTAT_k *p_hs ) {
 float OPCjgmSyn (int m , int s, HANDSTAT_k *p_hs, int mask ) {  // DOP seems too aggressive overall. OPCjgm less so
    // these are not syn_pts as in suit quality(3 of top 5 etc); more like joint_honor points since upgrade depends mostly on only 1 card.
    float syn_pts = 0.0 ;
-   JGMDPRT(3,"OPCjgmSyn m=%d, mask=%d, p_hs->seat=%d, Suit=%c\n",m, mask,p_hs->hs_seat,"CDHS"[s]);  
+   JGMDPRT(8,"OPCjgmSyn m=%d, mask=%d, p_hs->seat=%d, Suit=%c\n",m, mask,p_hs->hs_seat,"CDHS"[s]);  
    switch (mask) {
   /*AKQ*/    case 112: syn_pts += 0.5 ;                                          // upgrade Q +.5 to 2
                         if(p_hs->Has_card[s][JACK] ) {
-                           syn_pts += 1.0 ;                                      // Guarded J = 1.0 
-                           if(p_hs->Has_card[s][TEN]  ) syn_pts += 1.0 ;         // TEN with JACK = 1.0  
+                           syn_pts += 0.5 ;                                      // Guarded J = 1.0 ; J started with 0.5
+                           if(p_hs->Has_card[s][TEN]  ) syn_pts += 1.0 ;         // TEN with JACK = 1.0  T started with 0.0
                         }                                                        // dont count 9 if already counting AKQJT
                         else if(p_hs->Has_card[s][TEN]  ) {syn_pts += 0.75 ; }   // T with Q = 1.0 in DOP; in OPCjgm = 0.75 
                         break ;
@@ -307,7 +307,7 @@ float OPCjgmSyn (int m , int s, HANDSTAT_k *p_hs, int mask ) {  // DOP seems too
    /*JTx*/    case  13: syn_pts += 1.5;   break;                                 // upgrade J +.5 to 1,T = 1.0   
               default : syn_pts = 0.0 ;   break;
    } /* end switch mask */
-   JGMDPRT(3,"OPCjgmSyn Returns syn_pts=%g TEN=%d,JACK=%d,QUEEN=%d,KING=%d,ACE=%d\n",syn_pts,
+   JGMDPRT(7,"OPCjgmSyn Returns syn_pts=%g TEN=%d,JACK=%d,QUEEN=%d,KING=%d,ACE=%d\n",syn_pts,
          p_hs->Has_card[s][TEN],p_hs->Has_card[s][JACK],p_hs->Has_card[s][QUEEN],p_hs->Has_card[s][KING],p_hs->Has_card[s][ACE]);
    return syn_pts ; 
 } /* end OPCjgmSyn */
@@ -320,30 +320,32 @@ int alt_HCP_calc( UE_SIDESTAT_k *p_ss, int metric ) { /* calculate the HCP for t
    float side_alt_hcp       = 0.0;
    int hand_alt_ihcp[2], suit_alt_ihcp[2][4] ;  // For the Rounded values of the results.
    HANDSTAT_k *p_hs ; 
-   JGMDPRT(3,"Alt_HCP_calc for metric= %d\n",metric ) ;
+   JGMDPRT(6,"Alt_HCP_calc for metric= %d\n",metric ) ;
    for (h=0; h<2 ; h++ ) {
       for (suit=0 ; suit<4 ; suit++ ) {
          p_hs = p_ss->phs[h] ;
          slen = p_hs->hs_length[suit] ;
-         JGMDPRT(3,"Hand=%c, Suit=%c, slen=%d\n",compass[h],"CDHS"[suit],slen ) ;
+         JGMDPRT(8,"Hand=%c, Suit=%c, slen=%d\n",compass[h],"CDHS"[suit],slen ) ;
          if ( 3 <= slen )      { suit_alt_hcp[h][suit] = Long_Hxx_pts(  metric, suit, p_hs) ; }
          else if ( 2 == slen ) { suit_alt_hcp[h][suit] = Dblton_Hon_pts(metric, suit, p_hs) ; } 
          else if ( 1 == slen ) { suit_alt_hcp[h][suit] = Stiff_Hon_pts( metric, suit, p_hs) ; }
          else                  { suit_alt_hcp[h][suit] = 0.0 ; }
          hand_alt_hcp[h] += suit_alt_hcp[h][suit] ;
          suit_alt_ihcp[h][suit] = roundf(suit_alt_hcp[h][suit] * 100.0 );  /* convert a float like 7.25 to int 725 */
-         JGMDPRT(3, "Suit Results  Float=%g, intx100=%d \n",suit_alt_hcp[h][suit], suit_alt_ihcp[h][suit] );
+         JGMDPRT(8,"Suit Results  Float=%g, intx100=%d \n",suit_alt_hcp[h][suit], suit_alt_ihcp[h][suit] );
       } /* end for suit */
       side_alt_hcp += hand_alt_hcp[h] ;
       hand_alt_ihcp[h]   = roundf(hand_alt_hcp[h] * 100.0 );  /* convert a float like 18.25 to int 1825; roundf needed for andrews */
       UEv.nt_pts_seat[h] = Pav_round(hand_alt_hcp[h], p_ss->pav_body[h] )  ;  // rounded pts
-      JGMDPRT(3, "Hand Results for %c  Float=%g, intx100=%d  Round=%d \n",compass[h],hand_alt_hcp[h], hand_alt_ihcp[h],UEv.nt_pts_seat[h] );   
+      JGMDPRT(7, "Hand Results for %c  Float=%g, intx100=%d  Round=%d \n",compass[h],hand_alt_hcp[h], hand_alt_ihcp[h],UEv.nt_pts_seat[h] );   
    } /* end for hand */
    UEv.nt_pts_side = UEv.nt_pts_seat[0] + UEv.nt_pts_seat[1] ; /* No HLDF pts for strict HCP */
    UEv.hldf_pts_seat[0] = hand_alt_ihcp[0] ; /* so use the fields for something else */ 
    UEv.hldf_pts_seat[1] = hand_alt_ihcp[1] ; /* convert a float like 27.25 to 2775 int */
    UEv.hldf_pts_side    = roundf(side_alt_hcp * 100.0 ) ;
    UEv.misc_count = 0 ;
+   UEv.misc_pts[UEv.misc_count++] =  p_ss->pav_body[0] ;
+   UEv.misc_pts[UEv.misc_count++] =  p_ss->pav_body[1] ;
    for (h=0; h<2; h++ ) {
       for (suit = 0 ; suit < 4 ; suit++ ) {
          UEv.misc_pts[UEv.misc_count++] = suit_alt_ihcp[h][suit];
@@ -351,7 +353,9 @@ int alt_HCP_calc( UE_SIDESTAT_k *p_ss, int metric ) { /* calculate the HCP for t
    }
      /* now put the results into the user result area at p_uservals */
   SaveUserVals( UEv , p_uservals ) ;
-  JGMDPRT(3, "alt_HCP_calc Done; metric=%d, Rounded=[%d, %d + %d ], Raw = [%d, %d + %d]\n", metric, 
+  p_uservals->u.res[126] =  p_ss->pav_body[0] ;  // put the Pav Rounding Value in a standard place.
+  p_uservals->u.res[127] =  p_ss->pav_body[1] ;
+  JGMDPRT(6, "alt_HCP_calc Done; metric=%d, Rounded=[%d, %d + %d ], Raw = [%d, %d + %d]\n", metric, 
         UEv.nt_pts_side, UEv.nt_pts_seat[0],  UEv.nt_pts_seat[1], UEv.hldf_pts_side, UEv.hldf_pts_seat[0],  UEv.hldf_pts_seat[1]);
   return ( 6 + UEv.misc_count ) ;
  // return the number of results in the UEv struct for copy over to mmap area.

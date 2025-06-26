@@ -1,0 +1,18 @@
+generate 100
+produce 10
+//as of Oct 9, 2024, set41 now includes some output from the KnR metric. The cccc built into dealer, only returns the 'raw' x100 values
+// it does not return the 'rounded' or 'Pav Rounded' values. So the KnR Metric NT results, raw, and rounded, have been added to set41
+action printrpt(rnd(0),hcp(north_+hcp(south), cccc(north)+cccc(south),"rounded",
+  //    AltT050-rounded      AltA425-rounded       AltAT475-rounded        BWrap-rounded         Woolsey-rounded
+      usereval(NS, 41, 0 ), usereval(NS, 41, 6 ), usereval(NS, 41, 12 ), usereval(NS, 41, 18 ), usereval(NS, 41, 24 ),
+//       And5ths-rounded       BWjgm-rounded          OPCjgm-rounded
+      usereval(NS, 41, 30 ), usereval(NS, 41, 36 ), usereval(NS, 41, 42 ),
+
+        //    AltT050-x100           AltA425-x100          AltAT475-x100            BWrap-x100            Woolsey-x100
+     "x100", usereval(NS, 41, 3 ), usereval(NS, 41, 9 ), usereval(NS, 41, 15 ), usereval(NS, 41, 21 ), usereval(NS, 41, 27 ),
+//       And5thsx100              BWjgmx100           OPCjgmx100
+      usereval(NS, 41, 33 ), usereval(NS, 41, 39 ), usereval(NS, 41, 45 )), 
+
+      printrpt(NS)
+      
+      

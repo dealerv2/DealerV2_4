@@ -1,0 +1,21 @@
+generate 10 
+produce 1
+seed 5
+title "Check if Dotnums can have more than two decimals" // they cant. there is no error but the parsing generates wrong values
+predeal north SAKQJ3,HQ98,DJ98,CQ
+predeal south ST54,HA,DK,CJ432
+
+altcount  9 4.615 3.075 1.538 0.769
+altcount  8 4.61 3.07 1.53 0.76  // C13_scaled 10/13 tot = 9.999
+
+condition 1
+action
+   printrpt( NS ), 
+
+  printrpt(  pt8(north,spades), pt8(north,hearts),pt8(north,diamond),pt8(north,clubs),pt8(south,spades), pt8(south,hearts),pt8(south,diamond),pt8(south,clubs) ),
+  printrpt(  pt9(north,spades), pt9(north,hearts),pt9(north,diamond),pt9(north,clubs),pt9(south,spades), pt9(south,hearts),pt9(south,diamond),pt9(south,clubs) )
+
+ // output. pt8 is correct, pt9 is not even approximately correct
+ // n AKQJ3.Q98.J983.Q s T654.A5.K.JT6432 
+ // 997,153,76,153,0,461,307,76
+ // 778,391,89,307,153,461,5,158

@@ -1,0 +1,15 @@
+generate 10000
+produce 5
+title "Check the effect of a printrpt(trix) clause on caching in the condition clause "
+
+condition dds(west, spades) >= dds(west, hearts) and dds(south, clubs) > dds(south,diamonds)
+
+action printrpt(deal, trix(deal) )
+
+# The above (as of 2024-10-26) will illustrate a flaw in the current approach to setting dds modes.
+# Mode 2 (calculate all 20 results) is forced whenever the code encounters a par, or a trix clause.
+# This forced Mode 2 then remains for the rest of the run.
+# If the condition clause contains fewer than 4 different dds calls, and is difficult to meet,
+# then there may be many 'generated' hands that are forced to use Mode2 when it is not necessary.
+# This is to be fixed in a future release. 
+

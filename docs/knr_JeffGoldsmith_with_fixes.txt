@@ -6,7 +6,7 @@
 #           which hosted the code for many years is no longer available.
 # Fixed a bug in the SuitQuality code for 7 card suits missing QJ.
 # Fixed bug in the distribution code re discounting first doubleton.
-# Fixed bug in DK_CCCC code for richness; 0.325 becomes 0.375
+# Fixed bug? in DK_CCCC code for richness; 0.325 becomes 0.375 (but maybe it should be .3125)
 # Added quotes from the orginal Bridge World Article.
 # including how to calculate support points; material never before seen on the Net.
 
@@ -240,7 +240,11 @@ sub dkcccc    {
       if ($_[$i] =~ /Q/) {$prich++; $temp += 2;}
       if ($_[$i] =~ /J/) {$prich++; $temp += 1;}
    }
-    $prich = ($temp-2.5*$prich) * .375; # was 0.325 but 3/8 makes much more sense.[JGM]
+    $prich = ($temp-2.5*$prich) * .375; # was 0.325 but 3/8 makes much more sense.so does 2.5/8 = .3125 [JGM]
+    # No answ from DK re this. the Max Richness for a hand is +8 (AK, AK, AK, AK) the min is -8 (QJ, QJ, QJ, QJ)
+    # Which is why I guessed 8 as the denom. No Idea where the 3 came from.
+    # Another possibility is 0.3125 which is 2.5 / 8 ; the num of 2.5 is the avg HCP value of an honor, and the 8 is from the min/max above.
+    # and .325 could also just be a typo of .3125. So which?
 
     # Suit Quality aka length points
     # find suit lengths

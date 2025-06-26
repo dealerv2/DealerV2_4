@@ -1,7 +1,7 @@
 generate   10000
 produce    10
 title "Testing GIB vs DDS SolveOneBoard "
-# in future add opc(NS, spades) for example
+
 opener north
 
 opcNS = opc(NS)

@@ -1,0 +1,48 @@
+title "Evaluations in Suit Play, Bergen to Sheinwold"
+generate   100000
+produce    5
+seed 11393  // a prime number >10000 -- these seeds are put into the top 32 bits of the 48bit seed.
+#seed 23
+title "UE_Set88_chk.dli Test "
+# 88 is the query-id that asks for testing all metrics implemented $0 is the total number HCP for NS
+# To Use Library Run with: ../Debug/dealdbg -D2.2  -M2 -p20 UE_set88_chk.dli  -0 24 -L= -s0
+# To Use New Random deals: ../Debug/dealdbg -D2.2  -M2 -p20 UE_set88_chk.dli  -0 24 
+
+condition ( (hcp(north) + hcp(south) == $0 ) && (spades(north) + spades(south)>=8  )  && 
+		shape{north,  [2-6]sxxx - (7xxx)} && shape{south, [2-6]sxxx - (7xxx) } 
+)
+#condition (spades(north) + spades(south))>=8  && dds(south,spades)==10
+
+condition 1
+
+Make4SpPct = (dds(south,spades) >= 10 ) ? 100 : 0 
+opcHLDF = opc( NS)
+opcNT   = opc(NS, notrump)
+
+//    0        1       2     3       4      5       6      7    8    9     10     11       12      13     14    20         21      40      88
+// BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, MixJGM , MixMORSE, ALL_UE, SET_88 
+action
+ 
+printrpt(NS, "Tricks South[C,D,H,S,NT]=",trix(south)  ) ,
+printrpt("HLDF=>",usereval(88, NS, 0),usereval(88, NS, 1),usereval(88, NS, 2),usereval(88, NS, 3),usereval(88, NS, 4),usereval(88, NS, 5),
+		usereval(88, NS, 6),usereval(88, NS, 7),usereval(88, NS, 8),usereval(88, NS, 9),usereval(88, NS,10),usereval(88, NS,11),
+		usereval(88, NS, 12) , usereval(88, NS, 13) , usereval(88, NS, 14), 
+		// opcHLDF ,
+      " NT=>", usereval(88, NS,15),usereval(88, NS,16),usereval(88, NS,17),usereval(88, NS,18),usereval(88, NS,19),usereval(88, NS,20),
+		usereval(88, NS,21),usereval(88, NS,22),usereval(88, NS,23),usereval(88, NS,24),usereval(88, NS,25),usereval(88, NS,26),
+		usereval(88, NS,27), usereval(88, NS,28), usereval(88, NS,29)
+		// , opcNT    
+),
+
+# Mods 2024-08-02 for extra metrics up to 14. NT no longer starts at 32 but at 45
+
+ 		
+   average "HCP     " (hcp(north) + hcp(south) ),
+   average "Bergen  " usereval(88,NS,0), average "Bissel  " usereval(88,NS,1),  average "DKP     " usereval(88,NS,2),
+   average "Goren   " usereval(88,NS,3), average "Kaplan  " usereval(88,NS,5),  average "Karpin  " usereval(88,NS,6),
+   average "KARP_B  " usereval(88,NS,4), average "KnR     " usereval(88,NS,7),  average "Larsson " usereval(88,NS,8),
+   average "LAR_B   " usereval(88,NS,9), average "PAV     " usereval(88,NS,10), average "SHEINW  " usereval(88,NS,11),
+   average "ZARBAS  " usereval(88,NS,12),average "ZARADV  " usereval(88,NS,13), average "ROTH    " usereval(88,NS,14),
+   // average "OPC HLDF" opcHLDF/100,       average "OPC NT  " opcNT/100,
+   // average "4STrix  " dds(south,spades), average "Make 4Sp" Make4SpPct
+

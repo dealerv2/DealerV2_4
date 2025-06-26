@@ -1,0 +1,30 @@
+Gen & Produce 1000 Hands. Same Seed each Time. 
+DDS Clauses    -M Switch  -R Switch    Time Taken    Max CPU Usage              
+1                   1        1           28.115         100%
+1                   1        4           28.308         100%
+5                   1        1          129.146         100%
+5                   1        4          129.766         100%
+7                   1        1          184.595         100%
+7                   1        4          184.237         100%
+        
+1                   2        4          112.224         275% 
+1                   2        8          118.858         100% 
+5                   2        2          148.379         180%
+5                   2        4          111.696         275%
+5                   2        8          118.771         250%-305%  
+7                   2        2          148.379         180%
+7                   2        4          111.625         275%
+7                   2        8          119.093         250%-305%
+
+DDS cache is Dealnum, Hand, Strain.
+
+OPC Timing 1000 Hands. OPC(compass) aka Best Fit and OPC(compass, notrump)      
+Sides OPC Clauses ea Side               Time Taken    
+  1    1                                33.7 - 34.631
+  1    2                                34.36
+  1    6                                34.2
+  2    1                                68.92
+  2    2                                68.89
+  2    6                                68.6
+  
+  OPC cache is Dealnum, Side; opc always returns 6 values for each side.

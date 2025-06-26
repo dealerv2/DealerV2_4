@@ -19,6 +19,8 @@
    * 2024/05/15 4.2.4    JGM   Modified directory structure. Cleanup pathnames; Prep for Github upload
    * 2024/08/05 4.2.5    JGM   Minor mods to work with modified UserEval  Dealer Server
    * 2024/09/21 4.3.0    JGM   Minor mod to mmap_template
+   * 2025/04/05 4.3.1    JGM   Post Xia Upgrade gcc version change
+   * 2025/04/16 4.3.2    JGM   Allow one of two names for default Library.
    */
 
   /* Make the header file guard .. */
@@ -26,11 +28,11 @@
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
 #endif
-#define BUILD_DATE "2024/09/21"
+#define BUILD_DATE "2025/04/05"
 #ifndef JGMDBG
-  #define VERSION "4.3.0"
+  #define VERSION "4.3.2"
 #else
-  #define VERSION "104.3.0"
+  #define VERSION "104.3.2"
 #endif
 
 #ifndef UNUSED
@@ -87,7 +89,9 @@
 #define SERVER_PGM CONCAT(EXE_DIR, "DealerServer" ) // Note we use the Prod version of UserEval server even for DBG version of Dealerv2
 #define OPC_PGM    CONCAT(EXE_DIR, "dop" )    // ln -s DEAL_ROOT/DOP/dop
 #define FDP_PGM    CONCAT(EXE_DIR, "fdp")     // ln -s LIB_DIR/fdp // In /usr/bin linux utility 'fdp' is related to graphviz
-#define ZRD_LIB    CONCAT(DAT_DIR, "rpdd_Lib.zrd") // was ../rplib.zrd ; now defaults to a 20 deal mini lib because of Github
+#define TINYLIB    CONCAT(DAT_DIR, "rpdd_Lib.zrd" ) // A small 20 deal file included in GitHub repo
+#define BIGLIB     CONCAT(DAT_DIR, "rpLib.zrd"    ) // The full 240MB library if user has installed separately
+#define ZRD_LIB    BIGLIB                           // -L= will use BIGLIB if avail, else will fall back to TINYLIB
 /* this next one added because Linux has a BRIDGE utility that refers to ethernet cards */
 /* will have to make sure there is an ln /usr/games/gibcli to /usr/games/bridge which is the real name of the GIB binary*/
 #define DD_PGM "/usr/games/gibcli"

@@ -1,0 +1,94 @@
+/* File AltHCP_calc.txt   Document the various AltHCP methods 
+ All methods implemented in UserEval code deduct for short honors 
+Methods that do do not deduct for short honors or make any other
+adjustments are called KISS methods, and are implemented NOT by
+UserEval but by simple 'altcount' statements in a DLI file.
+There is a table HCP_KISSmetrics that records these values.
+See the last half of this document.
+
+
+char alt_HCP_names[][16] = {"HCPT050","HCPA425","HCPAT475","Bumwrap","Woolsey","And5ths","BWjgm","OPCjgm" } ;
+/* the value of the stiff honor in NT; not counting any extra Dpts; -1 for stiff K, Q, Stiff J,T worth 0 */
+float_t alt_stiff_H_pts[][5] = {
+/*              A     K     Q     J     T       */
+/* HCPT050 */ { 4.00, 2.00, 1.00, 0.00, 0.00},     
+/* HCPA425 */ { 4.25, 2.00, 1.00, 0.00, 0.00},    
+/* HCPAT475*/ { 4.50, 2.00, 1.00, 0.00, 0.00},     
+/* Bumwrap */ { 4.50, 2.00, 0.50, 0.00, 0.00},  
+/* Woolsey */ { 4.50, 2.00, 0.75, 0.00, 0.00},     
+/* And5ths */ { 4.00, 1.80, 0.80, 0.00, 0.00}, 
+/* BWjgm   */ { 4.25, 2.00, 0.75, 0.00, 0.00},     
+/* OPCjgm  */ { 4.25, 2.00, 0.50, 0.00, 0.00},
+} ;
+   /*
+    * There is little consistency among experts re deducting for doubleton Honors.
+    * Those that use shortness based metrics tend to deduct more. Those that use Length based metrics deduct fewer
+    * In most cases where there is no published data, JGM is just guessing at reasonable values
+    * In particular in the cases where the Honors (incl Ten's) have a non-standard value.
+    * QJ tight is better than QT tight; but is QT tight better than Qx?
+    * Those that do deduct never work in fractions so one can assume that their choice was either to deduct 1pt or deduct nothing.
+    * In JGM's case he is willing to work in fractions so he can give QJ=3 - 1, QT=2.5 - 1 and Qx= 2 - 1; thus giving the T some value.
+    * But JT and Jx tight are likely equally worthless.
+    */
+// The following Pseudo table shows the approaches various experts take.
+/*               AK,   AQ,   AJ,   AT,   Ax,   KQ,   KJ,   KT,   Kx,   QJ,   QT,   Qx,   JT,   Jx,   Tx,  xx */
+// Roth & Pavlicek     ......................   -1,  -1,                -1,  -1,   -1.,   -1,   -1,   
+// Karpin                                       -1,  -1,                -1,  -1,   -1.,   -1,   -1,
+// Kaplan                                                               -1
+// Larsson .................................... -1                      -1
+// Sheinwold                                                            -1,  -1,   -1.,   -1,   -1,
+
+// This next table is JGM best guess based on experts;
+// trying to keep AK>AQ>AJ>AT>Ax and KQ>KJ>KT>Kx and QJ>QT>Qx > JT>=Jx>=Tx>=xx
+float_t alt_dbl_HH_pts[][16] = { /* the net value of the Dblton honor(s) in NT; not counting any extra Dpts */
+/*               AK,   AQ,   AJ,   AT,   Ax,   KQ,   KJ,   KT,   Kx,   QJ,   QT,   Qx,   JT,   Jx,   Tx,  xx */
+/* HCPT050 */ { 7.00, 6.00, 5.00, 4.50, 4.00, 4.00, 3.25, 3.00, 3.00, 2.00, 1.50, 1.00, 0.00, 0.00, 0.00, 0.00}, /* JGM guesses */
+/* HCPA425 */ { 7.25, 6.25, 5.25, 4.25, 4.25, 4.00, 3.25, 3.00, 3.00, 2.00, 1.00, 1.00, 0.00, 0.00, 0.00, 0.00},
+/* HCPAT475*/ { 7.25, 6.25, 5.25, 4.75, 4.25, 4.00, 3.25, 3.00, 3.00, 2.00, 1.50, 1.00, 0.00, 0.00, 0.00, 0.00},
+/* Bumwrap */ { 7.50, 6.00, 5.25, 4.75, 4.50, 3.50, 3.00, 3.00, 3.00, 1.25, 1.00, 0.75, 0.00, 0.00, 0.00, 0.00},
+/* Woolsey */ { 7.50, 6.25, 5.25, 4.50, 4.50, 3.75, 3.00, 3.00, 3.00, 1.50, 1.00, 0.75, 0.00, 0.00, 0.00, 0.00},
+/* And5ths */ { 6.80, 5.80, 5.00, 4.40, 4.00, 3.60, 3.20, 2.80, 2.80, 1.80, 1.20, 0.80, 0.00, 0.00, 0.00, 0.00},
+/* BWjgm   */ { 7.25, 6.00, 5.00, 4.50, 4.25, 3.75, 3.25, 3.00, 3.00, 1.50, 1.00, 0.75, 0.00, 0.00, 0.00, 0.00},
+/* OPCjgm  */ { 6.25, 5.25, 4.75, 4.25, 4.25, 4.50, 3.25, 3.00, 3.00, 2.00, 1.50, 1.00, 0.50, 0.00, 0.00, 0.00}, 
+} ;
+float_t alt_Hxx_pts[][5] = {  /* starting HCP value in 3+ suit. */
+//               A     K     Q     J     T   
+/* HCPT050 */ { 4.00, 3.00, 2.00, 1.00, 0.50},     
+/* HCPA425 */ { 4.25, 3.00, 2.00, 1.00, 0.00},   
+/* HCPAT475*/ { 4.25, 3.00, 2.00, 1.00, 0.50},     
+/* Bumwrap */ { 4.50, 3.00, 1.50, 0.75, 0.25},  
+/* Woolsey */ { 4.50, 3.00, 1.75, 0.75, 0.00},     
+/* And5ths */ { 4.00, 2.80, 1.80, 1.00, 0.40}, 
+/* BWjgm   */ { 4.25, 3.00, 1.75, 0.75, 0.25},     
+/* OPCjgm  */ { 4.25, 3.00, 1.50, 0.50, 0.00}, /* Q, J, T with companions get extra */
+
+============================== KISS Methods ===================================
+HCP_KISS ie HCP with no deductions for short honors or other adjustments
+ altcount 0 4.0 3.0 2.0 1.0 0.5     // HCPT050
+ altcount 1 4.25 3.0 2.0 1.0 0.0    // HCPA425
+ altcount 2 4.25 3.0 2.0 1.0 0.5    // HCPAT475
+ altcount 3 4.5 3.0 1.5 0.75 0.25   // Bumwrap
+ altcount 4 4.5 3.0 1.75 0.75 0.0   // Woolsey
+ altcount 5 4.0 2.8 1.8 1.0 0.4     // Andy5ths 
+ altcount 6 4.25 3.0 1.75 0.75 0.25 // BWjgm     (Mix of Bumwrap and Woolsey )
+ altcount 7 13.0 9.0 5.0 2.0 1.0    // LJP by Benion with a jgm added Ten to get it to 30 pts so easy Div by 3 at the table.
+ altcount 8 4.5 3.0 1.5 0.75        // C13_BW  (C13*3/4 Bumwrap with No Ten; Total 9.75 see C13_BW in AltC13metricks)
+ altcount 9 4.6 3.0 1.6 0.8 0.4     // C13_jgm  close to C13*10/13 Tot=10. see C13_jgm in AltC13metrics
+
+
+create table HCP_KISSmetrics( DealID int primary key, CCCC_NS decimal(4,2) unsigned not null,
+       AltT050_NS  decimal(4,2) unsigned not null, AltA425_NS decimal(4,2) unsigned not null, 
+       AltAT475_NS decimal(4,2) unsigned not null,
+       Bumwrap_NS  decimal(4,2) unsigned not null, Woolsey_NS decimal(4,2) unsigned not null,
+       Andy5ths_NS decimal(4,2) unsigned not null, 
+       BWjgm_NS    decimal(4,2) unsigned not null, LJP_NS     decimal(4,2) unsigned not null ),
+       C13BW_NS    decimal(4,2) unsigned not null, C13jgm_NS  decimal(4,2) unsigned not null ),
+       CCCC_EW     decimal(4,2) unsigned not null,
+       AltT050_EW  decimal(4,2) unsigned not null, AltA425_EW decimal(4,2) unsigned not null, 
+       AltAT475_EW decimal(4,2) unsigned not null,
+       Bumwrap_EW  decimal(4,2) unsigned not null, Woolsey_EW decimal(4,2) unsigned not null,
+       Andy5ths_EW decimal(4,2) unsigned not null, 
+       BWjgm_EW    decimal(4,2) unsigned not null, LJP_EW     decimal(4,2) unsigned not null ),
+       C13BW_EW    decimal(4,2) unsigned not null, C13jgm_EW  decimal(4,2) unsigned not null )
+
+

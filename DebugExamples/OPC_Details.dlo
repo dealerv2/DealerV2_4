@@ -1,0 +1,44 @@
+ n A.AQJ92.942.KJ74 s KQ984.863.7.AT62 ,'opc BF=',3350,'opcNT=',2250,'HCP NS=',24
+ n K97532.KT8.32.73 s A.AQJ9532.95.AJ9 ,'opc BF=',3200,'opcNT=',2700,'HCP NS=',22
+ n K532.J.AQ.AKT862 s T986.K872.JT8.93 ,'opc BF=',2750,'opcNT=',2150,'HCP NS=',21
+ n A543.4.T9874.AQ5 s K8.Q72.AK532.T42 ,'opc BF=',2600,'opcNT=',2250,'HCP NS=',22
+ n J54.J72.A53.KT42 s KQT.KT985.K864.A ,'opc BF=',2800,'opcNT=',2400,'HCP NS=',24
+ n A52.Q976542.2.A7 s 9.AKJ.T93.KT9642 ,'opc BF=',3750,'opcNT=',2750,'HCP NS=',21
+ n AQT653.K.A6.AJ53 s K7.T53.QJ9752.82 ,'opc BF=',3650,'opcNT=',3150,'HCP NS=',24
+ n Q.AJ542.AK75.AK8 s J95.KQ3.J3.JT632 ,'opc BF=',3400,'opcNT=',3000,'HCP NS=',29
+ n AQ4.KQJ7.8743.K9 s 876.T9642.A6.Q53 ,'opc BF=',2450,'opcNT=',2250,'HCP NS=',21
+ n 4.Q6542.K4.KJ832 s AQ3.J83.763.AT97 ,'opc BF=',2400,'opcNT=',2100,'HCP NS=',20
+
+OPC NS : Mean= 2866.7600, Std Dev=  507.8914, Var=257953.6931, Sample Size=5000 
+HCP NS : Mean=   23.4646, Std Dev=    2.8756, Var=    8.2692, Sample Size=5000 
+
+Description: N+S OPC (down) vs HCP (accross) 
+           Low       21       23       25       27       29       31       33       35       37       39     High    Sum
+ Low       127      105       18        1        0        0        0        0        0        0        0        0      251
+2100       110      140       58       11        0        0        0        0        0        0        0        0      319
+2300       152      235      125       34        7        0        0        0        0        0        0        0      553
+2500       151      319      173       70       10        1        0        0        0        0        0        0      724
+2700        97      309      242       94       38        8        0        0        0        0        0        0      788
+2900        52      185      267      166       66       10        1        0        0        0        0        0      747
+3100        30      109      167      174       93       22        3        0        0        0        0        0      598
+3300        14       43       85      130      105       38       13        1        0        0        0        0      429
+3500        10       22       38       59       67       52       17        1        0        0        0        0      266
+3700         2       11       12       34       47       39       16        5        0        0        0        0      166
+3900         0        4        6       15       16       22       15        4        0        0        0        0       82
+High         0        4        3        8       21       11       13       13        4        0        0        0       77
+Sum        745     1486     1194      796      470      203       78       24        4        0        0        0     5000
+
+OPC Details, NT and Best Fit 
+Generated 9013 hands
+Produced  5000 hands
+Initial random seed 120757679669747
+Time needed  172.486 sec
+Tot Calls to DDS =     0, DDS Solve  Calls=     0 DDS_Par Calls=0
+Tot Calls to GIB =     0, GIB Solve  Calls=     0
+Tot Calls to OPC = 10000, OPC Calc   Calls=  5000
+Tot Ask Query    =     0, UserServer Calls=     0
+
+real	2m52.489s
+user	2m35.238s
+sys	0m17.285s
+

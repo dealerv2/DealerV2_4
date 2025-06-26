@@ -92,15 +92,16 @@ int goren_calc( UE_SIDESTAT_k *p_ss ) {     /* Tag number 3 */
       } /* end CLUBS <= s <= SPADES */
       /* Check for Aces or lack of */
       body_cnt = p_hs->hs_totalcounts[idxAces] ;
-      if (body_cnt == 4 )      {body_pts[h] =  1 ; }
-      else if (body_cnt == 0 ) {body_pts[h] = -1 ; }
-      else                     {body_pts[h] =  0 ; }
+      if (body_cnt == 0 && gor_NTpts[h] > 10 ) {body_pts[h] = -1 ; } /* Only deduct for lack of Aces if considering Inv or Open, i.e. pts > 10 JGM*/
+      else if (body_cnt == 4 )                 {body_pts[h] =  1 ; } 
+      else                                     {body_pts[h] =  0 ; }
       JGMDPRT(7,"goren_calc, Hand=%d, fhcp[h]=%g, fhcp-adj[h]=%g, Dpts[h]=%d, body_pts[h]=%d, Aces_cnt=%d\n",
                      h, fhcp[h], fhcp_adj[h], dpts[h],body_pts[h], body_cnt );
       /* In NT Do not count Dpts; so we just need the HCP + ShortHonor_ADJ + body */
 
       if (p_hs->square_hand == 1 ) { hand_adj[h] = -1 ; } /* Square hand Ded applies to NT and to dummy in suit contract */
       gor_NTpts[h] = lround(fhcp[h] + fhcp_adj[h]) + body_pts[h] + hand_adj[h]  ; /* NT points for hand h -- dont count Dpts for NT */
+      if ( gor_NTpts[h] < 0 ) gor_NTpts[h] = 0; /* might go minus with 0 hcp, no aces, and/or a square hand */
       JGMDPRT(7,"GOR NT Result: Hand=%d, NT_pts=%d, fhcp=%g, fhcp_adj=%g, body_pts=%d, body_cnt=%d, Sq=%d \n",
                      h,  gor_NTpts[h],fhcp[h],fhcp_adj[h], body_pts[h],  body_cnt , hand_adj[h]);
       UEv.nt_pts_seat[h] = gor_NTpts[h] ;
@@ -139,9 +140,11 @@ int goren_calc( UE_SIDESTAT_k *p_ss ) {     /* Tag number 3 */
       JGMDPRT(7, "GOR: dfit for dummy[%d]=%d, FN for Decl[%d]=%d\n",h_dummy,dfit_pts[h_dummy],h_decl,Fn_pts[h_decl]);
 
       /* Goren also counts Hf Pts for honors <= 3 hcp in the trump suit. */
+      gor_pts[h_decl]  += Fn_pts[h_decl];
       hf_pts[h_dummy] = Hf_ptsGOREN( phs_dummy , p_ss->t_suit ) ;
       gor_pts[h_dummy] += ( dfit_pts[h_dummy] + hand_adj[h_dummy] + hf_pts[h_dummy] );
-      gor_pts[h_decl]  += Fn_pts[h_decl];
+
+
       JGMDPRT(7,"GOR TrumpFit Deal=%d, in suit=%d FitLen:%d Decl=[%d], Fn=%d, Hldf=%d Dummy=[%d], Dfit=%d Hf=%d, SQ=%d, Hldf=%d\n",
             gen_num,p_ss->t_suit,p_ss->fitlen[0],h_decl,Fn_pts[h_decl],gor_pts[h_decl],
             h_dummy,dfit_pts[h_dummy],hf_pts[h_dummy], hand_adj[h_dummy],gor_pts[h_dummy] );
@@ -166,8 +169,8 @@ int goren_calc( UE_SIDESTAT_k *p_ss ) {     /* Tag number 3 */
    JGMDPRT(7,"GOREN Side Fit/Misfit Eval Done  Deal=%d,  End Result for Suit Play: gor_pts[0]=%d, gor_pts[1]=%d\n",
                      gen_num, gor_pts[0], gor_pts[1] );
    /* gor_pts[] now done; [Dpts + (hcp+hcp_adj)] + body + Dfit + Fn + hand_adj */
-   UEv.hldf_pts_seat[0] = gor_pts[0];
-   UEv.hldf_pts_seat[1] = gor_pts[1];
+   UEv.hldf_pts_seat[0] = ( gor_pts[0] > 0 ) ? gor_pts[0] : 0 ;
+   UEv.hldf_pts_seat[1] = ( gor_pts[1] > 0 ) ? gor_pts[1] : 0 ;
    UEv.hldf_pts_side = UEv.hldf_pts_seat[0] + UEv.hldf_pts_seat[1] ;
    UEv.hldf_suit   = p_ss->t_suit;     /* So we know which dds tricks to count if we are playing in a suit */
    UEv.hldf_fitlen = p_ss->t_fitlen ;
@@ -247,6 +250,7 @@ int pav_calc ( UE_SIDESTAT_k *p_ss ) {      /* Tag Number: 10 */
 
       /* In NT PAV does not count Dpts; so we just need the NTpts + body */
       pav_NTpts[h] = roundf(fhcp[h] + fhcp_adj[h] ) + body_pts[h]   ; /* NT points for hand h -- dont count Dpts for NT */
+      if ( pav_NTpts[h] < 0 ) pav_NTpts[h] = 0; /* might go minus with 0 hcp, no aces, and/or a square hand */
       JGMDPRT(7,"PAV NT Result: Hand=%d, NT_pts=%d,  body_pts[h]=%d, body_cnt=%d,fhcp=%g, fhcp_adj=%g \n",
                      h,  pav_NTpts[h], body_pts[h],  body_cnt, fhcp[h], fhcp_adj[h] );
       UEv.nt_pts_seat[h] = pav_NTpts[h] ;
@@ -306,6 +310,7 @@ int pav_calc ( UE_SIDESTAT_k *p_ss ) {      /* Tag Number: 10 */
          if (misfit[s].mf_type > 3) {  /* Misfit; in the short suit count only the 'corrected' NT pts */
                mf_sh = misfit[s].short_hand ;
                pav_pts[mf_sh] -= dpts_suit[mf_sh][s] ;
+               if ( pav_pts[mf_sh] < 0 ) pav_pts[mf_sh] = 0 ; /* a hand can never have -ve pts */
                JGMDPRT(8,"PAV Deal#=%d, No 8+ fit && MISFIT Type:%d sh_len=%d, Deduct[%d] in suit=%d  sh_hand=%d, pav_pts[0]=%d, pav_pts[1]=%d\n",
                   gen_num,misfit[s].mf_type,misfit[s].sh_len, dpts_suit[mf_sh][s],s,mf_sh,pav_pts[0], pav_pts[1] );
          }

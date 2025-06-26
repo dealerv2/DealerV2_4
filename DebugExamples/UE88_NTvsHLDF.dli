@@ -1,0 +1,51 @@
+generate 10000000
+produce 1000
+
+// Version 2024/08/10  - UE Tags: HLDF vs NT evaluations
+
+
+title "Set 88 NT vs HLDF"
+
+    // title "Pavlicek's Spec for hands that might play in NT "
+condition  
+ // shape(south,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+ // shape(north,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+ 
+   hcp(south)+hcp(north) >= 17
+
+
+action
+
+ 
+   // These next actions compare the HLDF and the NT values for all the different metrics.
+   // We expect them to be close, but that the HLDF ones (0..14) will usually be higher than the NT ones (15 .. 29 ) 
+   
+   printrpt( "HLDF::", usereval(88,NS, 0),usereval(88,NS, 1),usereval(88,NS, 2),usereval(88,NS, 3),usereval(88,NS, 4), "V",
+                       usereval(88,NS, 5),usereval(88,NS, 6),usereval(88,NS, 7),usereval(88,NS, 8),usereval(88,NS, 9),"X" ,
+                       usereval(88,NS,10),usereval(88,NS,11),usereval(88,NS,12),usereval(88,NS,13),usereval(88,NS,14) ),
+   printrpt( "NT  ::", usereval(88,NS,15),usereval(88,NS,16),usereval(88,NS,17),usereval(88,NS,18),usereval(88,NS,19),"V",
+                       usereval(88,NS,20),usereval(88,NS,21),usereval(88,NS,22),usereval(88,NS,23),usereval(88,NS,24),"X" ,
+                       usereval(88,NS,25),usereval(88,NS,26),usereval(88,NS,27),usereval(88,NS,28),usereval(88,NS, 29) ),
+   printrpt(NS , "HCP=",hcp(north)+hcp(south)),
+
+   frequency " 0 Bergen: HLDF (down) vs NoTrump (across)" (usereval(88,NS, 0),21,29 , usereval(88,NS,15),21,29 ),
+   frequency " 1 Bissel: HLDF (down) vs NoTrump (across)" (usereval(88,NS, 1),21,29 , usereval(88,NS,16),21,29 ),
+   frequency " 2 DKP   : HLDF (down) vs NoTrump (across)" (usereval(88,NS, 2),21,29 , usereval(88,NS,17),21,29 ),
+   frequency " 3 Goren : HLDF (down) vs NoTrump (across)" (usereval(88,NS, 3),21,29 , usereval(88,NS,18),21,29 ),  
+   frequency " 4 KARP_B: HLDF (down) vs NoTrump (across)" (usereval(88,NS, 4),21,29 , usereval(88,NS,19),21,29 ),
+   frequency " 5 KAPLAN: HLDF (down) vs NoTrump (across)" (usereval(88,NS, 5),21,29 , usereval(88,NS,20),21,29 ),
+   frequency " 6 KARPIN: HLDF (down) vs NoTrump (across)" (usereval(88,NS, 6),21,29 , usereval(88,NS,21),21,29 ),
+   frequency " 7 KnRfit: HLDF (down) vs NoTrump (across)" (usereval(88,NS, 7),21,29 , usereval(88,NS,22),21,29 ),
+   frequency " 8 Larson: HLDF (down) vs NoTrump (across)" (usereval(88,NS, 8),21,29 , usereval(88,NS,23),21,29 ),
+   frequency " 9 LAR_B : HLDF (down) vs NoTrump (across)" (usereval(88,NS, 9),21,29 , usereval(88,NS,24),21,29 ),
+   frequency "10 PAV   : HLDF (down) vs NoTrump (across)" (usereval(88,NS,10),21,29 , usereval(88,NS,25),21,29 ),   
+   frequency "11 Sheinw: HLDF (down) vs NoTrump (across)" (usereval(88,NS,11),21,29 , usereval(88,NS,26),21,29 ),
+   frequency "12 ZarBas: HLDF (down) vs NoTrump (across)" (usereval(88,NS,12),21,29 , usereval(88,NS,27),21,29 ),
+   frequency "13 ZarAdv: HLDF (down) vs NoTrump (across)" (usereval(88,NS,13),21,29 , usereval(88,NS,28),21,29 ),
+   frequency "14 Roth  : HLDF (down) vs NoTrump (across)" (usereval(88,NS,14),21,29 , usereval(88,NS,29),21,29 ),
+   
+   // Note set88 returns the HLDF.side value for each metric in slots 0 .. 14, and the NT.side value in slots 15..29
+  //    0        1       2     3      4      5        6      7    8    9     10     11       12      13     14     
+  // BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH,
+
+

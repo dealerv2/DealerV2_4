@@ -1,0 +1,25 @@
+title "Evaluations in Suit Play, Bergen to Sheinwold"
+generate   11000000
+produce    11000000        // rpLib.zrd has only 10,4xx,xxx deals so this will be downsized at run time.
+seed 0  // start at the beg of Library
+
+title ""    // No title since we don't want to mess up the file format.
+# 88 is the query-id that asks for testing all metrics 
+
+//    0        1       2     3       4      5       6      7    8    9     10     11       12      13     14     20         21       40      88
+// BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, MixKARPB , MixLARB, ALL_UE, SET_88  
+
+action
+
+ //HLDF 
+printrpt(rnd(0),usereval(88, NS, 0),usereval(88, NS, 1),usereval(88, NS, 2),usereval(88, NS, 3),usereval(88, NS, 4),usereval(88, NS, 5),
+		usereval(88, NS, 6),usereval(88, NS, 7),usereval(88, NS, 8),usereval(88, NS, 9),usereval(88, NS,10),usereval(88, NS,11),
+		usereval(88, NS, 12) , usereval(88, NS, 13) , usereval(88, NS, 14) , opc(NS) ,
+      usereval(88, NS,45),usereval(88, NS,46),usereval(88, NS,47),usereval(88, NS,48),usereval(88, NS,49),usereval(88, NS,50),
+		usereval(88, NS,51),usereval(88, NS,52),usereval(88, NS,53),usereval(88, NS,54),usereval(88, NS,55),usereval(88, NS,56),
+		usereval(88, NS,57), usereval(88, NS,58), usereval(88, NS,59), opc(NS, notrump)   
+),
+
+
+
+

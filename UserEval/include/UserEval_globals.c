@@ -23,7 +23,7 @@ char compass[2];             /* seat names for debug statements */
    struct gbl_struct_st *p_gbl = &gbl ;
     
 	HANDSTAT_k        *phs[2] ;         /* pointers to two related HandStat structs; N/S or E/W */
-	USER_VALUES_k       *p_uservals  ;
+	USER_VALUES_k     *p_uservals  ;
 
    UE_SIDESTAT_k      UEsidestat[2] ; /* suit lens, fitlens, bestfit suit, declarer in best fit, etc. */
    UE_SIDESTAT_k     *p_UEss  ;       /* points to current UEsidestat in use for metric calcs */

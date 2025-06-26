@@ -131,6 +131,7 @@ struct KnR_points_st KnR_pts_all (HANDSTAT_k *phs) {
     knr_hand_tot += knr_suit_tot ;      /* total points for the hand so far */
     JGMDPRT(8,"This suit ShapePoints=%d,  New suitEval=%d NewHand Total=%d \n", ShapePoints ,knr_suit_tot,knr_hand_tot ) ;
   }      /* end for (suit;...) */
+/* all suits done. Now make adjustments to hand as a whole */
 
          /* All Dbltons were given +100; deduct the 1st one if there was no other shortness */
          /* This "no other shortness" is from an inference in the text which describes AJTxxx/KT9xx/xx/x as having
@@ -143,13 +144,14 @@ struct KnR_points_st KnR_pts_all (HANDSTAT_k *phs) {
   JGMDPRT(7,"C4 END SEAT[%d] TotEval=%d, square=%d\n",seat,knr_hand_tot, phs->square_hand ) ;
 
   assert ((knr_hand_tot % 5) == 0); /* KnR pts go in steps of 0.05 always */
-  /* The traditional CCCC points for this hand have been done. The Dfit and Fn pts will come later */
+  /* The traditional (as corrected by JGM) CCCC points for this hand have been done. The Dfit and Fn pts will come later */
   Pts.knr_tot_pts = Pts.knr_honor_pts + Pts.knr_short_pts + Pts.knr_qual_pts + Pts.knr_adj ;
+  if ( Pts.knr_tot_pts < 0 ) Pts.knr_tot_pts = 0 ; /* a hand can never have negative points But PAV web site allows -ve pts*/
   Pts.knr_body_val = KnR_Body( phs ) ;
   Pts.knr_dfit = 0 ;
   Pts.knr_Fn_pts = 0 ;
   Pts.knr_misfit_adj = 0 ;
-  Pts.knr_rounded_pts = KnR_Round( Pts.knr_body_val, Pts.knr_tot_pts ) ; /* Round what we have so far; update later */
+  Pts.knr_rounded_pts = KnR_Round( Pts.knr_body_val, Pts.knr_tot_pts ) ; /* Round the knr_tot_pts which are x100 and scale them to 0..40 pts range */
   #ifdef JGMDBG
    if (jgmDebug >= 7) { show_knr_pts (7, Pts, "End Of KnR_pts_all() - No Dfit or Fn" ) ; }
   #endif
@@ -323,7 +325,7 @@ int knr_calc ( UE_SIDESTAT_k *p_ss ) {      /* Tag Number 7 */
    for (h = 0 ; h < 2 ; h++) {         /* for each hand count up the KnR pts ignoring fit and misfit */
       p_hs = phs[h] ; /* phs array set by prolog to point to hs[north] and hs[south] OR to hs[east] and hs[west] */
       JGMDPRT(7,"++++++++++ Calling KnR_pts_all for hand_idx=%d, hsptr=%p\n",h, (void * )p_hs );
-      KNR_pts[h] = KnR_pts_all (p_hs) ; /* Fill the Struct */
+      KNR_pts[h] = KnR_pts_all (p_hs) ; /* Fill the Struct Final result are rounded 'raw' pts scaled to 0 .. 40 pt range */
       JGMDPRT(7,"------------- KnR_pts_all for hand_idx=%d Done --------------\n",h ) ;
 
    }
@@ -365,15 +367,16 @@ int knr_calc ( UE_SIDESTAT_k *p_ss ) {      /* Tag Number 7 */
       int KnR_final_ptsx100[2];
       for (h = 0 ; h <2 ; h++ ) {
          KnR_final_pts = KNR_pts[h].knr_tot_pts + KNR_pts[h].knr_dfit + KNR_pts[h].knr_Fn_pts + KNR_pts[h].knr_misfit_adj;
+         if (KnR_final_pts < 0 ) KnR_final_pts = 0 ; /* can never have -ve pt total for a hand */
          KNR_pts[h].knr_rounded_pts = KnR_Round( KNR_pts[h].knr_body_val, KnR_final_pts ) ;
          KnR_side_tot += KnR_final_pts ;
          KnR_final_ptsx100[h] = KnR_final_pts;
       }
       DBGDO(7,show_knr_pts(7,KNR_pts[0], "Final For Hand[0]") );
       DBGDO(7,show_knr_pts(7,KNR_pts[1], "Final For Hand[1]") );
-      JGMDPRT(7,"KnR Metric DONE. Side Total=%d, Filling uservals area with results \n",KnR_side_tot);
+      JGMDPRT(6,"KnR Metric DONE. Side Total=%d, Filling uservals area with results \n",KnR_side_tot);
       UEv.misc_count = 0 ;
-     /* Put the KNR vallues in the same general slots as the others. Makes for easier scripting. */
+     /* Put the KNR values in the same general slots as the others. Makes for easier scripting. */
       p_uservals->u.res[1] = KnR_Round( KNR_pts[0].knr_body_val, KNR_pts[0].knr_tot_pts );  /* N-NT pts rounded to 0-40 pt range */
       p_uservals->u.res[2] = KnR_Round( KNR_pts[1].knr_body_val, KNR_pts[1].knr_tot_pts );  /* S-NT pts */
       p_uservals->u.res[0] = p_uservals->u.res[1] +  p_uservals->u.res[2] ; /* the NT total in a 0-40 pt range*/
@@ -383,44 +386,54 @@ int knr_calc ( UE_SIDESTAT_k *p_ss ) {      /* Tag Number 7 */
       p_uservals->u.res[6] = KnR_side_tot ;  /* The x100 version of the complete KnR Points */
       p_uservals->u.res[7] = KnR_final_ptsx100[0]; /* The x100 version for north */
       p_uservals->u.res[8] = KnR_final_ptsx100[1]; /* The x100 version for south */
+      p_uservals->u.res[9] = KNR_pts[0].knr_tot_pts + KNR_pts[1].knr_tot_pts  ;  /* The x100 version of the Notrump KnR Points */
+      p_uservals->u.res[10]= KNR_pts[0].knr_tot_pts; /* The x100 version for north */
+      p_uservals->u.res[11]= KNR_pts[1].knr_tot_pts; /* The x100 version for south */     
       /* hand[0] details only missing adj for square hand*/
-      p_uservals->u.res[9]  = KNR_pts[0].knr_honor_pts;
-      p_uservals->u.res[10] = KNR_pts[0].knr_short_pts;
-      p_uservals->u.res[11] = KNR_pts[0].knr_qual_pts;
-      p_uservals->u.res[12] = KNR_pts[0].knr_tot_pts ;
-      p_uservals->u.res[13] = KNR_pts[0].knr_dfit;
-      p_uservals->u.res[14]= KNR_pts[0].knr_Fn_pts;
-      p_uservals->u.res[15]= KNR_pts[0].knr_misfit_adj;
-      p_uservals->u.res[16]= KNR_pts[0].knr_body_val ;
+      p_uservals->u.res[12]= KNR_pts[0].knr_honor_pts;
+      p_uservals->u.res[13]= KNR_pts[0].knr_short_pts;
+      p_uservals->u.res[14]= KNR_pts[0].knr_qual_pts;
+      p_uservals->u.res[15]= KNR_pts[0].knr_tot_pts ;
+      p_uservals->u.res[16]= KNR_pts[0].knr_dfit;
+      p_uservals->u.res[17]= KNR_pts[0].knr_Fn_pts;
+      p_uservals->u.res[18]= KNR_pts[0].knr_misfit_adj;
+      p_uservals->u.res[19]= KNR_pts[0].knr_body_val ;
       /* hand[1] details only missing adj for square hand */
-      p_uservals->u.res[17]= KNR_pts[1].knr_honor_pts;
-      p_uservals->u.res[18]= KNR_pts[1].knr_short_pts;
-      p_uservals->u.res[19]= KNR_pts[1].knr_qual_pts;
-      p_uservals->u.res[20]= KNR_pts[1].knr_tot_pts ;
-      p_uservals->u.res[21]= KNR_pts[1].knr_dfit;
-      p_uservals->u.res[22]= KNR_pts[1].knr_Fn_pts;
-      p_uservals->u.res[23]= KNR_pts[1].knr_misfit_adj;
-      p_uservals->u.res[24]= KNR_pts[1].knr_body_val ;
-         /* also put mainresults in UEv structure in usual slots for possible use by other functions such as set88 etc.*/
-      UEv.hldf_pts_side    = p_uservals->u.res[3] ;
-      UEv.hldf_pts_seat[0] = p_uservals->u.res[4] ;
-      UEv.hldf_pts_seat[1] = p_uservals->u.res[5] ;
-      UEv.nt_pts_side      = p_uservals->u.res[0] ;
-      UEv.nt_pts_seat[0]   = p_uservals->u.res[1] ;
-      UEv.nt_pts_seat[1]   = p_uservals->u.res[2] ;
+      p_uservals->u.res[20]= KNR_pts[1].knr_honor_pts;
+      p_uservals->u.res[21]= KNR_pts[1].knr_short_pts;
+      p_uservals->u.res[22]= KNR_pts[1].knr_qual_pts;
+      p_uservals->u.res[23]= KNR_pts[1].knr_tot_pts ;
+      p_uservals->u.res[24]= KNR_pts[1].knr_dfit;
+      p_uservals->u.res[25]= KNR_pts[1].knr_Fn_pts;
+      p_uservals->u.res[26]= KNR_pts[1].knr_misfit_adj;
+      p_uservals->u.res[27]= KNR_pts[1].knr_body_val ;
+         /* also put usereval results into UEv structure in usual slots for possible use by other functions such as set88 etc.*/
       UEv.hldf_suit   = p_ss->t_suit;     /* So we know which dds tricks to count if we are playing in a suit */
       UEv.hldf_fitlen = p_ss->t_fitlen ;
-
+      /* rounded values */
+      UEv.hldf_pts_side    = p_uservals->u.res[3] ;  // rounded 0-40-ish pt range
+      UEv.hldf_pts_seat[0] = p_uservals->u.res[4] ;
+      UEv.hldf_pts_seat[1] = p_uservals->u.res[5] ;
+      UEv.nt_pts_side      = p_uservals->u.res[0] ;  // rounded 0-40-ish pt range
+      UEv.nt_pts_seat[0]   = p_uservals->u.res[1] ;
+      UEv.nt_pts_seat[1]   = p_uservals->u.res[2] ;   
+ 
+      UEv.misc_count = 0 ;
+      /* raw values u.res[6,7,8] are the HLDFx100 ones, and u.res[9,10,11] are the NTx100 ones */
+      for (int i=6 ; i<28 ; i++) {
+         UEv.misc_pts[UEv.misc_count++] = p_uservals->u.res[i];
+      }
       #ifdef JGMDBG
-      if(jgmDebug >= 7 ) {
+      if(jgmDebug >= 6 ) {
          fprintf(stderr, "%s:%d KnR_calc Final Results {jgmDebug=%d} Prod_num=%d\n",__FILE__,__LINE__ , jgmDebug,prod_num ) ;
-         for (int i = 0 ; i < 24 ; i++ ) {
+         for (int i = 0 ; i < 27 ; i++ ) {
             fprintf(stderr, "[%d]=%d, ",i, p_uservals->u.res[i] );
             if( (i+1)%10 == 0 ) {fprintf(stderr, "\n"); }
          }
+         fprintf(stderr, "\n--------KnR Returning Now. --------\n");
       }
       #endif
-      return 1 ;
+      return UEv.misc_count + 6 ;
 }
 
 

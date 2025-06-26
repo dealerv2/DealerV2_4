@@ -1,0 +1,32 @@
+generate   100000
+produce    1          // make 10,000 in production
+              
+
+title "Create DB Import CSV files using UserEval metrics  "
+ // Cannot redefine the altcounts when using usereval; the usereval code relies on things like Top2, top5 etc.
+
+
+action 
+    printrpt( rnd(0), north, east, south, west, trix(deal), "HCP_NS=",hcp(north)+hcp(south), "HCP_EW=",hcp(east)+hcp(west) ),  // will go to CSV report when things working ... 
+    printrpt( rnd(0),            
+                     // HLDF values for metrics 0 .. 14
+                  "HLDF_NS= ",
+                     usereval(88,NS, 0),usereval(88,NS, 1),usereval(88,NS, 2),usereval(88,NS, 3),usereval(88,NS, 4),
+                     usereval(88,NS, 5),usereval(88,NS, 6),usereval(88,NS, 7),usereval(88,NS, 8),usereval(88,NS, 9),
+                     usereval(88,NS,10),usereval(88,NS,11),usereval(88,NS,12),usereval(88,NS,13),usereval(88,NS,14),
+                     // NT values for metrics 0 .. 14
+                  "HLNT_NS= ",
+                     usereval(88,NS,15),usereval(88,NS,16),usereval(88,NS,17),usereval(88,NS,18),usereval(88,NS,19),
+                     usereval(88,NS,20),usereval(88,NS,21),usereval(88,NS,22),usereval(88,NS,23),usereval(88,NS,24),
+                     usereval(88,NS,25),usereval(88,NS,26),usereval(88,NS,27),usereval(88,NS,28),usereval(88,NS,29),
+                     // HLDF values for metrics 0 .. 14
+                  "HLDF_EW= ",
+                     usereval(88,EW, 0),usereval(88,EW, 1),usereval(88,EW, 2),usereval(88,EW, 3),usereval(88,EW, 4),
+                     usereval(88,EW, 5),usereval(88,EW, 6),usereval(88,EW, 7),usereval(88,EW, 8),usereval(88,EW, 9),
+                     usereval(88,EW,10),usereval(88,EW,11),usereval(88,EW,12),usereval(88,EW,13),usereval(88,EW,14),
+                     // NT values for metrics 0 .. 14
+                  "HLNT_EW= ",
+                     usereval(88,EW,15),usereval(88,EW,16),usereval(88,EW,17),usereval(88,EW,18),usereval(88,EW,19),
+                     usereval(88,EW,20),usereval(88,EW,21),usereval(88,EW,22),usereval(88,EW,23),usereval(88,EW,24),
+                     usereval(88,EW,25),usereval(88,EW,26),usereval(88,EW,27),usereval(88,EW,28),usereval(88,EW,29),
+                  "OPC_NS= ",opc(NS),opc(NS,notrump),"OPC_EW= ",opc(EW),opc(EW,notrump))                                         

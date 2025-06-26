@@ -1,0 +1,7 @@
+generate 1000
+produce  10
+title "Test rnd(0)+seed Set seed on the cmd line with -s since seed cannot be set via script var also set parm -0 since need that in print statement"
+
+action 
+  printrpt( (rnd(0) + $0 ) , west ) 
+    

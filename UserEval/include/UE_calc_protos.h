@@ -28,6 +28,7 @@ extern int alt_HCP_calc(   UE_SIDESTAT_k *p_UEss, int tag )  ;   // 8 different 
 
 extern int set40_calc(     UE_SIDESTAT_k *p_UEss )  ;   // tag 40 fills slots 0 .. 89 with 6 values from each of 15 metrics and HLDF.suit & fitlen in slots 126,127
 extern int set41_calc(     UE_SIDESTAT_k *p_UEss )  ;   // tag 41 fills slots 0 .. 47 with 6 values from each of 8 alt HCP metrics.
+extern int set42_calc(     UE_SIDESTAT_k *p_UEss )  ;   //
 
 extern int mixed_Karpin_calc(  UE_SIDESTAT_k *p_UEss ); // tag 50 returns two sets of HLDF numbers, karp_b  in 0..5 and karpin  in 6 .. 11
 extern int mixed_Larsson_calc( UE_SIDESTAT_k *p_UEss ); // tag 51 returns two sets of HLDF numbers, lar_b in 0..5 and larsson in 6 .. 11 

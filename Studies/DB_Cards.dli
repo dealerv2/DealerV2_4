@@ -1,0 +1,8 @@
+# File to create the 'cards' table from the rpLib.zrd file
+generate 10485760    // there are 10,485,760 deals in the library
+produce  10485760
+
+action
+ csvrpt(rnd(0),north,south,east,west)
+# Output:
+# 10,n J84.AT87.KJ6.QT7 ,s AT3..53.AKJ98543 ,e K6.K65432.AQ92.2 ,w Q9752.QJ9.T874.6 

@@ -1,0 +1,34 @@
+generate   100000
+produce    1
+seed 11393  // a prime number >10000 -- these seeds are put into the top 32 bits of the 48bit seed.
+#seed 23
+//    0        1       2     3       4      5       6      7    8    9     10     11       12      13     14     20         21       40      88
+// BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, MixKARPB , MixLARB, ALL_UE, SET_88  
+
+title "NS ZAR_B vs ZAR_ADV  "
+#predeal north SQ3,HAQ97,DKQT72,C85   // ZARBAS 5*2 + (4-2) + 13HCP + 3 CTLS = 28  -- 27 if -1 for Qx
+#predeal south SAKJ9864,HK,D4,CT742   // ZARBAS 7*2 + (4-1) + 11HCP + 4 CTLS = 32  -- is a stiff K a control in the ZAR sense? is it really 11 HCP?
+#predeal north SAKQ84,HK2,DQJ82,CJT    // ZARBAS 5*2 + (4-2) + 16HCP + 4 CTLS = 32 
+#predeal south SJT32,HQJT9,D5,CKQ64    // ZARADV 4*2 + (4-1) + 9HCP + 1 ctl   = 21
+
+action printrpt( NS), 
+		 printrpt("ZARBAS=",  usereval(12,NS,0),usereval(12,NS,1), usereval(12,NS,2), /* The NT ones */
+	                          usereval(12,NS,3),usereval(12,NS,4), usereval(12,NS,5), /* the HLDF ones */
+	                          "NT Rounded Seat Zars=", usereval(12,NS,6), usereval(12,NS,7),
+	                          "HLDF Rounded Seat Zars=", usereval(12,NS,8), usereval(12,NS,9),
+	                          "Debugging Hand0=",usereval(12,NS,10),usereval(12,NS,11), usereval(12,NS,12), usereval(12,NS,13),"PavBdy",usereval(12,NS,14), 
+	                          "Debugging Hand1=",usereval(12,NS,15),usereval(12,NS,16), usereval(12,NS,17), usereval(12,NS,18),"PavBdy",usereval(12,NS,19)   
+	                          ), 
+		 printrpt("ZARADV=",  usereval(13,NS,0),usereval(13,NS,1), usereval(13,NS,2), 
+	                          usereval(13,NS,3),usereval(13,NS,4), usereval(13,NS,5),
+	                          "NT Rounded Seat Zars=", usereval(13,NS,6), usereval(13,NS,7),
+	                          "HLDF Rounded Seat Zars=", usereval(13,NS,8), usereval(13,NS,9),
+	                          "Debugging Hand0=",usereval(13,NS,10),usereval(13,NS,11), usereval(13,NS,12), usereval(13,NS,13),"PavBdy",usereval(13,NS,14), 
+	                          "Debugging Hand1=",usereval(13,NS,15),usereval(13,NS,16), usereval(13,NS,17), usereval(13,NS,18),"PavBdy",usereval(13,NS,19), 
+	                          "ADV ZAR Debug 0 Fn,Hf, Dfit=", usereval(13,NS,20),usereval(13,NS,21), usereval(13,NS,22), 
+	                          "ADV ZAR Debug 1 Fn,Hf, Dfit=", usereval(13,NS,23),usereval(13,NS,24),usereval(13,NS,25)
+	                          ),
+
+
+
+

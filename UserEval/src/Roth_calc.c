@@ -130,12 +130,11 @@ int roth_calc (UE_SIDESTAT_k *p_ss) {     /* Tag Number: 14 */
       /* We can't total the pts for each hand yet; since we don't know who is Decl and who is Dummy
        * only Decl counts D, L, and FN. Dummy counts Dfit. D and Dfit depend on their being a fit or a RS_RLBL suit
        */
-      JGMDPRT(7,"roth_calc:: Hand=%d, RothPts_suit=%d, RothPtsNT=%d, RothHandType=%d, Bal=%c, Aces=%d\n",
-                     h, rhand[h].h_ptsSuit, rhand[h].h_ptsNT, rhand[h].h_type,"NY"[rhand[h].h_bal],rhand[h].h_Aces );
-      JGMDPRT(7,"roth_calc:: Hand=%d, hcp[h]=%d, hcp-adj[h]=%d, Dpts[h]=%d, Lpts[h]=%d,LptsNT[h]=%d\n",
-                  h, rhand[h].h_hcp, rhand[h].h_hcp_adj, rhand[h].h_Dpts, rhand[h].h_Lpts, rhand[h].h_LptsNT );
+      JGMDPRT(7,"roth_calc:: Hand=%d,  RothHandType=%d, Bal=%c, Aces=%d, hcp[h]=%d, hcp-adj[h]=%d, Dpts[h]=%d, Lpts[h]=%d, LptsNT[h]=%d\n",
+                       h, rhand[h].h_type,"NY"[rhand[h].h_bal],rhand[h].h_Aces,
+                       rhand[h].h_hcp, rhand[h].h_hcp_adj, rhand[h].h_Dpts, rhand[h].h_Lpts, rhand[h].h_LptsNT );
 	}
-	/* end for each hand rhand[] structs filled */
+	/* end for each hand rhand[] structs filled -- except for totals h_ptsSuit, h_ptsNT*/
 
 	/* Now we consider the hands as pair:
 	 * if there is a '5-2 or better fit in a 'good' suit add an FN pt for NT.
@@ -284,7 +283,7 @@ int rothSuitType (	HANDSTAT_k *p_hs , int s ) {
 	return RS_NONE ;
 } /* end rothSuitType */
 
-/* If suit is RS_SSS the Lpts will be doubled later as part of FN pts calcualtion */
+/* If suit is RS_SSS the Lpts will be doubled later as part of FN pts calculation */
 int LptsROTH(HANDSTAT_k *p_hs , int s, int stype ) {
 	int slen = p_hs->hs_length[s] ;
 	if(  6 >   slen  ) { return 0 ; } /* No Lpts for Suits shorter than 6 */
@@ -446,7 +445,7 @@ int Fn_pts_2ndfit (int t_suit, struct hsuit_st rsuit[2][4] ) {
 /* NT FN pts awarded to any 5 card GOOD suit that has been 'supported'.
  * Note: If the suit is GOOD and it is longer than 5 it has already Got Lpts so can't add any more.
  * JGM assumes that if there is a 5:2 and a 2:5 fit then each hand will get an FN pt in NT. (But not in a suit contract)
- * This complicates the code, but is not contra-indicated by the book and two 'supported' 5crd GOOD suits, may each be a source of tricks.
+ * This complicates the code, but is not contra-indicated by the book and two 'supported' 5card GOOD suits, may each be a source of tricks.
  */
  
 int FNnt_ptsROTH( struct hand_st rhand[2], struct hsuit_st rsuit[2][4] ) { 

@@ -8,4 +8,4 @@ trixn = dds(north,spades)        //  ditto
 # condition ctlsN < 4 and ctlsEH != 2 and loserW < 8 and loserSC == 1
 
 action
- printrpt(deal,trixn,trixw)
+ printrpt(deal,"Wtricks",trix(west),"Stricks",trix(south))

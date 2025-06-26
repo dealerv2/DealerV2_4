@@ -2,7 +2,7 @@ generate   10000000
 produce    10
 # Run this with the -L ZRD lib switch to speed it up.
 title "Alt HCP Woolsey vs Tricks in NT  "
-
+// This file needs some stopper criteria added asw well as the shape restrictions.
 NShcp = usereval(24, NS, 3)  // the Raw x 100 total aka HLDF.side
 EWhcp = usereval(24, EW, 3)
 
@@ -10,6 +10,7 @@ NStrix = (dds(north, notrump) >= dds(south,notrump)) ? dds(north, notrump) : dds
 EWtrix = (dds(east , notrump) >= dds(west, notrump)) ? dds(east , notrump) : dds(west,notrump)
 trixNT =  NStrix >= EWtrix ? NStrix : EWtrix
 sideHCP=  NStrix >= EWtrix ? NShcp  : EWhcp
+ // Pavlicek shape spec for NT, with JGM prevent 8+ major fit.
 PlayNTNS = shape(north,  any 4333 + any 4432 + any 5332 - any 7xxx - any 1xxx - any 0xxx - 6xxx - x6xx ) and 
            shape(south,  any 4333 + any 4432 + any 5332 - any 7xxx - any 1xxx - any 0xxx - 6xxx - x6xx ) and 
            (spades(north)+spades(south)) < 8 and (hearts(north) + hearts(south)) < 8
@@ -24,6 +25,7 @@ condition PlayNTSide
 action 
    // printrpt(deal,
    //  "DeclSide=",DeclSide, "NStrix=",NStrix,"EWtrix=",EWtrix,"trixNT=",trixNT,"NShcp=",NShcp,"EWhcp=",EWhcp,"sideHCP=",sideHCP),
+   //            0 .. 2 (PavRound Side,North,South)   3 .. 5 (Rawx100: Side,North,South)
    // printrpt( "NS::",usereval(24, NS, 0), usereval(24, NS, 1), usereval(24, NS, 2), usereval(24, NS, 3), usereval(24, NS, 4), usereval(24, NS, 5), 
    //          "EW::",usereval(24, EW, 0), usereval(24, EW, 1), usereval(24, EW, 2), usereval(24, EW, 3), usereval(24, EW, 4), usereval(24, EW, 5)), 
                     

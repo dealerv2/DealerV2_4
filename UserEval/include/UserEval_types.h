@@ -19,8 +19,8 @@
  * The Query tags in sort of alpha order: The adj_hcp arrays use these values to lookup adjustments.
  *                     0        1       2     3       4      5       6      7     8    9     */
 enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN,  KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, 
-                // 10     11       12      13      14       15 */
-                   PAV, SHEINW,  ZARBAS, ZARADV, ROTH, // OPC ::Recode from Perl to C someday and add it here.
+                // 10     11       12      13      14   Fut:15   16    17  */
+                   PAV, SHEINW,  ZARBAS, ZARADV, ROTH,   // OPC DOPjgm (Mods to HCP etc.) DK4C (DK's CCCC from Jeff Goldsmith )
 
                    metricEND, // == 15 currently 
                    
@@ -142,5 +142,11 @@ struct EvalAll_res_st {
    int bf_pts_side;  /* Evaluation in BestFit: NS/EW side_total, north/east, south/west */
    int bf_pts_seat[2];
 } ;
+struct EvalALT_res_st {  /* for metrics that have NT points only */
+      int nt_pts_side;  /*  The float vals Pav Rounded to Ints */
+      int nt_pts_seat[2];
+      int raw_pts_side;  /* The float vals *100 converted to Ints */
+      int raw_pts_seat[2];
+   } ;
 
 #endif /* file guard */

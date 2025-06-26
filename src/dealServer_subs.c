@@ -162,7 +162,8 @@ pid_t setup_userserver( char *pathname ) {
     JGMDPRT(3,"Pointers using mmap shared area. q_off=%ld, pqt=%p, r_off=%ld,  prt=%p \n",
             p_mm_hdr->q_type_off, (void *)pqt, p_mm_hdr->r_type_off, (void *)prt );
 
-   msync(mm_ptr, PageSize, MS_SYNC) ;  /* flush the changes to the shared area so they are visible to others. */
+   // msync(mm_ptr, PageSize, MS_SYNC) ;  /* flush the changes to the shared area so they are visible to others. */
+   // msync should not be req'd as we dont care about the backing file, only the in RAM copy.
 
    // fork a child; child will execve server; server will then init his own mmap and semaphores.
    pid_t server_pid = create_server(mm_fd,  userserver_path) ;
@@ -246,7 +247,7 @@ char *create_mmap(int *fd , char *mmap_fname) {
    *fd = mm_fd ;   /* set the global fd so we can pass to the child */
   
    return (mm_ptr) ;
-} /* end create_mmap line 1207*/
+} /* end create_mmap line 205*/
 
 void calc_mmap_offsets(mmap_hdr_k *mm_hdr) {  /* store offsets to mmap template sections in the mm_hdr_struct */
    off_t q_off, r_off, dldata_off, user_nsvals_off, user_ewvals_off, cache_off ;
@@ -329,7 +330,7 @@ pid_t create_server(int mm_fd, char *userserver_path) {
 			fprintf(stderr, "%s::%d ++++ in mainCHILD:: POST FORK:: child pid=%d, Pathname To start=%s srvDebug=%d\n",
                __FILE__, __LINE__, server_pid, userserver_path,srvDebug ) ;
          my_logfd=setup_logfile(logpath) ; /* use template for a temp file name. modified by call. stderr will use this tmpfile*/
-         printf( "\nServer Logfile Name=%s logfdfd=%d Check Here for Error Messages and Debugging output\n\n",logpath, my_logfd);
+         printf( "\n==========> Server Logfile Name=%s logfdfd=%d Check Here for Error Messages and Debugging output <======\n\n",logpath, my_logfd);
          fsync(1);
          /* if debugging then send Child/UserServer debug output to different location. we can tail -f that file in another terminal */
          DBGLOC("++++ in mainCHILD:: After stderr Reopen. Preparing to execve the server. \n" ) ;
@@ -454,7 +455,7 @@ void true_ask_query(int qtag, int side, int qcoded, query_type_k *pqt ) {
       }
       p_dldata->curr_gen = ngen ;        /* for debugging */
       p_dldata->curr_prod = nprod ;      /* for debugging */
-      msync(mm_ptr, PageSize, MS_SYNC) ;
+      // msync(mm_ptr, PageSize, MS_SYNC) ;  msync should not be req'd as we dont care about the backing file, only the in RAM copy.
       sem_post(p_qsem) ;   // ask the server for results
       JGMDPRT(6,"memcpy x4 done. Post Sem Done. Waiting for Server Reply \n");
       sem_wait(p_rsem) ;   // wait till we get them.

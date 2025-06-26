@@ -165,12 +165,12 @@ void SaveUserVals(struct UserEvals_st UEv , USER_VALUES_k *p_ures ) {
          UEv.nt_pts_side,UEv.nt_pts_seat[0],UEv.nt_pts_seat[1],
          UEv.hldf_pts_side,UEv.hldf_pts_seat[0],UEv.hldf_pts_seat[1], UEv.misc_count );
 
-   p_ures->u.res[0] = UEv.nt_pts_side ;
-   p_ures->u.res[1] = UEv.nt_pts_seat[0] ;
-   p_ures->u.res[2] = UEv.nt_pts_seat[1] ;
-   p_ures->u.res[3] = UEv.hldf_pts_side ;
-   p_ures->u.res[4] = UEv.hldf_pts_seat[0] ;
-   p_ures->u.res[5] = UEv.hldf_pts_seat[1] ;
+   p_ures->u.res[0] = ( UEv.nt_pts_side      > 0 ) ? UEv.nt_pts_side      : 0 ; /* no matter how bad, a hand can never have -ve pts */
+   p_ures->u.res[1] = ( UEv.nt_pts_seat[0]   > 0 ) ? UEv.nt_pts_seat[0]   : 0 ;
+   p_ures->u.res[2] = ( UEv.nt_pts_seat[1]   > 0 ) ? UEv.nt_pts_seat[1]   : 0 ;
+   p_ures->u.res[3] = ( UEv.hldf_pts_side    > 0 ) ? UEv.hldf_pts_side    : 0 ;
+   p_ures->u.res[4] = ( UEv.hldf_pts_seat[0] > 0 ) ? UEv.hldf_pts_seat[0] : 0 ;
+   p_ures->u.res[5] = ( UEv.hldf_pts_seat[1] > 0 ) ? UEv.hldf_pts_seat[1] : 0 ;
    n = 6 ;
    JGMDPRT(7,"SaveUEvals [0..2]NT=%d,%d,%d [3..5] HLDF=%d,%d,%d\n",
              p_ures->u.res[0], p_ures->u.res[1], p_ures->u.res[2], p_ures->u.res[3], p_ures->u.res[4], p_ures->u.res[5] );
@@ -587,11 +587,15 @@ int isBalanced(HANDSTAT_k *phs ) {
 /* Pavlicek 'Body' count. >= 12 typically has 'Body' */
 int Pav_body_val( HANDSTAT_k  *p_hs ) {
    int s;
-   int body = 0 ;
+   int body = 0 ; 
+   // int n8 = 0 ; int n9 = 0 ; int n10 = 0 ; n8++; n9++; n10++;
+   // fprintf(stderr, "p_hs=%p, suit=%d, n8=%d, n9=%d, n10=%d, body=%d\n",(void *)p_hs, s , n8, n9, n10, body );
+   
    for (s=0; s<4 ; s++ ) {
-      if (p_hs->Has_card[s][EIGHT] ) body++ ;
-      if (p_hs->Has_card[s][NINE]  ) body += 2;
-      if (p_hs->Has_card[s][TEN]   ) body += 3; 
+      if (p_hs->Has_card[s][EIGHT] ) { body++ ;  	}
+      if (p_hs->Has_card[s][NINE]  ) { body += 2;	}
+      if (p_hs->Has_card[s][TEN]   ) { body += 3; 	}
+      
    }
    // JGMDPRT(8, "PAV BODY p_hs=%p, returns %d\n", (void *)p_hs, body ) ; 
    return( body ) ; /* if >= 12 Good Body. Round Up */
@@ -621,7 +625,7 @@ void show_user_res(char *caller, USER_VALUES_k *p_results, int first, int last )
    for ( r = first; r <= last ; r++ ) {
       fprintf(stderr, "[%d]=%d%c", r, p_results->u.res[r], ( ((r +1) % 10) == 0 ) ? '\n' : ' ' );
    }
-   fprintf(stderr, "\n");
+   fprintf(stderr, "\n show_user_res Returning now .... \n");
    return ;
 }
 

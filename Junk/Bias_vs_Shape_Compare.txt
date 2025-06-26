@@ -1,0 +1,13 @@
+condition  shape(west, xx7x) and shape(east, 0xxx)
+Testing Timing with one void and one 7 card suit Compare to Bias Deal later
+Generated 100,000,000 hands
+Produced  4953 hands
+Initial random seed 919
+Time needed  154.047 sec (This is 31.173 usec per deal produced; 10,000 were asked for and even 100 Million tries got less than half)
+
+
+Bias Deal Test skeleton output: for the same void in East, and 7 Card suit in west. Same random seed. 
+
+1,000,000 Loops of bias Dealing took 1446338 usec for an avg of 1.446338 usec per deal
+
+Some bias deals could be more complicated than others but overall the actual bias requirements don't really matter.

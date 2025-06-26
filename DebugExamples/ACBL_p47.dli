@@ -1,0 +1,44 @@
+generate   100000
+produce    10
+
+title " ACBL p47 hand 2 "
+
+#predeal    south SAT8, HAT9, DT9, CAQT98
+predeal    south SQJ2, HKJ3, DKJ4, CKJ42 
+DDSNS=dds(south,notrump)
+Score2NTvul=score(vul, z2N, dds(south,notrump) )
+Score3NTvul=score(vul, z3N, dds(south,notrump) )
+
+
+action
+#         printrpt( NS, "  NT Tricks=", dds(south,notrump), " Score NS 2N Vul=",Score2NTvul, "Score 3NT Vul=",Score3NTvul ),
+          evalcontract ( NS , z2N , vul ),
+          evalcontract ( NS , z3N , vul  ),
+          
+# These next ones are redundant since evalcontract produces average scores anyway.
+#         average "NS 2N Vul" Score2NTvul,
+#         average "NS_3N vul" Score3NTvul
+
+  /*
+   ACBL p47 hand 1 
+  Contract  2N  V by  NS Average Result =    44.19, Made pct=   65.70, Fail pct=   34.30
+Missed Game_pct=   44.60, Missed Slam_pct=   9.30, Missed Game Imps/board=   4.46, Missed Slam Imps/board=   1.56
+
+Contract  3N  V by  NS Average Result =   164.17, Made pct=   44.60, Fail pct=   55.40
+Missed Game_pct=    0.00, Missed Slam_pct=   9.30, Missed Game Imps/board=   0.00, Missed Slam Imps/board=   1.34
+
+ ACBL p47 hand 1 
+Generated 1000 hands
+Produced  1000 hands
+Initial random seed 919
+Time needed   13.866 sec
+
+  ACBL p47 hand 2                                     
+Contract  2N  V by  NS Average Result =     0.82, Made pct=   57.60, Fail pct=   42.40
+Missed Game_pct=   43.40, Missed Slam_pct=   5.30, Missed Game Imps/board=   4.34, Missed Slam Imps/board=   0.86
+
+Contract  3N  V by  NS Average Result =   122.48, Made pct=   43.40, Fail pct=   56.60
+Missed Game_pct=    0.00, Missed Slam_pct=   5.30, Missed Game Imps/board=   0.00, Missed Slam Imps/board=   0.70
+
+ ACBL p47 hand 2
+  */

@@ -54,7 +54,7 @@ int analyze_side( UE_SIDESTAT_k *p_UEss , int side) { /* fill a struct with the 
       for( int j=0; j<4; j++) {p_UEss->sorted_slen[h][j] = p_hs->hs_length[j] ; } /* copy short ints to ints */
       memcpy(   p_UEss->sorted_sids[h], sorted_sids[h],  sizeof(sorted_sids[h]) ) ;
       didxsort4(p_UEss->sorted_slen[h], p_UEss->sorted_sids[h] );   /* sorted_slen[h[0]] is longest length, [3] is shortest */
-      JGMDPRT(3, "After didxsort4 Sorted_slen[h] done. %d,%d,%d,%d sorted sids=[%d,%d,%d,%d]\n",
+      JGMDPRT(7, "After didxsort4 Sorted_slen[h] done. %d,%d,%d,%d sorted sids=[%d,%d,%d,%d]\n",
        p_UEss->sorted_slen[h][0], p_UEss->sorted_slen[h][1], p_UEss->sorted_slen[h][2], p_UEss->sorted_slen[h][3],
        p_UEss->sorted_sids[h][0], p_UEss->sorted_sids[h][1], p_UEss->sorted_sids[h][2], p_UEss->sorted_sids[h][3] );
      
@@ -62,7 +62,7 @@ int analyze_side( UE_SIDESTAT_k *p_UEss , int side) { /* fill a struct with the 
       /* we might have 4=4=4=1; or N=N=x=y; we want the id in slot 0 to be highest ranking suit */
       rank_sorted_ids(p_UEss->sorted_slen[h], p_UEss->sorted_sids[h] ) ; /* Call ranking in case there are any ties anywhere */
 
-      p_UEss->pav_body[h] = Pav_body_val( p_hs) ; /* used by several metrics calc once */
+      p_UEss->pav_body[h] = Pav_body_val( p_hs) ; /* used by several metrics so calc it once */
         JGMDPRT(7, "analyze_side=%d hand=%d, pav_body=%d Longest SuitLen=%d in suit=%d\n",
                p_UEss->side, h, p_UEss->pav_body[h], p_UEss->sorted_slen[h][0], p_UEss->sorted_sids[h][0] );
    } /* end foreach hand */
@@ -141,13 +141,16 @@ void save_fit_vals(UE_SIDESTAT_k *p_ss,  int s ) {
           p_ss->t_len[0] = 0 ; /* it is really 4:3 or 3:4 but not relevant if not 5:2 */
           p_ss->t_len[1] = 0 ;
           p_ss->t_rank = 0 ;
-          return ;
    }
+   else {
        p_ss->t_suit = s ;
        p_ss->t_len[0] = p_ss->phs[0]->hs_length[s] ;
        p_ss->t_len[1] = p_ss->phs[1]->hs_length[s] ;
        p_ss->t_fitlen = p_ss->t_len[0] + p_ss->t_len[1] ;
-       p_ss->t_rank = ISMAJOR(s) ; 
+       p_ss->t_rank = ISMAJOR(s) ;
+   }
+       JGMDPRT(4, "SaveFitVals t_suit=%d,t_rank=%d, t_fitlen=%d, t_lens=[%d : %d]\n",
+       p_ss->t_suit,p_ss->t_rank,p_ss->t_fitlen,p_ss->t_len[0],p_ss->t_len[1] ) ;
        return ;
 } /* end save fit vals */
   
@@ -318,7 +321,7 @@ FIT_PTS_k Do_Df_Fn_pts( UE_SIDESTAT_k *p_ss,
       if (p_ss->t_len[h_du] < p_ss->t_len[h_dc]) {  
          TFpts.df_val[h_du]   = (*calc_dfval) ( p_ss, h_du ) ;  /* call Dfit routine; returns single value */
          TFpts.fn_val[h_dc]   = (*calc_fnval) ( p_ss, h_dc ) ;  /* call Fn function; returns single value */
-         JGMDPRT(7, ": dfit for Dummy[%c]=%d, FN for Decl[%c]=%d\n",
+         JGMDPRT(7, ": Dfit for Dummy[%c]=%d, FN for Decl[%c]=%d\n",
             compass[h_du],TFpts.df_val[h_du],compass[h_dc],TFpts.fn_val[h_dc] );
       }
       else if (p_ss->t_len[h_du] == p_ss->t_len[h_dc]) {  /* probably a 4=4 fit; assign Dfit to both hands, and no Fn  */
@@ -326,7 +329,7 @@ FIT_PTS_k Do_Df_Fn_pts( UE_SIDESTAT_k *p_ss,
          /* now call dfit again for the other hand */
 
          TFpts.df_val[h_dc]   = (*calc_dfval) (p_ss, h_dc )  ;
-         JGMDPRT(7, ": Dfit for dummy[%c]=%d, AND Dfit for Decl[%c]=%d\n",
+         JGMDPRT(7, ": 4=4 Dfit for dummy[%c]=%d, AND Dfit for Decl[%c]=%d\n",
             compass[h_du],TFpts.df_val[h_du],compass[h_dc],TFpts.df_val[h_dc] );
       }
       else {

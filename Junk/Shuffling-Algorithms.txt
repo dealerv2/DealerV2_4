@@ -1,0 +1,40 @@
+Knuth Shuffle; Improved version of Fisher-Yates; 
+F-Y is unbiased fair but takes n^2 time; 
+Knuth/Durstenfeld same idea, same unbiased, but takes n time.
+
+The naïve method of swapping each element with another element chosen randomly from all elements is biased.
+                                                                                   ^^^^^^
+-- To shuffle an array a of n elements (indices 0..n-1):
+for i from n−1 down to 1 do
+     j ← random integer such that 0 ≤ j ≤ i   <<<<<<<<<< note J is not chosen from 0 .. n
+     exchange a[j] and a[i]
+  
+  An equivalent version which shuffles the array in the opposite direction (from lowest index to highest) is:   
+     -- To shuffle an array a of n elements (indices 0..n-1):
+for i from 0 to n−2 do
+     j ← random integer such that i ≤ j < n
+     exchange a[i] and a[j]
+ 
+ 
+ Inside Out Shuffle -- improved Knuth?
+ If we do not need an 'in place' shuffle (because the set is small say) then we can speed up things by avoiding swaps. saves one assign    
+To initialize an array a of n elements to a randomly shuffled copy of source, both 0-based:
+  for i from 0 to n − 1 do
+      j ← random integer such that 0 ≤ j ≤ i
+      if j ≠ i                      // the test and cond branch may cost more than just doing the assign.
+          a[i] ← a[j]
+      a[j] ← source[i]
+      
+insideout_shuffle(char *deck, int n) { // knuth shuffle using different src and dest arrays. Saves a swap. faster?
+
+	To initialize an array a of n elements to a randomly shuffled copy of source, both 0-based:
+  for i from 0 to n − 1 do
+      j ← random integer such that 0 ≤ j ≤ i
+      if j ≠ i
+          a[i] ← a[j]
+      a[j] ← source[i]
+      This looks flawed to me since the very first element i=0 always yields a j=0; a[0] is always i[0].
+      further I don't see any guarrantee that every j will receive an i; what if say i = 50, and j = 37;
+      then a[37] is say overwritten with src[50] and whatever was in 
+
+

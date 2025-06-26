@@ -1,0 +1,38 @@
+# File to create the 'NS_HCPmetric,EW_HCPmetrics' tables from the rpLib.zrd file
+generate 10485760    // there are 10,485,760 deals in the library
+produce  2
+title " This output will need to be post processed by Perl or mlr to convert x100 ints into xx.dd numbers"
+
+// PAV Body Points. If 4*Tens + 2*Nines + Eights >16 then GOOD if 12-15 then FAIR if 0-11 then POOR. 
+// When evaluating 3NT, GOOD or FAIR allows 25 HCP to make 70% and 24 HCP 60%/up so translate those >14 to be = 1HCP.
+// Note when rounding metrics like KnR and Zar, PAV uses 3*Tens+2*Nines+Eights >= 12 Round up, else round down -- This is not the same.
+
+// In General the DealerServer program called by UserEval does not want the altcount arrays to be redefined. It relies on the altcount 0 .. 8 to be 'standard'
+// In the cse of AltHCP metrics it does not use the C13 count so we can re-use that to count Nines.
+//         A K Q J T 9
+altcount 9 0 0 0 0 0 1
+PAV_body_ptsN = ((4*tens(north) + 2*pt9(north)+ hascard(north,8C)+hascard(north,8D)+hascard(north,8H)+hascard(north,8S)) > 13) ? 1 : 0 
+PAV_body_ptsS = ((4*tens(south) + 2*pt9(south)+ hascard(south,8C)+hascard(south,8D)+hascard(south,8H)+hascard(south,8S)) > 13) ? 1 : 0
+PAV_body_ptsE = ((4*tens(east ) + 2*pt9(east )+ hascard(east ,8C)+hascard(east ,8D)+hascard(east ,8H)+hascard(east ,8S)) > 13) ? 1 : 0
+PAV_body_ptsW = ((4*tens(west ) + 2*pt9(west )+ hascard(west ,8C)+hascard(west ,8D)+hascard(west ,8H)+hascard(west ,8S)) > 13) ? 1 : 0
+PAV_body_ptsNS= PAV_body_ptsN + PAV_body_ptsS
+PAV_body_ptsEW= PAV_body_ptsE + PAV_body_ptsW
+
+action
+    printrpt(  rnd(0), EW, hcp(east)+hcp(west), PAV_body_ptsEW,    
+
+    //AltT050-x100           AltA425-x100          AltAT475-x100         
+    usereval(41, EW, 3 ),  usereval(41, EW, 9 ), usereval(41, EW, 15 ),
+
+    //BWrap-x100             Woolsey-x100               BWjgm-x100                
+    usereval(41, EW, 21 ), usereval(41, EW, 27 ),  usereval(41, EW, 39 ), 
+     
+    //And5thsx100           OPCjgm-x100 			KnR x100                 cccc x100
+     usereval(41, EW, 33 ), usereval(41, EW, 45 ), usereval(41, EW, 51 ), cccc(north)+cccc(south)
+    ),                         
+ 
+
+# Output;
+# 11,e A753.862.KJ32.83 w T842.JT3.A8.KJT7 ,17,1850,1750,1900,1780,1755,1800,1725,1750,1950
+# 11,e 32.KT86.J874.K53 w 76.Q7532.T.QT962 ,11,0,1200,1100,1200,1100,1400,1025,1025,1075,1050
+

@@ -1,0 +1,24 @@
+Copyright_Notice.txt	DOP/Copyright_Notice.txt
+Doc/	                DOP/Doc/
+Doc/1deal.dat	        DOP/Doc/1deal.dat
+Doc/Dealer_DOP_IF.txt	DOP/Doc/Dealer_DOP_IF.txt
+Doc/sub_defs.txt	    DOP/Doc/sub_defs.txt
+Doc/Usage.txt	        DOP/Doc/Usage.txt
+dop	                    DOP/dop
+DOP_Calculation_Subs_V21.pl	DOP/DOP_Calculation_Subs_V21.pl
+DOP_Competition_Subs_V21.pl	DOP/DOP_Competition_Subs_V21.pl
+DOP_main_V21.pl	        DOP/DOP_main_V21.pl
+DOP_Requires_V21.pl	    DOP/DOP_Requires_V21.pl
+DOP_Subs2_V20.pl	    DOP/DOP_Subs2_V20.pl
+DOP_Subs2_V21.pl	    DOP/DOP_Subs2_V21.pl
+DOP_Subs_V21.pl	        DOP/DOP_Subs_V21.pl
+DOP_Util_Subs_V21.pl	DOP/DOP_Util_Subs_V21.pl
+DOP_Var_Defns_V21.pl	DOP/DOP_Var_Defns_V21.pl
+Examples/	            DOP/Examples/
+Examples/2021_Share.dat	DOP/Examples/2021_Share.dat
+Examples/2021_Share.rpt	DOP/Examples/2021_Share.rpt
+Examples/DOP_3lines_SS_Rpts.txt	DOP/Examples/DOP_3lines_SS_Rpts.txt
+Examples/DOP_Sample.txt	DOP/Examples/DOP_Sample.txt
+Examples/DOP_Usage.txt	DOP/Examples/DOP_Usage.txt
+GPL_V3.pdf	            DOP/GPL_V3.pdf
+subxref.txt	D           OP/subxref.txt

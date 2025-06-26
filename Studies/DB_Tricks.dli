@@ -1,0 +1,14 @@
+# File to create the 'TricksNS' and 'TricksEW' tables from the rpLib.zrd file
+generate 10485760    // there are 10,485,760 deals in the library
+produce  10485760
+condition par(NS) < 8000  // always true but forces trix cache to fill with all 20 vals
+MaxTrx_NS = usereval(80, NS, 0)
+MaxStr_NS = usereval(80, NS, 1)
+MaxSeatNS = usereval(80, NS, 2)
+MaxTrx_EW = usereval(80, EW, 0)
+MaxStr_NS = usereval(80, EW, 1)
+MaxSeatEW = usereval(80, EW, 2) 
+action
+
+csvrpt(   rnd(0),trix(north),trix(south),MaxTrx_NS,MaxStr_NS,MaxSeatNS ), 
+printrpt( rnd(0),trix(east), trix(west), MaxTrx_EW,MaxStr_EW,MaxSeatEW ),

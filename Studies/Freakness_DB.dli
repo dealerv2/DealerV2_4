@@ -1,0 +1,43 @@
+generate 11000000
+produce 11000000
+seed 0
+title "Table of Suit Lengths, Hand Freakness, Hand Losers and Hand Modern LTC"
+# Freakness: For each suit: (each card over 4 in a suit = +1; each card less than 3 in a suit = +1.) If hand contains a void +2 else if hand contains a stiff +1 .
+FkShpN = shape(north, any 0xxx) ? 2 : shape(north, any 1xxx) ? 1 : 0 
+FkSpN  = spades(north) > 4 ? spades(north) - 4 : spades(north) < 3 ? 3 - spades(north) : 0 
+FkHeN  = hearts(north) > 4 ? hearts(north) - 4 : hearts(north) < 3 ? 3 - hearts(north) : 0 
+FkDiN  = diamond(north)> 4 ? diamond(north)- 4 : diamond(north)< 3 ? 3 - diamond(north): 0 
+FkClN  = clubs(north)  > 4 ? clubs(north)  - 4 : clubs(north)  < 3 ? 3 - clubs(north)  : 0 
+FkN    = FkShpN + FkSpN + FkHeN + FkDiN + FkClN
+
+FkShpS = shape(south, any 0xxx) ? 2 : shape(south, any 1xxx) ? 1 : 0 
+FkSpS  = spades(south) > 4 ? spades(south) - 4 : spades(south) < 3 ? 3 - spades(south) : 0 
+FkHeS  = hearts(south) > 4 ? hearts(south) - 4 : hearts(south) < 3 ? 3 - hearts(south) : 0 
+FkDiS  = diamond(south)> 4 ? diamond(south)- 4 : diamond(south)< 3 ? 3 - diamond(south): 0 
+FkClS  = clubs(south)  > 4 ? clubs(south)  - 4 : clubs(south)  < 3 ? 3 - clubs(south)  : 0 
+FkS    = FkShpS + FkSpS + FkHeS + FkDiS + FkClS
+
+FkShpE = shape(east, any 0xxx) ? 2 : shape(east, any 1xxx) ? 1 : 0 
+FkSpE  = spades(east) > 4 ? spades(east) - 4 : spades(east) < 3 ? 3 - spades(east) : 0 
+FkHeE  = hearts(east) > 4 ? hearts(east) - 4 : hearts(east) < 3 ? 3 - hearts(east) : 0 
+FkDiE  = diamond(east)> 4 ? diamond(east)- 4 : diamond(east)< 3 ? 3 - diamond(east): 0 
+FkClE  = clubs(east)  > 4 ? clubs(east)  - 4 : clubs(east)  < 3 ? 3 - clubs(east)  : 0 
+FkE    = FkShpE + FkSpE + FkHeE + FkDiE + FkClE
+
+FkShpW = shape(west, any 0xxx) ? 2 : shape(west, any 1xxx) ? 1 : 0 
+FkSpW  = spades(west) > 4 ? spades(west) - 4 : spades(west) < 3 ? 3 - spades(west) : 0 
+FkHeW  = hearts(west) > 4 ? hearts(west) - 4 : hearts(west) < 3 ? 3 - hearts(west) : 0 
+FkDiW  = diamond(west)> 4 ? diamond(west)- 4 : diamond(west)< 3 ? 3 - diamond(west): 0 
+FkClW  = clubs(west)  > 4 ? clubs(west)  - 4 : clubs(west)  < 3 ? 3 - clubs(west)  : 0 
+FkW    = FkShpW + FkSpW + FkHeW + FkDiW + FkClW
+
+condition shape(north, any 5xxx + any 6xxx + any 2xxx + any 1xxx + any 0xxx + any 4333 ) 
+
+action 
+#	printrpt (north, "N Freakness Tot=",FkN, "FkShp=",FkShpN, "FkSp=",FkSpN,"FkHe=",FkHeN,"FkDi=",FkDiN,"FkCl=",FkClN )
+    csvrpt(rnd(0),
+					"n",clubs(north),diamond(north),hearts(north),spades(north),FkN,losers(north),ltc(north),
+				    "s",clubs(south),diamond(south),hearts(south),spades(south),FkS,losers(south),ltc(south),
+				    "e",clubs(east), diamond(east), hearts(east), spades(east), FkE,losers(east),ltc(east),
+				    "w",clubs(west), diamond(west), hearts(west), spades(west), FkW,losers(west),ltc(west)
+	)			    

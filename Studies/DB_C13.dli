@@ -1,0 +1,18 @@
+# File to create the 'NS_HCPmetric,EW_HCPmetrics' tables from the rpLib.zrd file
+generate 10485760    // there are 10,485,760 deals in the library
+produce  10485760
+title " This DB_C13.cli output will need to be post processed by Perl or mlr to convert x100 ints into xx.dd numbers"
+# Define a scaled C13. No Ten since with a Ten it is just Bumwrap
+altcount 8 4.5 3.0 1.5 0.75 0  //C13_075 tot = 9.75 C13 * 3/4  (add .25 for a Ten and we get Bumwrap )
+altcount 7 4.6 3.0 1.6 0.8 0  // C13_jgm tot=10    C13_jgm to make tot=10 but more bal between Q and J than Woolsey
+// Woolsey	4.5 3.0 1.75 0.75	0
+// Bumwrap 	4.5 3.0 1.5  0.75 0.25
+
+# altcount 9 6.0 4.0 2.0 1.0  // C13 on a dotnum scale
+action
+   //  printrpt( EW , pt7(east), pt7(west) ),
+    csvrpt(rnd(0), c13(north)+c13(south),pt8(north)+pt8(south),pt7(north)+pt7(south), c13(east)+c13(west),pt8(east)+pt8(west),pt7(east)+pt7(west) )
+   // perl post processing will divide by 100 and also output C13*10/13 to 3 decimal places.
+   // AltC13metrics(C13_NS, C13_BW_NS, C13_jgm_NS, C13_scaled_NS,C13_EW, C13_BW_EW, C13_jgm_EW, C13_scaled_EW )
+
+

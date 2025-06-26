@@ -1,0 +1,48 @@
+# File to create the 'NS_HCPmetric,EW_HCPmetrics' tables from the rpLib.zrd file
+generate 10485760    // there are 10,485,760 deals in the library
+produce  2
+title " This output will need to be post processed by Perl or mlr to convert x100 ints into xx.dd numbers"
+
+// PAV Body Points. If 4*Tens + 2*Nines + Eights >16 then GOOD Body. if 12-15 then FAIR if 0-11 then POOR. 
+// When evaluating 3NT, GOOD or FAIR allows 25 HCP to make 70% and 24 HCP 60%/up so translate those >14 to be = +1HCP. (JGM Hack)
+// Note when ROUNDING metrics like KnR and Zar, PAV uses IF( 3*Tens+2*Nines+Eights >= 12) THEN Round up, else round down -- This is NOT the same as Good,Fair,Poor above.
+
+// In General the DealerServer program called by UserEval does not want the altcount arrays to be redefined. It relies on the altcount 0 .. 8 to be 'standard'
+//  But idxC13 does not appear anywhere in the src for Dealer Server so it does not use the C13 value, and we can redefine it here to count Nines
+//         A K Q J T 9
+altcount 9 0 0 0 0 0 1
+PAV_body_ptsN = ((4*tens(north) + 2*pt9(north)+ hascard(north,8C)+hascard(north,8D)+hascard(north,8H)+hascard(north,8S)) > 13) ? 1 : 0 
+PAV_body_ptsS = ((4*tens(south) + 2*pt9(south)+ hascard(south,8C)+hascard(south,8D)+hascard(south,8H)+hascard(south,8S)) > 13) ? 1 : 0
+PAV_body_ptsE = ((4*tens(east ) + 2*pt9(east )+ hascard(east ,8C)+hascard(east ,8D)+hascard(east ,8H)+hascard(east ,8S)) > 13) ? 1 : 0
+PAV_body_ptsW = ((4*tens(west ) + 2*pt9(west )+ hascard(west ,8C)+hascard(west ,8D)+hascard(west ,8H)+hascard(west ,8S)) > 13) ? 1 : 0
+PAV_body_ptsNS= PAV_body_ptsN + PAV_body_ptsS
+PAV_body_ptsEW= PAV_body_ptsE + PAV_body_ptsW
+
+action
+    printrpt(EW,"HCP=",  hcp(east)+hcp(west), "PAV Body Val[]=", usereval(41, EW, 126 ), usereval(41, EW, 127 )),    
+
+					// AltT050           																	AltT050-x100	                 
+    printrpt("AltT050 :", usereval(41, EW, 0 ),usereval(41, EW, 1 ),usereval(41, EW, 2 ),usereval(41, EW, 3 ),usereval(41, EW, 4 ),usereval(41, EW, 5 )),  
+					// AltA425															 AltA425-x100 
+    printrpt("AltA450 :", usereval(41, EW, 6 ),usereval(41, EW, 7 ),usereval(41, EW, 8 ),usereval(41, EW, 9 ),usereval(41, EW,10 ),usereval(41, EW,11 )),
+					// AltAT475															 AltAT475-x100
+	printrpt("AltAT475:", usereval(41, EW,12 ),usereval(41, EW,13 ),usereval(41, EW,14 ),usereval(41, EW,15 ),usereval(41, EW,16 ),usereval(41, EW,17 )),
+					// BumWrap 															 BumWrap-x100
+	printrpt("BumWrap :", usereval(41, EW,18 ),usereval(41, EW,19 ),usereval(41, EW,20 ),usereval(41, EW,21 ),usereval(41, EW,22 ),usereval(41, EW,23 )),
+					// Woolsey															 Woolsey-x100
+	printrpt("Woolsey :", usereval(41, EW,24 ),usereval(41, EW,25 ),usereval(41, EW,26 ),usereval(41, EW,27 ),usereval(41, EW,28 ),usereval(41, EW,29 )),		
+					// And5ths														     And5thsx100  
+    printrpt("Andrew_5:", usereval(41, EW,30 ),usereval(41, EW,31 ),usereval(41, EW,32 ),usereval(41, EW,33 ),usereval(41, EW,34 ),usereval(41, EW,35 )),
+					// BW_jgm															 BW_jgm-x100    
+    printrpt("BW_jgm  :", usereval(41, EW,36 ),usereval(41, EW,37 ),usereval(41, EW,38 ),usereval(41, EW,39 ),usereval(41, EW,40 ),usereval(41, EW,41 )),		
+					// OPC_jgm															 OPC_jgm-x100
+    printrpt("OPC_jgm :", usereval(41, EW,42 ),usereval(41, EW,43 ),usereval(41, EW,44 ),usereval(41, EW,45 ),usereval(41, EW,46 ),usereval(41, EW,47 )), 
+					// KnR_NT															 KnR_NTx100 
+    printrpt("KnR NT  :", usereval(41, EW,48 ),usereval(41, EW,49 ),usereval(41, EW,50 ),usereval(41, EW,51 ),usereval(41, EW,52 ),usereval(41, EW,53 ))   
+ 
+# Output;
+# e A5.A874.AJ7.QJ97 w K.KJ953.K82.AT64 ,'HCP=',30,'PAV Body Val[]=',3,6
+# 'AltT050 :',29,16,13,2950,1600,1350 
+# etc.....
+
+

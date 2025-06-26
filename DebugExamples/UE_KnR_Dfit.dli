@@ -1,4 +1,4 @@
- // file Descr.UE_KnR  -- note the single line C style comment works ok so long as NOT start in col 1
+ // file UE_KnR.dli  -- note the single line C style comment works ok 
 produce 1
 generate 100
 seed 29

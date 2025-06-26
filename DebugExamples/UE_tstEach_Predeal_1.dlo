@@ -1,0 +1,49 @@
+src/UserServer.c:166 UE::pid=344402, Argc=3, argv[0]= ../Debug/DealerSrvdbg ,  mmap_fd=   3,  jgmDebug=   7 
+ 'NS:',n AKJT32.Q98.J98.9 ,'     ',s Q54.2.K6543.J432 ,'t_fitlen=',9,'t_suit=',3
+ 'Berg     NT',18,12,6,' BF ',31,20,11
+ 'BISSEL   NT',24,17,7,' BF ',24,17,7
+ 'DKP      NT',19,13,6,' BF ',21,13,8
+ 'GOREN    NT',17,11,6,' BF ',25,16,9
+ 'KAPLAN   NT',20,13,7,' BF ',24,15,9
+ 'KARPIN   NT',20,13,7,' BF ',23,15,8
+ 'KARP_B   NT',19,13,6,' BF ',22,15,7
+ '    RAW  NT',1925,1275,650,' BF ',2225,1475,750
+ 'KnR      NT',22,15,7,' BF ',25,16,9
+ '    RAW  NT',2210,1485,725,' BF ',2510,1585,925
+ 'LARSON   NT',19,13,6,' BF ',21,13,8
+ 'LAR_B    NT',17,12,5,' BF ',19,12,7
+ '    RAW  NT',1775,1225,550,' BF ',1975,1225,750
+ 'PAV      NT',18,11,7,' BF ',24,16,8
+ 'SHEINW   NT',21,14,7,' BF ',25,16,9
+ 'ZARBAS   NT',48,28,20,' BF ',48,28,20
+ '  scaled NT',24,14,10,' BF ',24,14,10
+ 'ZARADV   NT',48,28,20,' BF ',53,31,22
+ '  scaled NT',24,14,10,' BF ',26,15,11
+ 'ROTH     NT',19,13,6,' BF ',23,15,8
+ 'EW:',e 76.J743.A2.KQ765 ,'     ',w 98.AKT65.QT7.AT8 ,'t_fitlen=',9,'t_suit=',2
+ 'Berg     NT',27,11,16,' BF ',31,14,17
+ 'BISSEL   NT',25,11,14,' BF ',25,11,14
+ 'DKP      NT',27,11,16,' BF ',28,12,16
+ 'GOREN    NT',23,10,13,' BF ',28,13,15
+ 'KAPLAN   NT',25,11,14,' BF ',28,13,15
+ 'KARPIN   NT',25,11,14,' BF ',27,13,14
+ 'KARP_B   NT',26,11,15,' BF ',28,13,15
+ '    RAW  NT',2575,1075,1500,' BF ',2775,1275,1500
+ 'KnR      NT',26,11,15,' BF ',27,12,15
+ '    RAW  NT',2590,1070,1520,' BF ',2690,1170,1520
+ 'LARSON   NT',24,10,14,' BF ',25,11,14
+ 'LAR_B    NT',24,10,14,' BF ',25,11,14
+ '    RAW  NT',2425,1025,1400,' BF ',2525,1125,1400
+ 'PAV      NT',25,11,14,' BF ',28,12,16
+ 'SHEINW   NT',25,11,14,' BF ',28,13,15
+ 'ZARBAS   NT',54,25,29,' BF ',54,25,29
+ '  scaled NT',27,12,15,' BF ',27,12,15
+ 'ZARADV   NT',54,25,29,' BF ',59,27,32
+ '  scaled NT',27,12,15,' BF ',29,13,16
+ 'ROTH     NT',25,11,14,' BF ',28,13,15
+
+UE_tstEach_Predeal.dli 
+Generated 1 hands
+Produced  1 hands
+Initial random seed 220418881188551
+Time needed    5.922 sec

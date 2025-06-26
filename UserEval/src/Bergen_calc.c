@@ -1,6 +1,7 @@
 /* File bergen_calc.c */
 /* Date        Version  Author   Description
  * 2024/08/12  1.0      JGM      Extracted from metrics_calcs.c and factors.c; Using the UE_SIDESTAT functionality
+ * 2025/04/12  1.1      JGM      Prevent any final results from being less than zero.
  *
  */
 #define GNU_SOURCE
@@ -40,7 +41,7 @@ int bergen_calc( UE_SIDESTAT_k *p_ss) {    /* Tag Number: 0 */
    phs[0] = p_ss->phs[0];
    phs[1] = p_ss->phs[1];
    p_hs   = p_ss->phs[0] ;
-  set_dbg_names(0, "bergen_calc");
+   set_dbg_names(0, "bergen_calc");
    
    /*
     * Bergen: hand[0] incl ADJ-3 to get starting points. Then hand[1] ditto.
@@ -88,6 +89,8 @@ int bergen_calc( UE_SIDESTAT_k *p_ss) {    /* Tag Number: 0 */
       else if (adj3_cnt >=  6 )  { body_pts[h] += +2 ; } // Upgrade
       else if (adj3_cnt >=  3 )  { body_pts[h] += +1 ; } // Upgrade
       berg_NTpts[h] = lround(fhcp[h]+fhcp_adj[h]) + syn_pts[h] + lpts[h] + body_pts[h] + hand_adj[h] ; /* starting points for hand h */
+      /* JGM::2025-04-12 a hand can NEVER have negative points no matter the deductions */
+      if (berg_NTpts[h] < 0 ) berg_NTpts[h] = 0 ; 
       JGMDPRT(8,"Adj3 BERG, seat[%c] adj3_cnt=%d, body_pts=%d, Berg_NT_Tot=%d\n", compass[h], adj3_cnt, body_pts[h], berg_NTpts[h] );
       UEv.nt_pts_seat[h] = berg_NTpts[h] ;
    } /* end for each hand */
@@ -127,8 +130,8 @@ int bergen_calc( UE_SIDESTAT_k *p_ss) {    /* Tag Number: 0 */
         if (  misfit[s].mf_type > 3 ) { misfit_cnt = 1 ; } /* len pts only assigned for 4+ so waste wont matter */
      }
      if (0 < misfit_cnt ) { /* there is at least one misfit Subtract any Length pts previously assigned to the NT pts*/
-        UEv.nt_pts_seat[0] -= lpts[0] ;
-        UEv.nt_pts_seat[1] -= lpts[1] ;
+        UEv.nt_pts_seat[0] -= lpts[0] ; if (UEv.nt_pts_seat[0]  < 0 ) UEv.nt_pts_seat[0]  = 0 ; /* JGM:: 2025-04-12 A hand can NEVER have negative points */
+        UEv.nt_pts_seat[1] -= lpts[1] ; if (UEv.nt_pts_seat[1]  < 0 ) UEv.nt_pts_seat[1]  = 0 ;
         UEv.nt_pts_side = UEv.nt_pts_seat[0] + UEv.nt_pts_seat[1] ;
         JGMDPRT(7, "Berg MISFIT calcs Done removed lpts %d, %d\n", lpts[0], lpts[1]);
         /* no further adj for wastage vs shortness,  or for shortness vs len*/

@@ -31,10 +31,11 @@ rpLib.zrd
 Scratchpad/*
 scratchpad/*
 Simulations/*
+Studies/*.csv
+Studies/*.dat
 *.swp
 Test/*
 UserEval/Archive/*
 UserEval/scratchpad
 Utils/Testing/*
 *ffs_gui
-Junk/*

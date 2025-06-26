@@ -76,6 +76,8 @@ int TblModeThreads = 8; /*    Number of threads to use when user asks fto indica
 char title[MAXTITLE+1]= ""; /* -T title. Usually in quotes which are removed by getopt flex action clause */
 int title_len = -1 ;		  /* >0 valid title;  <0 no title specified =0 suppress zrdhdr record(s) even if title in dli file*/
 
+int boardoffset = 0 ;     /* Used in printouts. Can be spec'd in input file only. No cmd line switch. 2025-07-01 */
+
 char *input_file = '\0';
 FILE *fexp;      /* -X file for exporting to; Normally NOT left as stdout except for testing */
 FILE *fcsv;      /* -C file for csvreport. Open in append mode unless user puts w:filename */
@@ -83,8 +85,10 @@ FILE *fzrd;      /* -Z [Nw:]filename Save produced deals for future use. Put N:f
 FILE *fzrdlib;   /* -L zrd Library file. Default is ../dat/rpLib.zrd */
 FILE *flog;      /* -l [Nw:]filename. Save produced deals in Deal52 fmt.Put N:filename if No DDS tricks wanted; default is tricks in all 20 possible contracts */ 
 
-
-char zrdlib_default[64] = ZRD_LIB; /* /usr/local/games/DealerV2_4/dat/rpLib.zrd or /home/myuser/DealerV2_4/dat/rpLib.zrd */
+							/* TINYLIB is in the Github repo. To get BIGLIB user must install separately because of Github repo file size limits */
+char tinylib[64] = TINYLIB ; /* /usr/local/games/DealerV2_4/dat/rpdd_Lib.zrd or /home/myuser/DealerV2_4/dat/rpdd_Lib.zrd */
+char biglib[64]  = BIGLIB  ; /* /usr/local/games/DealerV2_4/dat/rpLib.zrd or /home/myuser/DealerV2_4/dat/rpLib.zrd */
+char zrdlib_default[64] = ZRD_LIB; /* See dealdefs.h ; ZRDLIB is TINYLIB in the Github Repo. BIGLIB in Production */
 int    zrdlib_mode= 0 ;              /* 0= Not using RP Lib file; 1= Using RP Lib file; affects swapping, predeal, seed, */
 int    zrdlib_blksz = ZRD_BLOCKSIZE ; /* will be adjusted based on DB file size */
 int    zrdlib_recs  = ZRD_MAX_LIBRECS; /* will be calculated at run time */

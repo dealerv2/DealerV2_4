@@ -3,6 +3,7 @@
 
 #define HAS_CARD2p(p,s,r) p->Has_card[(s)][(r)]  // use ptr to seat handstat struct filled in by analyze()
 
+/* this next struct is the same as the one in the UserEval_types.h file, but a different name */
 struct KnR_points_dbg { /* The values will be x100 so we can use ints */
    int knr_honor_pts ;  /* A=3, K=2, Q=1? etc. x100*/
    int knr_short_pts;   /* Each Void=3, Each Stiff=2, Each Dblton except the first = 1 etc. x100*/

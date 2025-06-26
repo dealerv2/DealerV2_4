@@ -1,0 +1,33 @@
+# File to create the KISSmetric table from the rpLib.zrd file needs Post Parsing by Perl to convert zzxx to zz.xx
+generate 10485760    // there are 10,485,760 deals in the library
+produce  20
+
+title " This output will need to be post processed by Perl or mlr to convert x100 ints into xx.dd numbers"
+// Misc HCP methods with no corrections for short honors All as DotNums
+ altcount 0 4.0 3.0 2.0 1.0 0.5     // HCPT050
+ altcount 1 4.25 3.0 2.0 1.0 0.0    // HCPA425
+ altcount 2 4.25 3.0 2.0 1.0 0.5    // HCPAT475
+ altcount 3 4.5 3.0 1.5 0.75 0.25   // Bumwrap
+ altcount 4 4.5 3.0 1.75 0.75 0.0   // Woolsey
+ altcount 5 4.0 2.8 1.8 1.0 0.4     // Andy5ths 
+ altcount 6 4.25 3.0 1.75 0.75 0.25 // BWjgm     (Mix of Bumwrap and Woolsey )
+ altcount 7 13.0 9.0 5.0 2.0 1.0    // LJP by Benion with a jgm added Ten to get it to 30 pts so easy Div by 3 at the table.
+ altcount 8 4.5 3.0 1.5 0.75        // C13_BW  (C13*3/4 Bumwrap with No Ten; Total 9.75 see C13_BW in AltC13metricks)
+ altcount 9 4.2 3.0 1.6 0.8 0.4     // C13_jgm  close to C13*10/13 Tot=10. see C13_jgm in AltC13metrics
+
+action
+    printrpt(deal),
+    csvrpt(  rnd(0),
+             cccc(north)+cccc(south),       // cccc with no rounding or additional 'adjustments'
+             pt0(north)+pt0(south), pt1(north)+pt1(south), pt2(north)+pt2(south), 
+             pt3(north)+pt3(south), pt4(north)+pt4(south), pt5(north)+pt5(south),
+             pt6(north)+pt6(south), pt7(north)+pt7(south), pt8(north)+pt8(south),
+             pt9(north)+pt9(south),
+             cccc(east)+cccc(west),
+             pt0(east)+pt0(west), pt1(east)+pt1(west), pt2(east)+pt2(west), 
+             pt3(east)+pt3(west), pt4(east)+pt4(west), pt5(east)+pt5(west),
+             pt6(east)+pt6(west), pt7(east)+pt7(west), pt8(east)+pt8(west),
+             pt9(east)+pt9(west)
+   )
+
+

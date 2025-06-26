@@ -14,7 +14,6 @@ PGMDIR="${ROOTDIR}${PGMVER}"
 OPCDIR="${ROOTDIR}DOP/"
 EXEDIR="${PGMDIR}bin/"
 LIBDIR="${PGMDIR}lib/"
-DIRLIST="bin dat Debug DebugExamples docs DOP Examples exe include lib Prod Regression src stdlib UserEval"
 SUDO_USER=$USER
 
 #copy the repo files to $PGMDIR

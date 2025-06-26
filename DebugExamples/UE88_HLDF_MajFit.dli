@@ -1,0 +1,44 @@
+produce  1000000    //  1 Million
+generate 10000000   // 10 Million
+title    "HLDF points and 8+ Major fit VS Number of DDS tricks. For later XLSX charts"
+seed 500
+  // File: UE88_HLDF_MajFit.dli   -- 2024/08/24
+  // run with dealerv2 -L ../dat/rpLib.zrd -U ./DealerServer -m -s 500 UE88_HLDF_MajFit.dli
+  OPChe =    (opc(NS, hearts) + 50 ) / 100
+  OPCsp =    (opc(NS, spades) + 50 ) / 100
+  SpTricks = dds(south, spades)
+  HeTricks = dds(south, hearts)
+  Spfit    = spades(south) + spades(north)
+  Hefit    = hearts(south) + hearts(north)
+  MajTricks= (Hefit > Spfit) ? dds(south, hearts) : dds(south, spades)
+
+  OPCval   = (Hefit > Spfit) ? ((opc(NS, hearts)+50)/100) : ((opc(NS, spades)+50)/100)  // round and scale the OPC values.
+  Zarbas   = usereval(88,NS,12)   // This no longer reqd since set88 now returns rounded values for zars.
+  Zaradv   = usereval(88,NS,13)   // he HLDF pts are in slots 0 .. 14, the NT pts in slots 15 .. 29
+
+// eliminate condition for timing tests so we know exactly how many records we process ...    
+//  condition spades(south) >= spades(north) && Spfit >= 8 && Spfit >= Hefit   // this should ensure that South is Declarer  
+//         or hearts(south) >= hearts(north) && Hefit >= 8 && Hefit > Spfit    // this should ensure that when hearts is BestFit it will in fact be chosen by UserEval
+//         && hcp(south) + hcp(north) >= 15 
+         
+action
+   frequency "Tag  0 Name BERG    Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,0), 15,48,  MajTricks,7,12),
+   frequency "Tag  1 Name BISSEL  Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,1), 15,48,  MajTricks,7,12),
+   frequency "Tag  2 Name DKP     Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,2), 15,45,  MajTricks,7,12),
+   frequency "Tag  3 Name GOREN   Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,3), 15,44,  MajTricks,7,12),
+   frequency "Tag  4 Name KAPLAN  Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,4), 15,44,  MajTricks,7,12),
+   frequency "Tag  5 Name KARPIN  Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,5), 15,44,  MajTricks,7,12),
+   frequency "Tag  6 Name KARP_B  Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,6), 15,44,  MajTricks,7,12),
+   frequency "Tag  7 Name KnRFit  Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,7), 15,48,  MajTricks,7,12),
+   frequency "Tag  8 Name LAR     Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,8), 15,44,  MajTricks,7,12),   
+   frequency "Tag  9 Name LAR_B   Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,9), 15,44,  MajTricks,7,12),
+   frequency "Tag 10 Name PAV     Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,10),15,44,  MajTricks,7,12),
+   frequency "Tag 11 Name SHEINW  Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,11),15,44,  MajTricks,7,12),
+   frequency "Tag 14 Name ROTH    Strain Major Size 10KSeed 500 :Top=48" (usereval(88,NS,15),15,40,  MajTricks,7,12),
+   //frequency "Tag 15 Name OPC     Strain Major Size 10KSeed 500 :Top=48" (OPCval,          15,48,  MajTricks,7,12),
+   frequency "Tag 12 Name ZARBAS  Strain Major Size 10KSeed 500 :Top=48" (Zarbas,            15,50,  MajTricks,7,12),
+   frequency "Tag 13 Name ZARADV  Strain Major Size 10KSeed 500 :Top=48" (Zaradv,            15,50,  MajTricks,7,12),
+
+//printrpt( NS, usereval(88,NS,126),usereval(88,NS,127),MajTricks,OPCval,OPChe,OPCsp,usereval(88,NS,0),usereval(88,NS,8) )
+
+             

@@ -1,4 +1,4 @@
-/* File user_short_honors_subs.c -- by :JGM : code that implements calculating the various short honor deductions */
+/* File honors_calc_subs.c -- by :JGM : code that implements calculating the various short honor deductions */
 /* Date      Version  Author  Description
 * 2024/108/13 1.0.0    JGM  -- adjShort Honor subs.
 
@@ -52,7 +52,7 @@ enum metric_ek    { BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, 
 /* Future: Implement these and also std_a, std_t, std_at per Andrews research in a 31 col table for easy lookup of the combos */
 /*                           std       Aces C13       BUM-RAP                    KnR          DKP*3        Andrews Fifths  */
 float_t hcp_val[][5] = { {4,3,2,1,0}, {6,4,2,1,0}, {4.5,3.0,1.5,0.75,0.25}, {3,2,1,0,0} , {13,9,5,2,0}, {4.,2.8,1.8,1.,0.4 },   
-								/* Woolsey                     OPC              JGMBW  a better BumWrap    JGMOPC a better OPC */
+								/* Woolsey                     OPC              BWjgm  a better BumWrap    OPCjgm a better OPC */
                         {4.5,3.0,1.75,0.75,0.0}, {4.5,3.0,1.5,0.5,0} ,  {4.25,3.0,1.75,0.75,0.25}, {4.25,3.0,1.5,0.5,0}
 };
 float_t stiff_H_adj[][5] = {
@@ -89,7 +89,7 @@ float_t dbl_HH_adj[][16] = {
    /* Goren  */ { -0, -0, -0, -0, -0., -0, -0, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Goren KQ? KJ? */
    /* Kaplan */ { -0, -0, -0, -0, -0., -0, -0, -0, -0., -1, -0, -0., -0, -0, -0,  -0.0}, /* Per the book. 1964*/
    /* Karpin */ { -0, -0, -0, -0, -0., -1, -1, -0, -0., -1, -1, -1., -1, -1, -0,  -0.0}, /* Per PAV web Page.  */
-   /* KARP_B */ { -1, -1,-.5, -0, -0., -1, -0, -0, -0., -1, -1, -1., -1,-.75,-.25,-0.0}, /* Ded for BumWrap? 4.5,3,1.5,0.75,0.25 */
+   /* KARP_B */ { -1, -1,-.5, -0, -0., -1, -0, -0, -0., -1, -1, -1., -1,-.75,-.25,-0.0}, /* Ded for BWjgm? 4.25,3,1.75,0.75,0.25 */
    /* KnR    */ { -0, -0, -0, -0, -0., -0, -0, -0, -0., -0, -0, -0., -0, -0, -0,  -0.0}, /* KnR Dont deduct for dblton Honors */
    /* LAR    */ { -0, -0, -0, -0, -0., -1, -0, -0, -0., -1, -0, -0., -0, -0, -0,  -0.0}, /* based on book */
    /* LAR_B  */ { -0, -.5,-.25,-0,-0., -0, -0, -0,-0.,-.25,-.25,-.5,-.5,-.75,-.25,-0.0}, /* reflects opc values for HH dblton*/
@@ -192,14 +192,14 @@ float_t shortHon_adj (HANDSTAT_k *phs, int suit, int tag ) {
    return (adj_pts);
 } /* end shortHon_adj */
 
-//                             Work=0        BumWrap/OPC=1         C13/Aces=2    KnR=3          DKP=4         Andrews Fiths=5
-// float_t hcp_val[6][5] = { {4,3,2,1,0}, {4.5,3.0,1.5,0.75,0.25}, {6,4,2,1,0}, {3,2,1,0,0} , {13,9,5,2,0}, {4.,2.8,1.8,1.,0.4 } };
+/* HCP_Scale: 0=std 1=Aces C13 2=BUM-RAP 3=KnR 4=DKP*3 5=Andrews Fifths 6=Woolsey 7=OPC(needs Syn) 8=BWjgm 9=OPCjgm(no syn)  */
 float_t calc_alt_hcp (HANDSTAT_k *phs, int suit, int mtype ) {
    float alt_hcp = 0.0 ; 
    float alt_syn = 0.0 ;
    int r, j ;
-   /* Translate the metric type: Berg downto Roth      Zar and Fut to the alt hcp table to use */
-   int hcp_type[] = {0, 0, 4, 0, 0, 0, 1,     3, 0, 1,   0, 0, 0, 0,   0,    0, 0, 0, 0, 0, 0} ;
+   /* Map the metric number to the HCP scale to use */
+   /* HCP_Scale: 0=std 1=Aces C13 2=BUM-RAP 3=KnR 4=DKP*3 5=Andrews Fifths 6=Woolsey 7=OPC(needs Syn) 8=BWjgm 9=OPCjgm(no syn)  */
+   int hcp_type[] = {0, 0, 4, 0, 0, 0, 8,     3, 0, 8,   0, 0, 0, 0,   0,    0, 0, 0, 0, 0, 0} ;
    /*                     DKP   KAP   KARPB  KNR   LAR_B P  S  Zar    Roth   Future      These are the Metrics that need translation */
    int type = hcp_type[mtype];
    for (r= ACE , j=0 ; r >= TEN ; r--, j++ ) {

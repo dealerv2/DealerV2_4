@@ -1,0 +1,34 @@
+generate 10000000
+produce 10
+seed 919
+
+// Version 2025/04/27  - UE Tags: HLDF vs NT evaluations
+
+
+title "Set 88 Test; Zar Values are Scaled (div by 2 and rounded"
+
+condition  
+ 
+   hcp(south)+hcp(north) >= 23 && (hearts(north) + hearts(south)) >= 7
+
+action
+
+ 
+   // These next actions compare the HLDF and the NT values for all the different metrics.
+   // We expect them to be close, but that the HLDF ones (0..14) will usually be higher than the NT ones (15 .. 29 ) 
+   printrpt "      Bergen,Bissel,DKP,Goren,Kaplan,Karpin,Karpin_BW,Larsson,Lar_BW,PAV,Shein,ZarBasic,ZarAdv,Roth",
+   
+  printrpt( rnd(0), NS , hcp(north), hcp(south),hcp(north)+hcp(south),"trix=",dds(south,hearts), dds(south,notrump), "Trumps=",usereval(88,NS,126),usereval(88,NS,127) ) ,   
+   printrpt( "HLDF::", usereval(88,NS, 0),usereval(88,NS, 1),usereval(88,NS, 2),usereval(88,NS, 3),usereval(88,NS, 4), "V",
+                       usereval(88,NS, 5),usereval(88,NS, 6),usereval(88,NS, 7),usereval(88,NS, 8),usereval(88,NS, 9),"X" ,
+                       usereval(88,NS,10),usereval(88,NS,11),usereval(88,NS,12),usereval(88,NS,13),usereval(88,NS,14) ),
+   printrpt( "NT  ::", usereval(88,NS,15),usereval(88,NS,16),usereval(88,NS,17),usereval(88,NS,18),usereval(88,NS,19),"V",
+                       usereval(88,NS,20),usereval(88,NS,21),usereval(88,NS,22),usereval(88,NS,23),usereval(88,NS,24),"X" ,
+                       usereval(88,NS,25),usereval(88,NS,26),usereval(88,NS,27),usereval(88,NS,28),usereval(88,NS, 29) ),
+
+   
+   // Note set88 returns the HLDF.side value for each metric in slots 0 .. 14, and the NT.side value in slots 15..29
+  //    0        1       2     3      4      5        6      7    8    9     10     11       12      13     14     
+  // BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH,
+
+

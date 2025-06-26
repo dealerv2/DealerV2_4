@@ -1,0 +1,15 @@
+ generate 10000000
+produce  2
+seed 919
+title "Alt HCP Counts Rounded and Raw*100 "
+action
+    printrpt( NS ) ,
+    printrpt("AltT050",usereval(41, NS, 0), usereval(41, NS, 1), usereval(41, NS, 2), usereval(41, NS, 3), usereval(41, NS, 4), usereval(41, NS, 5)), 
+    printrpt("AltA425",usereval(41, NS, 6), usereval(41, NS, 7), usereval(41, NS, 8), usereval(41, NS, 9), usereval(41, NS,10), usereval(41, NS,11)),
+    printrpt("AltA475",usereval(41, NS,12), usereval(41, NS,13), usereval(41, NS,14), usereval(41, NS,15), usereval(41, NS,16), usereval(41, NS,17)),
+    printrpt("Bumwrap",usereval(41, NS,18), usereval(41, NS,19), usereval(41, NS,20), usereval(41, NS,21), usereval(41, NS,22), usereval(41, NS,23)),
+    printrpt("Woolsey",usereval(41, NS,24), usereval(41, NS,25), usereval(41, NS,26), usereval(41, NS,27), usereval(41, NS,28), usereval(41, NS,29)),
+    printrpt("And5ths",usereval(41, NS,30), usereval(41, NS,31), usereval(41, NS,32), usereval(41, NS,33), usereval(41, NS,34), usereval(41, NS,35)),
+    printrpt("BWjgm  ",usereval(41, NS,36), usereval(41, NS,37), usereval(41, NS,38), usereval(41, NS,39), usereval(41, NS,40), usereval(41, NS,41)),
+    printrpt("OPCjgm ",usereval(41, NS,42), usereval(41, NS,43), usereval(41, NS,44), usereval(41, NS,45), usereval(41, NS,46), usereval(41, NS,47)),
+

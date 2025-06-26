@@ -5,8 +5,8 @@ seed 29
 dealer west
 vulnerable EW
 title "Testing UE version of KnR"
-#      0      1       2     3     4      5       6      7    8    9    10   11    12    13   14       -1
-#  { BERG=0, BISSEL, DKP, GOREN, JGM1, KAPLAN, KARPIN, KnR, LAR, MORSE, PAV, R22, SHEIN, ZAR, UNKN, Quit=-1} ;
+//    0        1       2     3       4      5       6      7    8    9     10     11       12      13     14     20         21       40      88
+// BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, MixKARPB , MixLARB, ALL_UE, SET_88 
 
 #predeal north SAJT432,HKT92,D32,C2 -- the hand from the BW text
 #predeal south SKQ,HA43,DJT4,CK6543 -- made up hand to test KQ tight and JTx

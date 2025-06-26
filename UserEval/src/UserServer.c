@@ -16,7 +16,10 @@
  *    1.6.0  2024-08-01    Added code for the 'All' request, a bit different returns from set88
  *    2.0.0  2024-08-12    Refactor Choosing Best Fit Logic and other prolog stuff.
  *    3.0.0  2024-09-13    Added metrics 20-27 for alt_HCP_calc
- *    3.5.0  2024-09-21    Added metric 41 for set of all alt_HCP calcs; Handstat now uses short ints. 
+ *    3.5.0  2024-09-21    Added metric 41 for set of all alt_HCP calcs; Handstat now uses short ints.
+ *    3.6.0  2024-10-20    Added metric 42. Like metric 88 plus some RAW and Cooked vals for DBASE loading 
+ *    3.6.1  2024-04-05    Post Xia. GCC compiler version change.
+ *    3.618  2024-04-05    Tweked output of usereval(20-27) to have the PavBodyVal in slots 6, 7 of the misc area
  */
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
@@ -40,16 +43,16 @@
  *
  */
 #define SERVER_AUTHOR "JGM"
-#define SERVER_BUILD_DATE "2024/09/30"
+#define SERVER_BUILD_DATE "2025/04/18"
 
 #ifndef JGMDBG
    #define SERVER_NAME "DealerServer"
-   #define SERVER_VERSION "3.5.0"
+   #define SERVER_VERSION "3.6.2"
    #define START_WAIT 500000     // wait half a sec in production version
    int   jgmDebug = 0 ;  /* value will be passed in from Dealer if Debugging wanted */
 #else
    #define SERVER_NAME "DealerSrvdbg"
-   #define SERVER_VERSION "103.5.0"
+   #define SERVER_VERSION "103.6.1"
    #define START_WAIT 5000000     // wait 5 sec in debug version
    int jgmDebug = 1 ;  /* for Debug Version of Server always have a minimum at least */
 #endif
@@ -116,20 +119,10 @@ int test_reply(     USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq
 int set88_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int set40_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int set41_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
+int set42_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 int unk_reply(      USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
 
 typedef int (*pREPLY_FUNC_k)( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pq,  struct query_type_st *pqt);
-#if 0
-pREPLY_FUNC_k reply_func[]= {bergen_reply, bissell_reply, dkp_reply, goren_reply, karpb_reply, kaplan_reply, karpin_reply,
-                             knr_reply, larsson_reply, lar_b_reply, pav_reply, sheinw_reply, zarbas_reply, zaradv_reply, roth_reply
-               } ; // this dispatch table never used 
-#endif 
-/*
- * Future:
- *  single factors not full metrics; things like QuickTricks, longest/shortes suit, slamControls, Woolsey pts. etc.
- * that are hard to do using std DealerV2 syntax
- * Remote possibility to convert OPC pts to a UserEval metric and so avoid external Perl program.
- */
 
 // Error and Debug functions -- see also Serverdebug_subs.c
 static void die(char *msg) {   perror(msg);   exit(255); }
@@ -272,9 +265,9 @@ int main(int argc, char *argv[] ) {
 	 }
 /* got OK result. Tell client */
    sem_post(p_rsem) ;
-   JGMDPRT(3,"ServerMain:: Dealnum=%d user_eval done for q_tag[%d], r_tag[%d], r_descr=[%s] Waiting for next Query. zzzz \n",
+   JGMDPRT(5,"ServerMain:: Dealnum=%d user_eval done for q_tag[%d], r_tag[%d], r_descr=[%s] Waiting for next Query. zzzz \n",
                       pdldat->curr_gen, pqt->query_tag, prt->reply_tag, prt->reply_descr);
-   DBGDO(3, show_user_res( "Server Main Loop", p_uservals, 0, 29 )  ) ;
+   DBGDO(7, show_user_res( "Server Main Loop", p_uservals, 0, (UEv.misc_count+6) )  ) ;
   } /* end while(1) */
   return (0) ;  /* NOT REACHED */
 }/* end main User_Eval */
@@ -327,7 +320,7 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
     gbl = set_gblquery( pqt ) ;		/* fill gbl struct from the query pkt */
     if (pqt->query_side == 0 ) { res_ptr = p_nsres ; }
     else                       { res_ptr = p_ewres ; }
-    JGMDPRT(7,"^^^userfunc Switch: for tag=[%d] Descr=[%s] using reply ptr=%p\n",pqt->query_tag, pqt->query_descr, (void *)prt ) ;
+    JGMDPRT(7,"^^^userfunc Prolog and Analyze: for tag=[%d] Descr=[%s] using reply ptr=%p\n",pqt->query_tag, pqt->query_descr, (void *)prt ) ;
     JGMDPRT(7,"Side=%d, Res_ptr=%p \n", pqt->query_side, (void *)res_ptr ) ;
 
     prt->reply_tag = pqt->query_tag ;  // setup a default. May be over-ridden by code in switch
@@ -341,16 +334,18 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
     analyze_side( p_UEss,  pqt->query_side ) ;
 /*
  * The Query tags in alpha order: The adj_hcp arrays use these values to lookup adjustments.
- *       0        1       2     3      4       5       6      7    8    9     10     11       12      13     14     15       FUT 15 OPC
+ *       0        1       2     3      4       5       6      7    8    9     10     11       12      13     14     15       FUT 15 OPC, 16 DKCCCC,
       BERGEN=0, BISSEL,  DKP, GOREN, KARP_B, KAPLAN, KARPIN, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH, metricEnd,
  * Query Tags for various flavors of HCP scales Omit C13, and Work Count which are covered already in dealerV2
-     HCPT050=20, HCPA425, HCPAT475, BUMWRAP, WOOLSEY, AND5THS, JGMBW
-        20          21       22       23       24       25       26
+     HCPT050=20, HCPA425, HCPAT475, BUMWRAP, WOOLSEY, AND5THS, BWjgm, OPCjgm
+        20          21       22       23       24       25       26     27
  *   Tags for queries that return several metrics at once.
-      SET_40=40, ALL_UE=40, SET_41=41, MixKar=50, MixLar=51, SET_88=88, SYNTST=99,
+      SET_40=40, ALL_UE=40, SET_41=41, MixKar=50, MixLar=51,
+ *    SET_88=88, SYNTST=99,
+ *     Fut 80 (lots of results re tricks) + 81 vals; 81 lots of results re Suit lengths, and QuickTricks and QuickLosers
       Quit=-1} ;
 */
-   JGMDPRT(7,"UserFunc Switch statement with Tag=%d GenNum=%d, ProdNum=%d\n", pqt->query_tag, gen_num, prod_num );
+   JGMDPRT(4,"UserFunc Switch statement with Tag=%d GenNum=%d, ProdNum=%d\n", pqt->query_tag, gen_num, prod_num );
     switch (pqt->query_tag) {
       case 'B':
       case  BERGEN:  bergen_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Bergen   */
@@ -360,12 +355,12 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
       case  DKP :    dkp_reply(     res_ptr, prt, p_dldat, pqt); break ; /* D Kleinman LJP from NoTrump Zone */
       case 'G':
       case  GOREN :  goren_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* Goren -- shortness pts    */
-      case 'J':      /* was JGM1 mods to Karpin */
-      case KARP_B:   karpb_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* Karpin with BumWrap points  */
       case 'E': /* for Edgar */
       case KAPLAN :  kaplan_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Kaplan -- length pts. from 1960's book */
       case 'K':
       case KARPIN :  karpin_reply(  res_ptr, prt, p_dldat, pqt);  break ; /* Karpin - length pts. Src: Pavlicek website     */
+      case 'J':      /* was JGM1 mods to Karpin */
+      case KARP_B:   karpb_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* Karpin with BumWrap points  */
       case 'k':
       case KnR :     knr_reply(     res_ptr, prt, p_dldat, pqt);  break ; /* KnR 4C's with Dfit  */
       case 'L':
@@ -388,7 +383,8 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
 
       case 40:    set40_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* all HLDF style metrics with 6 values per metric returned. */
       case 41:    set41_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* all alt HCP style metrics with 6 values per metric returned */
-      
+      case 42:    set42_reply(   res_ptr, prt, p_dldat, pqt);  break ; /* All HLDF style metrics @2 vals (BF&NT) per + extra 2 RAW/Cooked vals for 5 of them */  
+
       case 50:    mixed_KARreply(   res_ptr, prt, p_dldat, pqt);  break ; /* karpin and karp_b     */
       case 51:    mixed_LARreply(   res_ptr, prt, p_dldat, pqt);  break ; /* larsson and lar_b     */
 
@@ -405,9 +401,9 @@ int userfunc( struct query_type_st *pqt, struct reply_type_st *prt, DEALDATA_k *
       default  : unk_reply(    res_ptr, prt, p_dldat, pqt); break ;      /* Unknown      */
    } /* end switch */
 
-   msync((void *)mm_ptr, PageSize, MS_SYNC) ;
+   // msync((void *)mm_ptr, PageSize, MS_SYNC) ; //msync should not be req'd as we dont care about the backing file, only the in RAM copy.
    if (jgmDebug >= 5 ) {
-         JGMDPRT(5,"Switch Done. Server Msync Done. prt.tag=[%d], prt.descr=[%s] \n", prt->reply_tag, prt->reply_descr );
+         JGMDPRT(5,"Switch Done. prt.tag=[%d], prt.descr=[%s] \n", prt->reply_tag, prt->reply_descr );
          show_reply_type( prt) ;
          fsync(2); /* debug */
    }
@@ -673,10 +669,18 @@ int set40_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pd
 } /* end set40 reply */
 int set41_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
    int num_res = -1 ;
-   strcpy(prt->reply_descr, "41 All_UE Query" ) ;
+   strcpy(prt->reply_descr, "41 All_ALTHCP Query" ) ;
    prt->reply_tag = pqt->query_tag ;
    num_res = set41_calc(  p_UEss )  ;
-   JGMDPRT(3,"set41_reply_calc returns %d fields calculated\n",num_res) ;
+   JGMDPRT(5,"set41_reply_calc returns %d fields calculated\n",num_res) ;
+   return (num_res) ;
+} /* end set41 reply */
+int set42_reply(    USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
+   int num_res = -1 ;
+   strcpy(prt->reply_descr, "42 ALL Side + Raw Query" ) ;
+   prt->reply_tag = pqt->query_tag ;
+   num_res = set42_calc(  p_UEss )  ;
+   JGMDPRT(4,"set42_reply_calc returns %d fields calculated\n",num_res) ;
    return (num_res) ;
 } /* end set41 reply */
 int unk_reply(      USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {
@@ -685,6 +689,7 @@ int unk_reply(      USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pd
    for (int i = 0 ; i < 4 ; i++ ) {
       pr->u.res[i] = 0 - pdl_dat->hs[0].hs_points[i] ;
    }
+   fprintf(stderr, "ERROR!! Unknown Metric %d in unk_reply called from userfunc \n", pqt->query_tag ); 
  return (0) ;
 }
 int mixed_KARreply( USER_VALUES_k *pr, struct reply_type_st *prt, DEALDATA_k *pdl_dat,  struct query_type_st *pqt) {

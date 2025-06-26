@@ -78,7 +78,7 @@ void upd_topcards(struct handstat *hs, int suit,int  rank) {
   assert(rank<13);
   weight = CardAttr_RO[idxLTCwts][rank];
 
- JGMDPRT(3,  "debug: upd_topcards:: player=%d, suit=%i  rank=%i  weight=%i  \n", hs->hs_seat, suit, rank, weight);
+ JGMDPRT(8,  "debug: upd_topcards:: player=%d, suit=%i  rank=%i  weight=%i  \n", hs->hs_seat, suit, rank, weight);
 
   if      (hs->topcards[suit][0] == LTC_VOID_WEIGHT) {hs->topcards[suit][0] = weight;}
   else if (hs->topcards[suit][0] < weight) {  /* latest card has higher rank than previous highest move them all down */
@@ -92,7 +92,7 @@ void upd_topcards(struct handstat *hs, int suit,int  rank) {
   else if (hs->topcards[suit][2] == LTC_VOID_WEIGHT) {hs->topcards[suit][2] = weight;}
   else if (hs->topcards[suit][2] < weight) {hs->topcards[suit][2]= weight; }
 
-  JGMDPRT(3, "Top Cards Weights=%d, %d, %d\n",hs->topcards[suit][0],hs->topcards[suit][1],hs->topcards[suit][2]);
+  JGMDPRT(8, "Top Cards Weights=%d, %d, %d\n",hs->topcards[suit][0],hs->topcards[suit][1],hs->topcards[suit][2]);
 
   return ;
 } /* end upd top cards */

@@ -1,0 +1,46 @@
+generate 10000000
+produce 1000
+seed 2000
+// Version 2024/08/05  - UE Tags vs NT tricks
+
+ // run with -L ../dat/rpLib.zrd to save DDS solving time.
+
+title "All 15 UE Metrics vs NT Tricks"
+
+ //  The description field in the frequency statement MUST have the correct format for the Perl script to work.
+ 
+ // Description in the Bucket Freq Statements should look like:
+ // Description: Tag 15 Name OPC Strain NT Size 500000 Seed 1000 No Comment
+ // 'Description' , 'Tag','Name','Strain' must be present to name the sheet)
+
+
+
+    // title "Pavlicek's Spec for hands that might play in NT "
+condition  
+ shape(south,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+ shape(north,any xxxx - any xxx7 - any xxx0 - any xxx1 - 6xxx - x6xx) &&
+   hcp(south)+hcp(north) >= 15
+
+
+action
+//   printrpt( NS , 
+//             hcp(north)+hcp(south), usereval(88,NS, 0),usereval(88,NS, 1),usereval(88,NS, 2),usereval(88,NS, 3),usereval(88,NS, 4), "V",
+//                 usereval(88,NS, 5),usereval(88,NS, 6),usereval(88,NS, 7),usereval(88,NS, 8),usereval(88,NS, 9),"X" ,
+//                 usereval(88,NS,10),usereval(88,NS,11),usereval(88,NS,12),usereval(88,NS,13),usereval(88,NS,14)),
+   frequency "Tag  0 Name BERGEN   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 0),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  1 Name BISSEL   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 1),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  2 Name DKP      Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 2),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  3 Name GOREN    Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 3),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  4 Name KARP_B   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 4),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  5 Name KAPLAN   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 5),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  6 Name KARPIN   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 6),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  7 Name KnR      Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 7),15,37,  dds(south,notrump),7,12),
+   frequency "Tag  8 Name LARSSON  Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 8),15,37,  dds(south,notrump),7,12),   
+   frequency "Tag  9 Name LAR_B    Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS, 9),15,37,  dds(south,notrump),7,12),   
+   frequency "Tag 10 Name PAV      Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS,10),15,37,  dds(south,notrump),7,12),
+   frequency "Tag 11 Name SHEINW   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS,11),15,37,  dds(south,notrump),7,12),
+   frequency "Tag 12 Name ZARBAS   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS,12),15,37,  dds(south,notrump),7,12),
+   frequency "Tag 13 Name ZARADV   Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS,13),15,37,  dds(south,notrump),7,12),
+   frequency "Tag 14 Name ROTH     Strain NoTrump Size 1Million Seed Unk:Top=37 " ( usereval(88,NS,14),15,37,  dds(south,notrump),7,12),
+
+
