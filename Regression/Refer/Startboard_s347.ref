@@ -1,0 +1,201 @@
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "26"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "E"]
+[Vulnerable "All"]
+[Deal "N:7.AK93.AQJT52.JT K943.Q74.7.K9874 AT865.2.9843.A52 QJ2.JT865.K6.Q63"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "27"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "S"]
+[Vulnerable "None"]
+[Deal "N:QJ9652.AQ74..T42 KT.J6.JT92.KJ965 A83.K82.K854.A83 74.T953.AQ763.Q7"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "28"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "W"]
+[Vulnerable "NS"]
+[Deal "N:Q96.Q874.JT6.876 AKT8.KJ5.92.AKT5 J42.T962.KQ84.J4 753.A3.A753.Q932"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "29"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "N"]
+[Vulnerable "All"]
+[Deal "N:JT4.J4.KQJ7.T763 98.AKQT9632.A2.4 A652.7.T964.AK92 KQ73.85.853.QJ85"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "30"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "E"]
+[Vulnerable "None"]
+[Deal "N:432.Q8632.AK7.Q4 KQ965.AT4.QJ3.82 JT.J95.T98.AK753 A87.K7.6542.JT96"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "31"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "S"]
+[Vulnerable "NS"]
+[Deal "N:AK98.J4.T7.AQ943 T32.A832.Q64.J65 QJ754.KQ95.8.K87 6.T76.AKJ9532.T2"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "32"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "W"]
+[Vulnerable "EW"]
+[Deal "N:T98642..764.K632 KJ.AT8432.J8.AJ4 A3.KQJ65.QT2.T87 Q75.97.AK953.Q95"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+[Event "Hand simulated by DealerV2_4 with file Startboard_s347.dli, seed 347"]
+[Site "-"]
+[Description "Testing Starting Board Number 26"]
+[Generator "Dealer Version 2.4 by Hans, Henk, and JGM"]
+[Date "2025.06.29"]
+[Board "33"]
+[West "-"]
+[North "-"]
+[East "-"]
+[South "-"]
+[Dealer "N"]
+[Vulnerable "None"]
+[Deal "N:AT752.KQJ.T3.876 .98.KQJ94.JT9532 QJ.AT76543.752.K K98643.2.A86.AQ4"]
+[Declarer "?"]
+[Contract "?"]
+[Result "?"]
+
+Testing Starting Board Number 26
+
+North hands:
+
+  26.                 27.                 28.                 29.               
+7                   Q J 9 6 5 2         Q 9 6               J T 4 
+A K 9 3             A Q 7 4             Q 8 7 4             J 4 
+A Q J T 5 2         -                   J T 6               K Q J 7 
+J T                 T 4 2               8 7 6               T 7 6 3 
+
+  30.                 31.                 32.                 33.               
+4 3 2               A K 9 8             T 9 8 6 4 2         A T 7 5 2 
+Q 8 6 3 2           J 4                 -                   K Q J 
+A K 7               T 7                 7 6 4               T 3 
+Q 4                 A Q 9 4 3           K 6 3 2             8 7 6 
+
+Testing Starting Board Number 26
+
+East hands:
+
+  26.                 27.                 28.                 29.               
+K 9 4 3             K T                 A K T 8             9 8 
+Q 7 4               J 6                 K J 5               A K Q T 9 6 3 2 
+7                   J T 9 2             9 2                 A 2 
+K 9 8 7 4           K J 9 6 5           A K T 5             4 
+
+  30.                 31.                 32.                 33.               
+K Q 9 6 5           T 3 2               K J                 - 
+A T 4               A 8 3 2             A T 8 4 3 2         9 8 
+Q J 3               Q 6 4               J 8                 K Q J 9 4 
+8 2                 J 6 5               A J 4               J T 9 5 3 2 
+
+Testing Starting Board Number 26
+
+South hands:
+
+  26.                 27.                 28.                 29.               
+A T 8 6 5           A 8 3               J 4 2               A 6 5 2 
+2                   K 8 2               T 9 6 2             7 
+9 8 4 3             K 8 5 4             K Q 8 4             T 9 6 4 
+A 5 2               A 8 3               J 4                 A K 9 2 
+
+  30.                 31.                 32.                 33.               
+J T                 Q J 7 5 4           A 3                 Q J 
+J 9 5               K Q 9 5             K Q J 6 5           A T 7 6 5 4 3 
+T 9 8               8                   Q T 2               7 5 2 
+A K 7 5 3           K 8 7               T 8 7               K 
+
+Testing Starting Board Number 26
+
+West hands:
+
+  26.                 27.                 28.                 29.               
+Q J 2               7 4                 7 5 3               K Q 7 3 
+J T 8 6 5           T 9 5 3             A 3                 8 5 
+K 6                 A Q 7 6 3           A 7 5 3             8 5 3 
+Q 6 3               Q 7                 Q 9 3 2             Q J 8 5 
+
+  30.                 31.                 32.                 33.               
+A 8 7               6                   Q 7 5               K 9 8 6 4 3 
+K 7                 T 7 6               9 7                 2 
+6 5 4 2             A K J 9 5 3 2       A K 9 5 3           A 8 6 
+J T 9 6             T 2                 Q 9 5               A Q 4 
+
+

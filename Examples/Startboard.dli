@@ -1,0 +1,13 @@
+title "Testing Starting Board Number"
+produce 100
+generate 8
+startboard 33
+seed 7
+
+condition 1
+
+action 
+   printpbn, 
+#   printside( EW ),
+#   printall,
+#   print(north,south,east,west)

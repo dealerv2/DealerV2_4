@@ -1,7 +1,11 @@
 12 hcp: Mean=    0.3520, Std Dev=    0.4778, Var=    0.2283, Sample Size=1000 
 13 hcp: Mean=    0.3520, Std Dev=    0.4778, Var=    0.2283, Sample Size=1000 
 14 hcp: Mean=    0.2960, Std Dev=    0.4567, Var=    0.2086, Sample Size=1000 
-Frequency 12-14 HCP Distribution:
-   12	     352
-   13	     352
-   14	     296
+
+Description: 12-14 HCP Distribution:
+Value	   Count	   Pct.	  CumPct
+   12	     352	  35.20	  35.20
+   13	     352	  35.20	  70.40
+   14	     296	  29.60	 100.00
+    	--------	-------
+Total	    1000	 100.00

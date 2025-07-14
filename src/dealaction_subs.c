@@ -559,11 +559,11 @@ int printpbn (int board, DEAL52_k d) {  /* Rudimentary PBN report primarily to e
   int player, suit, rank;
   int board_idx  = board - 1 ; /* offset into the VUL and Dealer name arrays */ 
 
-  printf ("[Event \"Hand simulated by dealer with file %s, seed %lu\"]\n",  input_file, seed);
+  printf ("[Event \"Hand simulated by DealerV2_4 with file %s, seed %lu\"]\n",  input_file, seed);
   printf ("[Site \"-\"]\n");
   /* next two optional tags, not part of PBN Minimal Tag Set -- , added by JGM */
   if (strlen(title) > 0 ) { printf("[Description \"%s\"]\n", title); }
-  printf("[Generator \"Dealer Version 2.0 by Hans, Henk, and JGM\"]\n");
+  printf("[Generator \"Dealer Version 2.4 by Hans, Henk, and JGM\"]\n");
 
   /* Today's date */
   timet = time(&timet);
@@ -783,12 +783,13 @@ void do_csvrpt(FILE *fcsv, struct csvterm_st *csvptr ) {
                fprintf(fcsv, "%c",sep) ; /* leave printhands_pbn as a generic routine; no leading comma or trailing \n*/
                printhands_pbn(fcsv, csvptr->csv_hands, curdeal ) ; /* csv_hands is a bit mask of compasses to print */
                sep = ',' ;
-               JGMDPRT(4,  "CSVRPT Hands_mask= %d\n",csvptr->csv_hands );
+               JGMDPRT(4,  "CSVRPT Print Hands. Hands_mask= %d\n",csvptr->csv_hands );
             }  // end if hands
             if (csvptr->csv_trix) {  /* user wants tricks in all 5 strains for some set of hands */
                csv_trixbuff_len = csv_trix(csv_trixbuff, csvptr->csv_trix) ; //fmt a buff with comma sep trick counts
                fprintf(fcsv,"%c%s",sep, csv_trixbuff) ;
                sep = ',';
+               JGMDPRT(4,  "CSVRPT Print Tricks. HandMask= %d\n",csvptr->csv_hands );
             }
             if (csvptr->csv_parvul) {
 					vuln = unmask(csvptr->csv_parvul) ;
@@ -796,6 +797,7 @@ void do_csvrpt(FILE *fcsv, struct csvterm_st *csvptr ) {
 					dds_parscore(0, vuln) ;  /* dummy call to ensure that the parcontracts have been calculated for this deal */ 
 					fprintf(fcsv, "%c'%s'",sep,dds_res_bin.ParContracts[vuln] ) ;
 					sep = ',' ;
+               JGMDPRT(4,  "CSVRPT Print ParContract parvul=%d\n",csvptr->csv_parvul );
 				}
             sep = ',';  // this one should replace all the others above
             csvptr = csvptr->next;

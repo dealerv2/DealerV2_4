@@ -4,7 +4,7 @@ Testing DOP Timing: 1 val in cond, 1 val in action
 Generated 533 hands
 Produced  500 hands
 Initial random seed 83
-Time needed   19.104 sec
+Time needed   19.159 sec
 Tot Calls to DDS =     0, DDS Solve  Calls=     0 DDS_Par Calls=0
 Tot Calls to GIB =     0, GIB Solve  Calls=     0
 Tot Calls to OPC =  1033, OPC Calc   Calls=   533

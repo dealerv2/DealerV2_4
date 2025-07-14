@@ -1,0 +1,14 @@
+title "Testing Starting Board Number 26"
+produce 100
+generate 8
+startboard 26
+seed 347
+
+condition 1
+
+action 
+# use printpbn so we can check that the VUL and Dealer are also generated correctly for the board number.
+   printpbn, 
+#   printside( EW ),
+#   printall,
+   print(north,south,east,west)

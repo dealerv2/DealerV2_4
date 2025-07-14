@@ -54,6 +54,9 @@ char dl52Vul[4][6]   = { {"none"}, {"ns"}, {"ew"}, {"both"} } ;
 DDSRES_k true_CalcTable(DEAL52_k  dl, int vul, int dds_mode ) ; // ddTableResults uses [suits][hands] index order.
 int      true_SolveBoard(DEAL52_k  curdeal, int compass, int strain ) ;
 int      rplib_Par(DDSRES_k *DealerRes, int par_vuln) ;
+int      ddsParCalcs( struct ddTableResults  *pRes_20,   DDSRES_k *pDealerRes ) ;
+char    *dds_ParContract(char *buff,  int dl52_vul, struct parResultsMaster *sidesRes ) ; 
+
 
 void ZeroCache( DDSRES_k *Results) {
     memset(Results, 0 ,  sizeof(DDSRES_k) ) ;
@@ -133,7 +136,6 @@ int dds2dl_strain(int si) {
                              4 ;     // si must equal 4 aka No Trump
    return dl_strain;
 }
-
 int dl2dds_tricks(DDSRES_k *DealerRes, struct ddTableResults *Res_20) {
                // fill the DDS Tricks Results array for use by Par calcs; need to do this when tricks comes from RPLIB
    int si, h;
@@ -147,7 +149,7 @@ int dl2dds_tricks(DDSRES_k *DealerRes, struct ddTableResults *Res_20) {
    return 1 ;
 } /* end dl2dds_tricks */
 
-
+/* return the DD tricks for compass strain; from cache if possible, else call TrueCalcTable to fill cache */
 int dds_tricks(int compass, int strain ) {  //ngen, dds_dealnum, dds_res_bin, dds_mode are globals
     int CacheState ;
     dbg_dds_res_calls++;
@@ -201,6 +203,7 @@ int dds_tricks(int compass, int strain ) {  //ngen, dds_dealnum, dds_res_bin, dd
        return dds_res_bin.tricks[compass][strain];
 } /* end dds_tricks */
 
+/* Use ParResultsMaster to put Contract strings in buffer, typically in DDSRes struct member */
 char *dds_ParContract(char *buff,  int dl52_vul, struct parResultsMaster *sidesRes ) { /*buff should point to area in dds_res_bin */
 	int nch ;
 	int buff_sz = sizeof(dds_res_bin.ParContracts[0]) ; 
@@ -210,17 +213,18 @@ char *dds_ParContract(char *buff,  int dl52_vul, struct parResultsMaster *sidesR
    /* Example [ 4H* by NS] */
    nch = snprintf( buff, buff_sz, "%2d%c%c by %s %s", sidesRes->contracts[0].level,
                        Denom[sidesRes->contracts[0].denom], Dbled, seatNames[sidesRes->contracts[0].seats], dl52Vul[dl52_vul] );
-   JGMDPRT(8,"Vuln = %d, undertricks=%d, ParContract[%s], nch=%d\n",
-				options.par_vuln,sidesRes[0].contracts[0].underTricks, buff, nch ) ;
+   JGMDPRT(8,"Dl52Vuln[%d] = %s, undertricks=%d, ParContract[%s], nch=%d\n",
+				dl52_vul, dl52Vul[dl52_vul], sidesRes[0].contracts[0].underTricks, buff, nch ) ;
 	return (nch + buff) ;  /* points to NULL snprintf put in buffer */
 } /* end dds_ParContract */
 	
+/* 2025-07-13 Refactor to put all the Par Score and Par Contract stuff in a separate routine we can also use in RPLIB mode */
+
 DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode should always be DDS_TABLE_MODE here...
     int dds_rc = 1; /* OK*/
     int si, so, h, t;
     struct ddTableResults    Res_20;    /* 20 Results */
     struct ddTableDeal       dds_BIN_deal; /* Deal in DDS binary suitable for input to CalcDDtable */
-    struct parResultsMaster  sidesRes[2] ;
     DDSRES_k DealerRes ;
     char line[128] ; 				// for DDS error messages
     int  dds_vuln   ;
@@ -235,7 +239,7 @@ DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode sho
 
    JGMDPRT(7,"IN trueCalcTable dbg_dds_lib_calls=%d, ngen=%d, dealnum=%d jgmDebug=%d, dds_mode=%d, dds_vuln=%d\n",
                                   dbg_dds_lib_calls, ngen, dds_dealnum,  jgmDebug,   dds_mode,     dds_vuln);
-   dds_BIN_deal =  Deal52_to_DDSBIN (dl);
+   dds_BIN_deal =  Deal52_to_DDSBIN (dl);  /* convert a deal in dl52 fmt to internal DDS fmt */
    dds_rc = CalcDDtable(dds_BIN_deal, &Res_20 );
    JGMDPRT(7, " DDS CalcDDtable returned with RetCode=%d \n", dds_rc);
 
@@ -246,28 +250,7 @@ DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode sho
             strncpy(DealerRes.ddsmsg, line, 40);
             DealerRes.errcode = -1 ;
         }
-        /* Calculate the Par for all VUL. Does not take long, and simplifies caching */
-        for (dds_vuln = 0 ; dds_vuln < 4 ; dds_vuln++) {
-			  int  dl52_vuln = dds2dl_vuln(dds_vuln) ;
-				dds_rc = SidesParBin(&Res_20, sidesRes, dds_vuln);  /* calculate Par result */
-            // check return code; print error msg if not OK
-				if (dds_rc != RETURN_NO_FAULT)  {
-						ErrorMessage(dds_rc, line);
-						fprintf(stderr, "Table Mode DDS error: %s\n", line);
-						strncpy(DealerRes.ddsmsg, line, 40);
-						DealerRes.errcode = -1 ;
-				}
-				DealerRes.parScores_NS[dl52_vuln] = sidesRes[0].score;
-				dds_ParContract(DealerRes.ParContracts[dl52_vuln], dl52_vuln, &sidesRes[0] ) ; 
-				JGMDPRT(8,"Vuln = %d, Score=%d, , undertricks=%d, ParContract[%s]\n",dl52_vuln,
-					DealerRes.parScores_NS[dl52_vuln],sidesRes[0].contracts[0].underTricks, DealerRes.ParContracts[dl52_vuln]) ; 
-		  } /* end for dds_vuln */
-		  DealerRes.parScore_NS = DealerRes.parScores_NS[0] ;
-		  JGMDPRT(7, " DefParScore(NoneVul)=%d, 4xParScores Calc=[%d,%d,%d,%d]\n",
-						DealerRes.parScore_NS,DealerRes.parScores_NS[0],DealerRes.parScores_NS[1],
-						DealerRes.parScores_NS[2],DealerRes.parScores_NS[3] );	
         DBGDO(7,showRawResults(&Res_20) );
-
         // successful DDS call. Fill the Dealer Results struct and return it
         DealerRes.errcode = RETURN_NO_FAULT ; // success
             // fill the tricks results array
@@ -283,20 +266,17 @@ DDSRES_k true_CalcTable(DEAL52_k  dl, int par_vul, int dds_mode ) {  // Mode sho
             } /* end for h < DDS_HANDS */
         } /* end for si < DDS_STRAINS */
 
-        DBGDO(7, showReturns(&DealerRes) );
-        // set default par score for backwards compatibility
-
-        t = (options.par_vuln >= 0 ) ? options.par_vuln : 0  ;/* use vul set on cmd line with -P switch if not set will be -1*/
-        DealerRes.parScore_NS = DealerRes.parScores_NS[t] ; // set the default one backwards compat
-
+        dds_rc = ddsParCalcs( &Res_20,  &DealerRes ) ; /* Use Res20 to calc the Par scores and contracts and put into DealerRes */
+        
         DealerRes.CacheStatus = CACHE_OK ;
         dds_dealnum = ngen ; /* mark the cache as up to date. */
+        
+        DBGDO(7, showReturns(&DealerRes) );
 
         JGMDPRT(7,"Done trueCalcTable: North Spades Tricks=%d, parScore_NS=%d \n ",  DealerRes.tricks[0][3], DealerRes.parScore_NS );
 
-        return DealerRes ;
+        return DealerRes ;  /* returns the whole structure */
 } /* end true_CalcTable*/
-
 /* end true_CalcTable */
 void init_DDS_deal_st (struct deal_st *dl_ptr) { /* deal_st is what is passed to the DDS solveOneBoard routine */
     int h, s ;
@@ -367,7 +347,7 @@ char line[120] ;
 } /* End true_SolveBoard */
 /* End true_SolveBoard */
 
-int dds_parscore(int compass, int vuln ) {  /* uses globals */
+int dds_parscore(int compass, int vuln ) {  /* uses globals  Returns Par Score, not par Contract */
     int CacheState;
     int par_NS ;
     int vuln_par = 0;   /* nobody vul either coding */
@@ -401,7 +381,7 @@ int dds_parscore(int compass, int vuln ) {  /* uses globals */
 
    JGMDPRT(6,"Leaving DDS_PARSCORE dbg_dds_lib_calls=%d, par=%d\n", dbg_dds_lib_calls,dds_res_bin.parScore_NS  );
 
-    /* at this point the global cache of 20 results + 4 par scores is valid */
+    /* at this point the global cache of 20 results + 4 par scores and 4 Par contracts  is valid */
      if(compass == COMPASS_NORTH || compass == COMPASS_SOUTH || compass == SIDE_NS ) {
          return dds_res_bin.parScores_NS[vuln_par] ;
      }
@@ -470,18 +450,17 @@ int csv_trix( char *buff, int h_mask ) {  //ngen, dds_dealnum, dds_res_bin, dds_
 } /* end csv_trix */
 
 int rplib_Par(DDSRES_k *DealerRes, int vuln_par) {
-    int dds_rc = 1; /* OK*/
+    int  dds_rc = 1; /* OK*/
     char line[128];
+    int  dds_vuln;
 
     struct ddTableResults    Res_20;    /* 20 Results */
-    struct parResultsMaster  sidesRes[2] ;
-    int dds_vuln = dl2dds_vuln(vuln_par) ;
-
-/* copy DealerRes.tricks to Res_20 in the right order . */
-   dl2dds_tricks(DealerRes, &Res_20) ;
-
-   dds_rc = SidesParBin(&Res_20, sidesRes, dds_vuln);  /* calculate Par result */
+    
+   dds_vuln = dl2dds_vuln(vuln_par) ;
+   dl2dds_tricks(DealerRes, &Res_20) ;           /* copy DealerRes.tricks to Res_20 in the right order . */
+   dds_rc = ddsParCalcs( &Res_20, DealerRes ) ;  /* Fill the Par scores and contracts in DealerRes, given the 20 Tricks results */
             // check return code; print error msg if not OK
+   
    if (dds_rc != RETURN_NO_FAULT)  {
        ErrorMessage(dds_rc, line);
        fprintf(stderr, "Table Mode DDS error: %s\n", line);
@@ -490,11 +469,47 @@ int rplib_Par(DDSRES_k *DealerRes, int vuln_par) {
     }
     // successful DDS call. Fill the Dealer Results struct and return it
     DealerRes->errcode = RETURN_NO_FAULT ; // success
-    DealerRes->parScore_NS = sidesRes[0].score;
     DealerRes->CacheStatus = CACHE_OK ;
+    
     dds_dealnum = ngen ; /* mark the cache as up to date. */
-    return DealerRes->parScore_NS ;
+    return DealerRes->parScores_NS[vuln_par] ;
 } /* end  rplib_Par */
+
+ /* Starting from the 20 results in DDS format, calculate the Par Scores and Contracts for all Vulnerabilities; save in DealerRes */
+int ddsParCalcs( struct ddTableResults  *pRes_20,   DDSRES_k *pDealerRes )  {
+      struct parResultsMaster  sidesRes[2] ;
+      int dds_vuln ;
+      int  dl52_vuln ;
+      int dds_rc = RETURN_NO_FAULT ;
+      char *buff_ptr; 
+      char line[128] ; 				// for DDS error messages 
+      int t;
+      
+        /* Calculate the Par for all VUL. Does not take long, and simplifies caching */
+        for (dds_vuln = 0 ; dds_vuln < 4 ; dds_vuln++) {
+			   dl52_vuln = dds2dl_vuln(dds_vuln) ;
+				dds_rc    = SidesParBin(pRes_20, sidesRes, dds_vuln);  /* fill sidesRes with Par results */
+            // check return code; print error msg if not OK
+				if (dds_rc != RETURN_NO_FAULT)  {
+						ErrorMessage(dds_rc, line);
+						fprintf(stderr, "Table Mode DDS error from SidesParBin: %s\n", line);
+						strncpy(pDealerRes->ddsmsg, line, 40);
+						pDealerRes->errcode = -1 ;
+				}
+				pDealerRes->parScores_NS[dl52_vuln] = sidesRes[0].score;  /* Set the NS Par Score */
+				buff_ptr = dds_ParContract(pDealerRes->ParContracts[dl52_vuln], dl52_vuln, &sidesRes[0] ) ;  /* fill the contract strings */
+				JGMDPRT(8,"Vuln = %d, Score=%d, , undertricks=%d, ParContract[%s]\n",dl52_vuln,
+					pDealerRes->parScores_NS[dl52_vuln],sidesRes[0].contracts[0].underTricks, pDealerRes->ParContracts[dl52_vuln]) ; 
+		  } /* end for dds_vuln */
+          // set default par score for backwards compatibility
+        t = (options.par_vuln >= 0 ) ? options.par_vuln : 0  ;/* use vul set on cmd line with -P switch if not set will be -1*/
+       pDealerRes->parScore_NS = pDealerRes->parScores_NS[t] ; // set the default one backwards compat
+
+		  JGMDPRT(7, " DefParScore(NoneVul)=%d, 4xParScores Calc=[%d,%d,%d,%d]\n",
+						pDealerRes->parScore_NS,pDealerRes->parScores_NS[0],pDealerRes->parScores_NS[1],
+						                        pDealerRes->parScores_NS[2],pDealerRes->parScores_NS[3] );
+      return dds_rc ; 
+}
 
 
 /* One Time Setup of the DDS environment. Not used by Dealer at present; allows for dds_subs to be made into a lib module */

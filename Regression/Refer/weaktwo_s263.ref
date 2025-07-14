@@ -1,11 +1,15 @@
-Frequency points:
-    5	    1306
-    6	    1525
-    7	    2236
-    8	    2015
-    9	    2324
-   10	    2011
-   11	    2010
+
+Description: points:
+Value	   Count	   Pct.	  CumPct
+    5	    1306	   9.73	   9.73
+    6	    1525	  11.36	  21.08
+    7	    2236	  16.65	  37.74
+    8	    2015	  15.01	  52.74
+    9	    2324	  17.31	  70.05
+   10	    2011	  14.98	  85.03
+   11	    2010	  14.97	 100.00
+    	--------	-------
+Total	   13427	 100.00
 hearts: Mean=    2.3333, Std Dev=    0.9946, Var=    0.9892, Sample Size=13427 
 Ace of spades: Mean=    0.5505, Std Dev=    0.4975, Var=    0.2475, Sample Size=13427 
 Jack of spades: Mean=    0.4714, Std Dev=    0.4992, Var=    0.2492, Sample Size=13427 

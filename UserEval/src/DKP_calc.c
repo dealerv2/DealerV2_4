@@ -172,6 +172,7 @@ float_t AdjDKP(HANDSTAT_k  *p_hs, int suit ) {
      */
       JGMDPRT(8," In AdjDKP, suit=%c, len=%d Top4=%d, QUEEN=%d, JACK=%d\n",
          "CDHS"[suit], p_hs->hs_length[suit], p_hs->hs_counts[idxTop4][suit] , p_hs->Has_card[suit][QUEEN], p_hs->Has_card[suit][JACK] ) ;
+     /* Next statement covers Stiff A, K, Q, J, AK, AQ, AJ, KQ, KJ, QJ */
      if (p_hs->hs_counts[idxTop4][suit] == p_hs->hs_length[suit] && p_hs->hs_length[suit] > 0 ) { return (-1.0) ; } /* higher than T*/
      /* unguarded Queen. Note: KQ, AQ, QJ covered by previous statement. */
      if (p_hs->Has_card[suit][QUEEN] && p_hs->hs_length[suit] == 2 ) { return (-1.0) ; } /* QT, or Qx */

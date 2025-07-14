@@ -1,8 +1,12 @@
-Frequency North 1NT Opener Tricks any strain South <= 12 hcp:
-    5	       0
-    6	       0
-    7	       0
-    8	       2
-    9	       4
-   10	       1
-   11	       3
+
+Description: North 1NT Opener Tricks any strain South <= 12 hcp:
+Value	   Count	   Pct.	  CumPct
+    5	       0	   0.00	   0.00
+    6	       0	   0.00	   0.00
+    7	       0	   0.00	   0.00
+    8	       2	  20.00	  20.00
+    9	       4	  40.00	  60.00
+   10	       1	  10.00	  70.00
+   11	       3	  30.00	 100.00
+    	--------	-------
+Total	      10	 100.00

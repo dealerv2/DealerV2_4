@@ -20,8 +20,9 @@ CFLAGS = -std=gnu17 -mtune=corei7 -flto -fopenmp -pthread -Wall -pedantic -O2 -g
 CXX = g++
 CXXFLAGS = -std=gnu++17 -mtune=corei7 -flto -fopenmp -pthread  -O3  -I../include
 #CXXFLAGS = -std=gnu++17 -mtune=corei7 -flto -fopenmp -pthread  -g -Og -I../include
-#can add --verbose to this next one to debug linker problems
-LDFLAGS = -L../lib -lm -ldds -l$(LIBBASE) 
+#can add --verbose to this next one to debug linker problems; order matters. linker pulls in un resolved symbols in left objs from right libs.
+LDFLAGS = -L../lib  -l$(LIBBASE)  -ldds -lm
+#LDFLAGS = -L../lib -lm -ldds -l$(LIBBASE) -l c2025
 DESTDIR = ../Prod
 PROGRAM  = dealerv2
 

@@ -1,6 +1,10 @@
-Frequency HCP North Between 15 and 17 :
-Low	      88
-   15	       4
-   16	       1
-   17	       1
-High	       6
+
+Description: HCP North Between 15 and 17 :
+Value	   Count	   Pct.	  CumPct
+Low	      88	  88.00	  88.00
+   15	       4	   4.00	  92.00
+   16	       1	   1.00	  93.00
+   17	       1	   1.00	  94.00
+High	       6	   6.00	 100.00
+    	--------	-------
+Total	     100	 100.00

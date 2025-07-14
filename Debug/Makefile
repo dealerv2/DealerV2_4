@@ -17,8 +17,8 @@ CFLAGS = -std=gnu17 -mtune=corei7 -flto -fopenmp -pthread -Wall -pedantic -g -O2
 #Note CPP and CPPFLAGS are for the C PreProcessor. Use CXX and CXXFLAGS for C++ aka g++
 CXX = g++
 CXXFLAGS = -std=gnu++17 -mtune=corei7 -flto -fopenmp -pthread  -g -O2 -I../include 
-#can add --verbose to this next one to debug linker problems
-LDFLAGS = -L../lib -lm -ldds -l$(LIBBASE)
+#can add --verbose to this next one to debug linker problems; order matters. linker pulls in un resolved symbols in left objs from right libs.
+LDFLAGS = -L../lib  -l$(LIBBASE)  -ldds -lm
 DESTDIR = ../Prod
 PROGRAM  = dealerv2
 

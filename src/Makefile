@@ -14,7 +14,7 @@ CCFLAGS = -std=gnu17 -mtune=corei7 -flto -fopenmp -pthread -Wall -pedantic -O3  
 CXX = g++
 CXXFLAGS = -std=gnu++17 -mtune=corei7 -flto -fopenmp -pthread  -O3  -I../include
 #can add --verbose to this next one to debug linker problems
-LDFLAGS = -L../lib -lm -ldds -ldealerV2
+LDFLAGS = -L../lib -ldealerV2 -ldds -lm
 DESTDIR = ../src
 
 ifdef JGMDBG

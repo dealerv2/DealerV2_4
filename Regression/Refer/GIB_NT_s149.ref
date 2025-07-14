@@ -1,9 +1,19 @@
-Frequency North 1NT Opener Tricks any strain South <= 12 hcp:
-    5	       0
-    6	       1
-    7	       0
-    8	       3
-    9	       2
-   10	       3
-   11	       0
-High	       1
+
+Description: North 1NT Opener Tricks any strain South <= 12 hcp:
+Value	   Count	   Pct.	  CumPct
+    5	       0	   0.00	   0.00
+    6	       1	  10.00	  10.00
+    7	       0	   0.00	  10.00
+    8	       3	  30.00	  40.00
+    9	       2	  20.00	  60.00
+   10	       3	  30.00	  90.00
+   11	       0	   0.00	  90.00
+High	       1	  10.00	 100.00
+    	--------	-------
+Total	      10	 100.00
+
+100 1NT openers by North with GIB analysis. South has <= than 12hcp. No shape restrictions on South 
+Generated 184 hands
+Produced  10 hands
+Initial random seed 149
+Time needed    3.633 sec

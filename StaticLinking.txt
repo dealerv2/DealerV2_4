@@ -1,0 +1,27 @@
+
+
+Basically, your first approach is the correct way to do this:
+
+gcc test.c libc.a -lm
+
+After gcc adds the implicit libraries it'll look (conceptually) like this:
+
+gcc crt1.o test.c libc.a -lm -lc -lgcc -lc
+
+So that means that any libc functions called by either crt1.o or test.c will be pulled in from libc.a and linked statically, whereas any functions called solely from libm or libgcc will be linked dynamically (but it will reuse the static functions if libm calls something already pulled in).
+
+The linker always starts at the left-most file/library, and works rightwards; it never goes back. .c and .o files are linked in unconditionally, but .a files and -l options are only used to find functions that are already referenced but not yet defined. Therefore, a library at the left is pointless (and -lc must appear twice because -lc depends on -lgcc, and -lgcc depends on -lc). Link order is important!
+
+Unfortunately, you appear to have been foiled by what might be a bug in strcmp (or rather in the libc that contains strcmp): the STT_GNU_IFUNC thing is a clever feature that allows multiple versions of a function to be included, and the most optimal one to be selected at runtime, based on what hardware is available. I'm not sure, but it looks like this feature is only available in a PIE (Position Independent Executable) or shared library build.
+
+Why that would be in a static libc.a is a mystery to me, but there's an easy workaround: implement your own strcmp (a basic, slow implementation is only a few lines of C), and link it in before libc.a.
+
+gcc test.c mystrcmp.c libc.a -lm
+
+Alternatively, you can extract the functions from libc.a that you really want, and link only those in statically:
+
+ar x libc.a
+gcc test.c somefile.o -lm
+
+ar is to .a files, as tar is to .tar files, although the command usage varies a bit, so this example extracts the .o files from the .a file, and then links them explicitly.
+

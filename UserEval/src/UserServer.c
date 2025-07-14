@@ -43,7 +43,7 @@
  *
  */
 #define SERVER_AUTHOR "JGM"
-#define SERVER_BUILD_DATE "2025/04/18"
+#define SERVER_BUILD_DATE "2025/07/01"
 
 #ifndef JGMDBG
    #define SERVER_NAME "DealerServer"
@@ -52,7 +52,7 @@
    int   jgmDebug = 0 ;  /* value will be passed in from Dealer if Debugging wanted */
 #else
    #define SERVER_NAME "DealerSrvdbg"
-   #define SERVER_VERSION "103.6.1"
+   #define SERVER_VERSION "103.6.2"
    #define START_WAIT 5000000     // wait 5 sec in debug version
    int jgmDebug = 1 ;  /* for Debug Version of Server always have a minimum at least */
 #endif

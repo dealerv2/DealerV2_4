@@ -21,17 +21,17 @@
 HCP   : Mean=   23.4000, Std Dev=    1.2732, Var=    1.6211, Sample Size=20 
 Berg  : Mean=   30.4000, Std Dev=    3.5895, Var=   12.8842, Sample Size=20 
 DKP   : Mean=   27.4500, Std Dev=    1.7313, Var=    2.9974, Sample Size=20 
-JGM   : Mean=   27.0000, Std Dev=    3.2444, Var=   10.5263, Sample Size=20 
-Karpin: Mean=   26.5500, Std Dev=    3.0517, Var=    9.3132, Sample Size=20 
+JGM   : Mean=   28.1500, Std Dev=    2.5808, Var=    6.6605, Sample Size=20 
+Karpin: Mean=   26.8000, Std Dev=    2.8764, Var=    8.2737, Sample Size=20 
 KnR   : Mean=   27.5000, Std Dev=    4.6283, Var=   21.4211, Sample Size=20 
 CCCC  : Mean=   25.7500, Std Dev=    3.1602, Var=    9.9868, Sample Size=20 
 LAR   : Mean=   25.5000, Std Dev=    1.4327, Var=    2.0526, Sample Size=20 
-Morse : Mean=   25.6500, Std Dev=    2.1095, Var=    4.4500, Sample Size=20 
+Morse : Mean=   25.1500, Std Dev=    1.9808, Var=    3.9237, Sample Size=20 
 Pav   : Mean=   27.9000, Std Dev=    3.5674, Var=   12.7263, Sample Size=20 
 4STrix: Mean=    9.6500, Std Dev=    1.1821, Var=    1.3974, Sample Size=20 
 
-Contract  3S  V by  NS Average Result =   124.50, Made pct=   85.00, Fail pct=   15.00
-Missed Game_pct=   60.00, Missed Slam_pct=   5.00, Missed Game Imps/board=   6.00, Missed Slam Imps/board=   0.80
+Contract  3S  V by NS Avg Result =  124.50, Made pct=  85.00, Fail pct=  15.00
+Missed Game_pct=  60.00, Missed Slam_pct=   5.00, Missed Game Imps/board=   6.00, Missed Slam Imps/board=   0.80
 
-Contract  4S  V by  NS Average Result =   319.50, Made pct=   60.00, Fail pct=   40.00
-Missed Game_pct=    0.00, Missed Slam_pct=   5.00, Missed Game Imps/board=   0.00, Missed Slam Imps/board=   0.65
+Contract  4S  V by NS Avg Result =  319.50, Made pct=  60.00, Fail pct=  40.00
+Missed Game_pct=   0.00, Missed Slam_pct=   5.00, Missed Game Imps/board=   0.00, Missed Slam Imps/board=   0.65

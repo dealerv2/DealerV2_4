@@ -1,7 +1,8 @@
 #!/bin/bash
+# 2025/06/29 Updated the default dealer Paths to use a symlink to /usr/local/games/DealerV2_4/bin/dealerv2
 TSTPGM=${1:-./dealerv2}
-REFPGM=${2:-/usr/local/bin/DealerV2/dealerv2}
-export DEALPGM
+REFPGM=${2:-/usr/local/bin/dealerv2}
+export TSTPGM
 export REFPGM
 
 function usage() {

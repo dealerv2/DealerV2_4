@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 # Create Test Output from the Regression tests only, using the version of dealer under test.
 # Run thru all the dealer specification files that end with .dli or .dlt and generate corresponding files that end with .dlo
-# This script should be in the same directory of the one with the .dli files it will be testing
+# This script should be in the same directory as the one with the .dli files it will be testing
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if ( 0 == scalar(@ARGV) ) { $exe_test = "../Prod/dealerv2 " ; }
 else { $exe_test = shift (@ARGV) ;  }   # should include the directory as well 
 $fileno = 0 ; 
-@files = <*.dli> ;    # dli files are in our current directory
+@files = <*.dli> ;    # dli files that are in our current directory
 foreach $input (@files) {
   # Loop over all files with suffix dli (Dealer Input)
   print "------------------------------------------------------------------\n";

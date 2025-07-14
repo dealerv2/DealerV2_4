@@ -3,7 +3,7 @@
 # Run thru all the dealer specification files that end with .dls, and generate corresponding files that end with .dlo
 #     Use the same set of script vars -0 to -9 for every file.
 #	   Process any .dlx files as individual exceptions at the end. e.g.swapping_s311.dlx
-# This script should be in the same directory of the one with the .dls files it will be testing
+# This script should be in the same directory as the one with the .dls files it will be testing
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 if ( 0 == scalar(@ARGV) ) { $exe_test = "../Prod/dealerv2 " ; }
 else { $exe_test = shift (@ARGV) ;  }   # should include the directory as well 
@@ -14,7 +14,7 @@ $scriptparms = q/-0 east -1 west -2 hcp -3 top4 -4 ltc -5 12 -6 6.5 -7 spade -8 
 $execmd = $exe_test . " -v -D0.0 " . $scriptparms ;
 # print "[[ "; print  $execmd ; print " ]]\n";
 $fileno = 0 ; 
-@files = <*.dls> ;    # dli files are in our current directory
+@files = <*.dls> ;    # dls files that are in our current directory
 foreach $input (@files) {
 		# Loop over all files with suffix dls (Dealer Input sith scripting)
 		print "------------------------------------------------------------------\n";

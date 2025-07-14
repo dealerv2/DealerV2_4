@@ -1,0 +1,41 @@
+generate 10000000
+produce 8
+seed 331
+
+// Version 2024/08/20  - UE Tag 40: HLDF vs NT evaluations
+
+
+title "Set 40 Test"
+
+condition  
+ 
+   hcp(south)+hcp(north) >= 23 && (hearts(north) + hearts(south)) >= 7
+
+action
+ 
+  printrpt( rnd(0), NS , hcp(north), hcp(south),hcp(north)+hcp(south),"trix=",dds(south,hearts), dds(south,notrump), "Trumps=",usereval(40,NS,126),usereval(40,NS,127)),   
+   printrpt( "Bergen::NT=",usereval(40,NS, 0),usereval(40,NS, 1),usereval(40,NS, 2),"HLDF",usereval(40,NS, 3),usereval(40,NS, 4),usereval(40,NS, 5),
+             "Bissel::NT=",usereval(40,NS, 6),usereval(40,NS, 7),usereval(40,NS, 8),"HLDF",usereval(40,NS, 9),usereval(40,NS,10),usereval(40,NS,11),
+             "DKPLJP::NT=",usereval(40,NS,12),usereval(40,NS,13),usereval(40,NS,14),"HLDF",usereval(40,NS,15),usereval(40,NS,16),usereval(40,NS,17),
+             "GOREN ::NT=",usereval(40,NS,18),usereval(40,NS,19),usereval(40,NS,20),"HLDF",usereval(40,NS,21),usereval(40,NS,22),usereval(40,NS,23) ),
+   printrpt( "KAPLAN::NT=",usereval(40,NS,24),usereval(40,NS,25),usereval(40,NS,26),"HLDF",usereval(40,NS,27),usereval(40,NS,28),usereval(40,NS,29),
+             "KARPIN::NT=",usereval(40,NS,30),usereval(40,NS,31),usereval(40,NS,32),"HLDF",usereval(40,NS,33),usereval(40,NS,34),usereval(40,NS,35),  
+             "KARP_B::NT=",usereval(40,NS,36),usereval(40,NS,37),usereval(40,NS,38),"HLDF",usereval(40,NS,39),usereval(40,NS,40),usereval(40,NS,41),
+             "KnRFIT::NT=",usereval(40,NS,42),usereval(40,NS,43),usereval(40,NS,44),"HLDF",usereval(40,NS,45),usereval(40,NS,46),usereval(40,NS,47)), 
+   printrpt( "LARSSN::NT=",usereval(40,NS,48),usereval(40,NS,49),usereval(40,NS,50),"HLDF",usereval(40,NS,51),usereval(40,NS,52),usereval(40,NS,53),
+             "LAR_B ::NT=",usereval(40,NS,54),usereval(40,NS,55),usereval(40,NS,56),"HLDF",usereval(40,NS,57),usereval(40,NS,58),usereval(40,NS,59),
+             "PAVLCK::NT=",usereval(40,NS,60),usereval(40,NS,61),usereval(40,NS,62),"HLDF",usereval(40,NS,63),usereval(40,NS,64),usereval(40,NS,65),             
+             "SHEINW::NT=",usereval(40,NS,66),usereval(40,NS,67),usereval(40,NS,68),"HLDF",usereval(40,NS,69),usereval(40,NS,70),usereval(40,NS,71)), 
+   printrpt( "ZARBAS::NT=",usereval(40,NS,72),usereval(40,NS,73),usereval(40,NS,74),"HLDF",usereval(40,NS,75),usereval(40,NS,76),usereval(40,NS,77), 
+             "ZARADV::NT=",usereval(40,NS,78),usereval(40,NS,79),usereval(40,NS,80),"HLDF",usereval(40,NS,81),usereval(40,NS,82),usereval(40,NS,83), 
+             "ROTH  ::NT=",usereval(40,NS,84),usereval(40,NS,85),usereval(40,NS,86),"HLDF",usereval(40,NS,87),usereval(40,NS,88),usereval(40,NS,89) 
+
+            )                         
+             
+             
+                                       
+   // Note set40 returns 6 vals for each metric. NT-side,N/E,S/W ; HLDF side, N/E, S/W
+  //    0        1       2     3      4      5        6      7    8    9     10     11       12      13     14     
+  // BERGEN=0, BISSEL,  DKP, GOREN, KAPLAN, KARPIN, KARP_B, KnR, LAR, LAR_B, PAV, SHEINW,  ZARBAS, ZARADV, ROTH,
+
+

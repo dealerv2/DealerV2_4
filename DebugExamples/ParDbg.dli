@@ -1,0 +1,10 @@
+generate 1000000
+produce 5
+
+#condition hcp(east) + hcp(west) >= 20
+action
+#   average "Average tricks EW Mx East With 3+ Diam AKx(x)  and 3+ Club Txx(x)"   MaxTricks,
+# printrpt(EW, " :: ", par(EW) , parcontract(none)),
+# printrpt("par EW, Vul:NS = ", par(EW, ns) , parcontract, parcontract(none),parcontract(ns),parcontract(ew),parcontract(both) )
+# printrpt("par EW, Vul:NS = ", par(EW, ns) , parcontract(ns) ),
+printrpt( "Par(NS)=", par(NS), parcontract  )

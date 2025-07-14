@@ -494,7 +494,7 @@ csvlist
         | par_contract 
 					{ $$ = new_csvterm(0,  0,    0,     0, 1<<$1, 0) ;   }  /* specify the Vulnerability for par contract string */
         | csvlist ',' par_contract 
-					{ $$ = new_csvterm(0,  0,    0,     0, 1<<$3,$1) ;   }  /* values will be 1,2,4,8,16 */
+					{ $$ = new_csvterm(0,  0,    0,     0, 1<<$3,$1) ;   }  /* values will be 1,2,4,8,16 16 says use global par_vuln set by -P switch or compile time value*/
         ;
 
 

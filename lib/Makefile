@@ -3,7 +3,7 @@
 #
 CC      = gcc $(CCFLAGS)
 CCFLAGS = -std=gnu17 -mtune=corei7 -flto -fopenmp -pthread -Wall -pedantic -O3 -I../include
-LDFLAGS = -L../lib -lm -ldds -ldealerV2
+LDFLAGS = -L../lib -ldealerV2 -ldds -lm 
 #LDFLAGS += --verbose
 
 LIBNAME  = libdealerV2.a
