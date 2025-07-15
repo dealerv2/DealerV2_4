@@ -1,17 +1,16 @@
 This is the directory Regression/Notes 
 The .dli files in the Regression directory all have a seed cmd in them; the seed number is typically a prime.
-The primes can be got from the ~/Programming/Perl5/Testing/primes_list.pl
+The primes can be got from the ~/Programming/Perl5/Testing/primes_list.pl or ./Code/primes_list.pl
 
 
 To find out the seeds type the cmd: (which will sort in increasing seed order)
 grep seed *.dli | sort  -k 2.1 -g
-as of 2024/06/22 the highest seed in use is:  313 which is the 65th prime
+as of 2025/06/30 the highest seed in use is:  #67 prime is = 337
 
 
 There is also a script that will check the .out  files in the Regression/Output/ directory vs the .ref files in the Refer sub-directory.
-The files that begin with HOW2 cannot be run in batch mode. 
-They are files that illustrate scripting a dealer file with parms passed in on the command line.
-List the file(s) for an example of how to use them.
-See the file, "README_HOW2.txt" for more details.
+
+As of 2024 there is a Makefile, and bash and Perl scripts that automate much of the process. See the README file in the Regression directory.
+
 ---------
 

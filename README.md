@@ -1,6 +1,6 @@
 # Dealer-Version-2_4
 Expanded Functionality for Bridge Dealer Program (Dealer Vers 1 used by BBO)
-This version uses GCC / g++ version 11.4 versions of the DDS librarie(s). and needs gcc version 11.4 to rebuild.
+This version uses GCC / g++ version 13.3.3 versions of the DDS librarie(s). and needs gcc version 13.3.3 to rebuild.
 It replaces the older Dealer-Version-2- which uses the obsolete gcc version 7.x
 
 See the README.pdf or README.odt file in the docs folder for a more complete description 
@@ -9,4 +9,6 @@ This repo has a binary ready to run on Linux in the Prod directory.
 The complete user guide is also in the docs directory.
 
 As of 2024-June-30 it has been verified that it is straightforward to get dealerv2 to run on Windows using WSL version2. 
-Use the Ubuntu version 22.04 when installing WSL. See the file docs/WSL_Install.txt
+Use the Ubuntu version 24.04 when installing WSL. See the file docs/WSL_Install.txt
+
+It is important to use the correct (Noble Numbat) version of Ubuntu since the dynamic link libraries from version 22.04 no longer work with this binary.
